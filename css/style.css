@@ -25,36 +25,41 @@ body {
 }
 
 .title {
-    margin-top:120px; /* Adjust to ensure it appears below the header */
+    margin-top:140px; /* Adjust to ensure it appears below the header */
     padding: 20px 100px;
     align-items: center;
-    font-size: 50px;
+    font-size: 22px;
     
 }
 
 .content {   
-    margin-top:100px; /* To push the content down so it doesn’t get covered by the header*/
     padding: 20px 100px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: flex-start;
 }
 
-.info h1{
-    font-size: 40px;
-}
 .info p{
     margin: 10px 0 20px;
+    font-size: 17px;
+    max-width: 480px;
+    text-align: justify;
+    padding-left: 0;     /* align with the title */
 }
 
 .button {
     display: inline-block;
     padding: 12px 50px;
-    background: rgb(135, 165, 188);
+    background: rgb(152, 175, 193);
     border-radius: 40px;
     box-shadow: 0 0px 10px rgb(150, 145, 145);
     font-size: 16px;
     color: rgb(0, 0, 0);
     text-decoration: none;
+}
+.home-image{ /*NOTE: This CSS code for home image */
+    width: 100px; /* Set the image size */
+    height: auto;  /* Maintain aspect ratio */
 }
 
 .logo img {
