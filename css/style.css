@@ -132,6 +132,11 @@ ul{
     margin: 0;
 }
 
-.form-container {
-    margin: 0 auto;
+/*register css*/
+.register-body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
 }
