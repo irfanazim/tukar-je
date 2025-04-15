@@ -73,3 +73,16 @@ body {
     color: rgb(0, 0, 0);
     text-decoration: underline;
 }
+
+/*login css*/
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.form-container {
+    margin: 0 auto;
+}
