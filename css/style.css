@@ -24,6 +24,41 @@ body {
     z-index: 100;
 }
 
+footer{
+    display: flex;
+    flex-wrap: wrap;
+    background: rgb(255, 255, 255);
+    margin-top: auto;
+    padding: 50px 100px;
+}
+
+ul{
+    list-style: none;
+}
+
+.footer-col{
+    width: 30%;
+    padding: 0 15px;
+    margin-top: 10px;
+}
+.footer-col h4{
+    position:relative;
+    margin-bottom: 30px;
+    font-weight: 400;
+    font-size: 22px;
+    text-transform: capitalize;
+}
+
+.footer-col ul li a, .footer-col ul li p{
+	font-size: 16px;
+	text-transform: none;
+	color: #ffffff;
+	text-decoration: none;
+	font-weight: 300;
+	color: rgb(152, 175, 193);
+	display: block;
+}
+
 .title {
     margin-top:140px; /* Adjust to ensure it appears below the header */
     padding: 20px 100px;
@@ -33,7 +68,7 @@ body {
 }
 
 .content {   
-    padding: 20px 100px;
+    padding: 35px 100px;
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
@@ -97,8 +132,13 @@ body {
     margin: 0;
 }
 
-.form-container {
-    margin: 0 auto;
+/*register css*/
+.register-body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
 }
 
 .table {
