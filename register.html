@@ -8,7 +8,7 @@
         <Title>Register-tukar-je</Title> 
     </head>
 
-    <body>
+    <body class="register-body">
         <header class="header">
             <a href="#" class ="logo">
                 <img src="images/Multimedia_University_logo.png" alt="MMU Logo">
@@ -22,10 +22,61 @@
             </nav>
         </header>
 
-        <div class="title">
-            <h2>Register to tukar-je</h2> <!--Placeholder as for now, will be change later on-->
-        </div>
+        <div class="form-container">
+            <div class="form-box"></div>
+                <h2>Register</h2>
+                <form action="#" method="POST"> <!--# is a placeholder-->
+                    <div class="input-box">
+                        <label for="fullname">Full Name</label>
+                        <input type="text" id="fullname" required>
+                    </div>
 
-        </header>
+                    <div class="input-box">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="studentid">Student ID</label>
+                        <input type="text" id="studentid" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+
+                    <div class="room-group"></div>
+                        <div class="hostel-select">
+                            <select id="hostel" required>
+                                <option value=""disabled selected>Hostel</option>
+                                <option value="HB1">HB1</option>
+                                <option value="HB2">HB2</option>
+                                <option value="HB3">HB3</option>
+                                <option value="HB4">HB4</option>
+                            </select>
+                    </div>
+                        <div class="block-select">
+                            <select id="block" required>
+                                <option value="" disabled selected>Block</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                            </select>
+                    </div>
+                    <div class="room-input">
+                        <input type="text" id="room" placeholder="Room" required>
+                    </div>
+
+                <button type="submit" class="submit-btn">Register</button>
+            </form>   
+
+            <div class="bottom-text">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+        </div>
+    </div>
+
+    </header>
     </body>
 </html>
