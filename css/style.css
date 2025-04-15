@@ -74,6 +74,15 @@ body {
     text-decoration: underline;
 }
 
+.section {
+    margin-top:110px; 
+    padding: 20px 100px;
+    align-items: center;
+    font-size: 25px;
+    padding-left: 20px;
+    
+}
+
 /*login css*/
 body {
     display: flex;
