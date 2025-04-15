@@ -82,3 +82,16 @@ body {
     padding-left: 20px;
     
 }
+
+/*login css*/
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.form-container {
+    margin: 0 auto;
+}
