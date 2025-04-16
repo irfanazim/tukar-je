@@ -5,25 +5,25 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/style.css">
-        <Title>Register-tukar-je</Title> 
+        <title>Register-tukar-je</title> 
     </head>
 
-    <body class="register-body">
+    <body>
         <header class="header">
-            <a href="#" class ="logo">
+            <a href="#" class="logo">
                 <img src="images/Multimedia_University_logo.png" alt="MMU Logo">
             </a>
             <nav class="navbar">
                 <a href="index.html">Home</a>
-                <a href="dashboard.html">Dashboard</a>
+    <!--        <a href="dashboard.html">Dashboard</a> -->
                 <a href="register.html">Register</a>
                 <a href="login.html">Login</a>
-                <a href="notification.html">Notifications</a>
+    <!--        <a href="notification.html">Notification</a>  -->
             </nav>
         </header>
 
         <div class="form-container">
-            <div class="form-box"></div>
+            <div class="form-box">
                 <h2>Register</h2>
                 <form action="#" method="POST"> <!--# is a placeholder-->
                     <div class="input-box">
@@ -46,16 +46,16 @@
                         <input type="password" id="password" required>
                     </div>
 
-                    <div class="room-group"></div>
+                    <div class="room-group">
                         <div class="hostel-select">
                             <select id="hostel" required>
-                                <option value=""disabled selected>Hostel</option>
+                                <option value="" disabled selected>Hostel</option>
                                 <option value="HB1">HB1</option>
                                 <option value="HB2">HB2</option>
                                 <option value="HB3">HB3</option>
                                 <option value="HB4">HB4</option>
                             </select>
-                    </div>
+                        </div>
                         <div class="block-select">
                             <select id="block" required>
                                 <option value="" disabled selected>Block</option>
@@ -63,20 +63,19 @@
                                 <option value="B">B</option>
                                 <option value="C">C</option>
                             </select>
-                    </div>
-                    <div class="room-input">
-                        <input type="text" id="room" placeholder="Room" required>
+                        </div>
+                        <div class="room-input">
+                            <input type="text" id="room" placeholder="Room" required>
+                        </div>
                     </div>
 
-                <button type="submit" class="submit-btn">Register</button>
-            </form>   
+                    <button type="submit" class="submit-btn">Register</button>
+                </form>   
 
-            <div class="bottom-text">
-                Already have an account? <a href="login.html">Login</a>
+                <div class="bottom-text">
+                    Already have an account? <a href="login.html">Login</a>
+                </div>
             </div>
         </div>
-    </div>
-
-    </header>
     </body>
 </html>

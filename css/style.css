@@ -136,22 +136,16 @@ ul li a:hover{
     
 }
 
-/*login css*/
-.login-body{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-}
+/*Register and Login Page css*/
 
-/*register css*/
-.register-body{
+.form-container {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
-    margin: 0;
+    padding: 150px 20px 20px 20px;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 .table {
