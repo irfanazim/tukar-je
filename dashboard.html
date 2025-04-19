@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MMU Tukar-je</title>
+    <link rel="stylesheet" href="css/style.css"> <!-- Link to your CSS file -->
+    <style>
+        /* Basic styling to mimic the layout - consider moving to style.css */
+        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; }
+        .header { background-color: #fff; padding: 10px 20px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; }
+        .header .logo { font-weight: bold; }
+        .header nav a { margin-left: 15px; text-decoration: none; color: #333; }
+        .container { padding: 20px; }
+        .dashboard-title { font-size: 1.5em; font-weight: bold; margin-bottom: 20px; margin-top: 50px; }
+        .card-container { display: flex; gap: 20px; margin-bottom: 30px; }
+        .card { background-color: #e0e0e0; padding: 20px; text-align: center; border-radius: 5px; flex: 1; }
+        .card h3 { margin-top: 0; margin-bottom: 15px; }
+        .card button { background-color: #8bc34a; color: white; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer; font-size: 1em; }
+        .history-section h3 { margin-bottom: 10px; }
+        .history-content { background-color: #e0e0e0; min-height: 150px; border-radius: 5px; padding: 15px; } /* Placeholder for history */
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">MMU Tukar-je</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="notification.html">Notification</a>
+            <a href="#">Logout</a> <!-- Add logout functionality later -->
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2 class="dashboard-title">DASHBOARD</h2>
+
+        <div class="card-container">
+            <div class="card">
+                <h3>Swap Request</h3>
+                <button>CREATE</button>
+            </div>
+            <div class="card">
+                <h3>Hostel Map</h3>
+                <button>CHECKOUT</button> <!-- Assuming CHECKOUT relates to Hostel Map -->
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3>History and Status</h3>
+            <div class="history-content">
+                <!-- Content for history and status will go here -->
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
