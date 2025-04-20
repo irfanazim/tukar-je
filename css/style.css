@@ -136,6 +136,67 @@ ul li a:hover{
     
 }
 
+/*Dashboord Page css*/
+.title2 {
+    margin-top: 120px;
+    padding: 20px 100px;
+    font-size: 22px;
+}
+
+.dashboard-container {
+    padding: 0 100px;
+    margin-top: 30px;
+    margin-bottom: 50px;
+}
+
+.dashboard-row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.dashboard-card {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    width: 100%;
+    min-height: 200px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.wide-card {
+    width: 100%;
+    min-height: 250px;
+}
+
+.dashboard-card h3 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.card-btn {
+    display: inline-block;
+    padding: 10px 25px;
+    background: #034EA1;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.card-btn:hover {
+    background: #002d5c;
+}
+
+.status-content {
+    margin-top: 20px;
+}
+
+
 /*Register and Login Page css*/
 
 .form-container {
