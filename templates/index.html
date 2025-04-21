@@ -4,22 +4,26 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <title>tukar-je</title>
     </head>
 
     <body>
         <header class="header">
             <div class="logo">
-                <img src="images/Multimedia_University_logo.png" alt="MMU Logo">
-                <img src="images/tukar_logo.png" alt="Tukar Logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
             </div>
             <nav class="navbar">
-                <a href="index.html">Home</a>
-    <!--        <a href="dashboard.html">Dashboard</a> -->
-                <a href="register.html">Register</a>
-                <a href="login.html">Login</a>
-    <!--        <a href="notification.html">Notification</a>  -->
+                <a href="{{ url_for('index') }}">Home</a>
+                {% if logged_in %}
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a href="#">Notification</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('register') }}">Register</a>
+                    <a href="{{ url_for('login') }}">Login</a>
+                {% endif %}
             </nav>
         </header>
 
@@ -31,10 +35,11 @@
             <div class="info">
                 <p>A simple platform for MMU students who wants to swap rooms with other fellow residents.
                   Whether you're looking for a quieter space or a specific block, you can easily browse available listings based on your preferences. Find rooms based on your preferences, make a request, and get approval from the hostel management. Simple, convenient, and made to improve hostel life for the MMU community! </p>
-               <a href="register.html" class="button">Get Started</a>
-            </div>
-            <div class="home-image">
-    <!--    <img src="" alt="Home Image"> NOTE: This is the html code for the home image-->
+                {% if not logged_in %}
+                    <a href="{{ url_for('register') }}" class="button">Get Started</a>
+                {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="button">Go to Dashboard</a>
+                {% endif %}
             </div>
         </div>
         
@@ -43,7 +48,7 @@
             <div class="footer-col">
                 <ul>
                 <div class="logo">
-                <img src="images/tukar_logo.png" alt="Tukar Logo"></div>
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
                     <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
                 </ul>
             </div>
