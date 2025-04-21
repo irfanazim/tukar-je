@@ -1,6 +1,26 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
+from werkzeug.security import generate_password_hash, check_password_hash
+import os
+import secrets
+from datetime import datetime, timedelta, timezone
+from dotenv import load_dotenv
+from email_validator import validate_email, EmailNotValidError
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
+
+# Basic configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(16))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tukar_je.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize extensions
+db = SQLAlchemy(app)
+mail = Mail(app)
 
 @app.route('/')
 def index():
