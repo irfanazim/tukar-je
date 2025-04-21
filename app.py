@@ -4,7 +4,6 @@ from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import secrets
-from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from email_validator import validate_email, EmailNotValidError
 
@@ -17,6 +16,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tukar_je.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Email configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_DEBUG'] = True
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -34,9 +42,17 @@ class User(db.Model):
     room = db.Column(db.String(10), nullable=False)
     is_verified = db.Column(db.Boolean, default=False)
     verification_token = db.Column(db.String(100), unique=True)
-    verification_token_expiry = db.Column(db.DateTime(timezone=True))
     reset_token = db.Column(db.String(100), unique=True)
-    reset_token_expiry = db.Column(db.DateTime(timezone=True))
+
+# Email validation function
+def is_valid_mmu_email(email):
+    try:
+        # first validate the email format
+        validate_email(email)
+        # then check if its an mmu student email
+        return email.endswith('@student.mmu.edu.my')
+    except EmailNotValidError:
+        return False
 
 @app.route('/')
 def index():
@@ -64,6 +80,13 @@ def register():
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
+
+# http://localhost:5000/test-email/test@student.mmu.edu.my
+# http://localhost:5000/test-email/test@gmail.com
+@app.route('/test-email/<email>')
+def test_email(email):
+    is_valid = is_valid_mmu_email(email)
+    return f"Email: {email}<br>Is valid MMU email: {is_valid}"
 
 if __name__ == '__main__':
     with app.app_context():
