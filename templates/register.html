@@ -4,29 +4,34 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <title>Register-tukar-je</title> 
     </head>
 
     <body>
         <header class="header">
             <a href="#" class="logo">
-                <img src="images/Multimedia_University_logo.png" alt="MMU Logo">
-                <img src="images/tukar_logo.png" alt="Tukar Logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
             </a>
             <nav class="navbar">
-                <a href="index.html">Home</a>
-    <!--        <a href="dashboard.html">Dashboard</a> -->
-                <a href="register.html">Register</a>
-                <a href="login.html">Login</a>
-    <!--        <a href="notification.html">Notification</a>  -->
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('register') }}">Register</a>
+                <a href="{{ url_for('login') }}">Login</a>
             </nav>
         </header>
 
         <div class="form-container">
             <div class="form-box">
                 <h2>Register</h2>
-                <form action="#" method="POST"> <!--# is a placeholder-->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="{{ url_for('register') }}" method="POST"> 
                     <div class="input-box">
                         <label for="fullname">Full Name</label>
                         <input type="text" id="fullname" required>
@@ -35,6 +40,7 @@
                     <div class="input-box">
                         <label for="email">Email</label>
                         <input type="email" id="email" required>
+                        <small class="email-hint">Please use your MMU student email (@student.mmu.edu.my)</small>
                     </div>
 
                     <div class="input-box">
@@ -74,7 +80,7 @@
                 </form>   
 
                 <div class="bottom-text">
-                    Already have an account? <a href="login.html">Login</a>
+                    Already have an account? <a href="{{ url_for('login') }}">Login</a>
                 </div>
             </div>
         </div>
