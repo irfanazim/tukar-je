@@ -10,7 +10,7 @@
 
     <body>
         <header class="header">
-            <a href="#" class="logo">
+            <a  class="logo">
                 <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
                 <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
             </a>
@@ -89,7 +89,7 @@
             <div class="footer-col">
                 <ul>
                 <div class="logo">
-                <img src="images/tukar_logo.png" alt="Tukar Logo"></div>
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
                     <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
                 </ul>
             </div>
