@@ -3,6 +3,8 @@ import secrets
 from datetime import timedelta
 from flask import session, current_app, url_for
 from flask_mail import Message
+
+from app.models import Notification
 from . import mail, db
 
 def is_valid_mmu_email(email):
@@ -66,3 +68,33 @@ def send_verification_email(user):
         db.session.rollback()
         user.verification_token = None 
         return False 
+
+def create_notification(user_id, message, notification_type):
+    notification = Notification(
+        user_id=user_id,
+        message=message,
+        is_read=False,
+        notification_type=notification_type
+    )
+    db.session.add(notification)
+    db.session.commit()
+    return notification
+
+def get_user_notifications(user_id):
+    return Notification.query.filter_by(user_id=user_id).all()
+
+def mark_notification_as_read(notification_id, user_id):
+    notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
+    if notification:
+        notification.is_read = True
+        db.session.commit()
+        return True
+    return False
+
+def mark_notification_as_read(notification_id, user_id):
+    notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
+    if notification:
+        notification.is_read = True
+        db.session.commit()
+        return True
+    return False

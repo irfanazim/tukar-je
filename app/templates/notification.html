@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <title>tukar-je</title>
+    </head>
+    
+    <body>
+        <header class="header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+            </div>
+            <nav class="navbar">
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a> 
+                <a href="{{ url_for('main.logout') }}">Logout</a> 
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                <span class="material-icons">notifications</span>
+                </button></a>
+            </nav>
+        </header>
+
+        <div class="notifications-card">
+            <div class="lines"><button></button></div>
+            <h2>Notifications</h2>
+
+      <div class="notification-list">
+    {% for notification in notifications %}
+    <div class="notification-item {% if not notification.is_read %}unread{% endif %}" data-id="{{ notification.id }}">
+        <div class="notification-content">
+            <span class="notification-status">
+                {% if not notification.is_read %}• New{% endif %}
+            </span>
+            <p class="notification-message">{{ notification.message }}</p>
+            <div class="notification-actions">
+                <button type="button" class="delete-notification" data-id="{{ notification.id }}" title="Delete">✕</button>
+                {% if not notification.is_read %}
+                <button type="button" class="mark-read" data-id="{{ notification.id }}" title="Mark as Read">✓</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-notifications">
+        <p>You have no notifications at this time.</p>
+    </div>
+    {% endfor %}                
+</div>
+    
+<!-- Javascript used for the notification system -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Mark single notification as read
+    document.querySelectorAll('.mark-read').forEach(button => {
+    button.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        const notificationItem = this.closest('.notification-item');
+        const notificationId = notificationItem.dataset.id;
+
+        fetch(`/mark-as-read/${notificationId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                notificationItem.classList.remove('unread');
+
+                // Remove "Mark as Read" button
+                const markReadButton = notificationItem.querySelector('.mark-read');
+                if (markReadButton) markReadButton.remove();
+
+                // Remove the "• New" indicator
+                const statusDot = notificationItem.querySelector('.notification-status');
+                if (statusDot) statusDot.remove();
+            }
+        });
+    });
+});
+
+    // Delete notification
+    document.querySelectorAll('.delete-notification').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent page reload
+            
+            const notificationItem = this.closest('.notification-item');
+            const notificationId = this.getAttribute('data-id');
+            
+            fetch(`/delete-notification/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the notification from the UI
+                    notificationItem.remove();
+                }
+            });
+        });
+    });
+});
+        </script>
+    </body>
+</html>
