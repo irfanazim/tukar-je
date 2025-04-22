@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <title>tukar-je</title>
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+            </div>
+            <nav class="navbar">
+                <a href="{{ url_for('main.index') }}">Home</a>
+                {% if logged_in %}
+                    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                    <a href="#">Notification</a>
+                    <a href="{{ url_for('main.logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('main.register') }}">Register</a>
+                    <a href="{{ url_for('main.login') }}">Login</a>
+                {% endif %}
+            </nav>
+        </header>
+
+        <div class="title">
+            <h1>Welcome to tukar-je!</h1>
+        </div>
+
+        <div class="content">
+            <div class="info">
+                <p>A simple platform for MMU students who wants to swap rooms with other fellow residents.
+                  Whether you're looking for a quieter space or a specific block, you can easily browse available listings based on your preferences. Find rooms based on your preferences, make a request, and get approval from the hostel management. Simple, convenient, and made to improve hostel life for the MMU community! </p>
+                {% if not logged_in %}
+                    <a href="{{ url_for('main.register') }}" class="button">Get Started</a>
+                {% else %}
+                    <a href="{{ url_for('main.dashboard') }}" class="button">Go to Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+        
+
+        <footer>
+            <div class="footer-col">
+                <ul>
+                <div class="logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
+                    <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="">About</a></li>
+                    <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
+                    <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="#">support@mmu.com</a></li>
+                </ul>
+            </div> 
+        </footer>
+
+    </body>
+</html>
