@@ -19,6 +19,3 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
     MAIL_DEBUG = True
-    
-    # Session configuration
-    PERMANENT_SESSION_LIFETIME = 3600  # 1 hour in seconds 
