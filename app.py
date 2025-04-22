@@ -280,9 +280,42 @@ def dashboard():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index')) 
+    
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True) 
+# Sample data for requests 
+requests_data = [
+        {"name": "Nafis", "current": "Hostel A", "desired": "Hostel B", "type": "Single", "status": "pending", "date": "02-03-2025"},
+        {"name": "Azim", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "pending", "date": "03-04-2025"},
+        {"name": "Megat", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "pending", "date": "05-04-2025"}
+    ]
+@main.route('/admin/requests')
+def swap_requests():
+    search_query = request.args.get('search','').lower()
+    status_filter = request.args.get('status', 'all')
+    
+    filtered_requests = []
+    for r in requests_data:
+        if (search_query in r['name'].lower()) and (status_filter == 'all' or r['status'] == status_filter):
+            filtered_requests.append(r)
+
+    return render_template('admin_requests.html', requests=filtered_requests, search=search_query, status=status_filter)
+
+@main.route('/admin/approve', methods=['POST'])
+def approve_request():
+    name = request.form['name']
+    for r in requests_data:
+        if r['name'] == name:
+            r['status'] = 'approved'
+            break
+    return redirect(url_for('main.swap_requests'))
+
+@main.route('/admin/reject', methods=['POST'])
+def reject_request():
+    name = request.form['name']
+    for r in requests_data:
+        if r['name'] == name:
+            r['status'] = 'rejected'
+            break
+    return redirect(url_for('main.swap_requests'))
+
