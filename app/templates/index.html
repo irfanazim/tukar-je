@@ -15,14 +15,14 @@
                 <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
             </div>
             <nav class="navbar">
-                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('main.index') }}">Home</a>
                 {% if logged_in %}
-                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
                     <a href="#">Notification</a>
-                    <a href="{{ url_for('logout') }}">Logout</a>
+                    <a href="{{ url_for('main.logout') }}">Logout</a>
                 {% else %}
-                    <a href="{{ url_for('register') }}">Register</a>
-                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('main.register') }}">Register</a>
+                    <a href="{{ url_for('main.login') }}">Login</a>
                 {% endif %}
             </nav>
         </header>
@@ -36,9 +36,9 @@
                 <p>A simple platform for MMU students who wants to swap rooms with other fellow residents.
                   Whether you're looking for a quieter space or a specific block, you can easily browse available listings based on your preferences. Find rooms based on your preferences, make a request, and get approval from the hostel management. Simple, convenient, and made to improve hostel life for the MMU community! </p>
                 {% if not logged_in %}
-                    <a href="{{ url_for('register') }}" class="button">Get Started</a>
+                    <a href="{{ url_for('main.register') }}" class="button">Get Started</a>
                 {% else %}
-                    <a href="{{ url_for('dashboard') }}" class="button">Go to Dashboard</a>
+                    <a href="{{ url_for('main.dashboard') }}" class="button">Go to Dashboard</a>
                 {% endif %}
             </div>
         </div>

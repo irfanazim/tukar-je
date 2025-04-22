@@ -15,9 +15,9 @@
                 <img src="{{ url_for('static', filename='images/tukar_logo.png') }}">
             </a>
             <nav class="navbar">
-                <a href="{{ url_for('index') }}">Home</a>
-                <a href="{{ url_for('register') }}">Register</a>
-                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.register') }}">Register</a>
+                <a href="{{ url_for('main.login') }}">Login</a>
             </nav>
         </header>
 
@@ -31,7 +31,7 @@
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
-                <form action="{{ url_for('login') }}" method="POST">
+                <form action="{{ url_for('main.login') }}" method="POST">
                     <div class="input-box">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" required>
@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="forgot-password">
-                        <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+                        <a href="{{ url_for('main.forgot_password') }}">Forgot password?</a>
                     </div>
 
                     <div class="remember-me">
@@ -57,7 +57,7 @@
                     <button type="submit" class="submit-btn">Login</button>
 
                     <div class="bottom-text">
-                        Don't have an account? <a href="{{ url_for('register') }}">Register</a>
+                        Don't have an account? <a href="{{ url_for('main.register') }}">Register</a>
                     </div>
                 </div>
             </div>

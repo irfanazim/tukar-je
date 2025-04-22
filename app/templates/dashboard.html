@@ -15,10 +15,10 @@
                 <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
             </div>
             <nav class="navbar">
-                <a href="{{ url_for('index') }}">Home</a>
-                <a href="{{ url_for('dashboard') }}">Dashboard</a> 
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a> 
                 <a href="#">Notification</a>
-                <a href="{{ url_for('logout') }}">Logout</a> 
+                <a href="{{ url_for('main.logout') }}">Logout</a> 
             </nav>
         </header>
         
