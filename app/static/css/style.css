@@ -135,6 +135,175 @@ ul li a:hover{
     padding-left: 70px;
     
 }
+/* Notification Page css*/
+
+.icon-button{
+    position: relative;
+    cursor: pointer;
+    color: #000000;
+    background: #dddddd;
+    border: none;
+    outline: none;
+    border-radius: 47%;
+    margin-left: 10px;
+    width: 45px; 
+    height: 45px
+}
+
+.icon-button:hover {
+    cursor: pointer;
+  }
+  
+.icon-button:active {
+    background: #cccccc;
+  }
+  
+.icon-button__badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 25px;
+    height: 25px;
+    background: red;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 90%;
+  }
+
+.notifications-container {
+    max-width: 800px;
+    margin: 25px auto;
+    padding: 33px;
+ }
+    
+.notifications-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+ }
+    
+.notifications-card h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+    
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+    
+.notification-item {
+    background: #f9f9f9;
+    border-left: 4px solid #3498db;
+    padding: 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+    
+.notification-item:hover {
+    background: #f1f1f1;
+    transform: translateX(5px);
+}
+    
+.notification-item.unread {
+    background: #e8f4fc;
+    border-left: 4px solid #2980b9;
+}
+    
+.notification-date {
+    display: block;
+    font-size: 0.8em;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+    
+.notification-message {
+    margin: 0;
+    color: #2c3e50;
+    }
+    
+.notification-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+    
+.notification-actions button {
+    background: none;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    font-size: 0.8em;
+    padding: 3px 6px;
+ }
+    
+.notification-actions button:hover {
+    text-decoration: underline;
+}
+    
+.lines{
+    text-align: right;
+    margin-bottom: 15px;
+}
+    
+   
+.empty-notifications {
+    text-align: center;
+    color: #7f8c8d;
+    padding: 30px;
+    font-style: italic;
+}
+    
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7em;
+}
+
+.notification-dropdown {
+    position: absolute;
+    right: 10px;
+    top: 60px;
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 250px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 1000;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.notification-item.error {
+    color: red;
+}
+
+.notification-item.success {
+    color: green;
+}
 
 /*Dashboord Page css*/
 .title2 {
