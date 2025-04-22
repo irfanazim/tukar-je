@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, jsonify, render_template, request, redirect, url_for, flash, session
 from . import db, mail
-from .models import User
-from .utils import (is_valid_mmu_email, is_logged_in, generate_token, 
+from .models import Notification, User
+from .utils import (create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, generate_token, 
                    setup_user_session, send_email, send_2fa_email,
                    send_verification_email)
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -124,6 +124,12 @@ def verify_2fa():
 
     user = User.query.get(session['temp_user_id'])
     setup_user_session(user, session.get('remember_me', False))
+    create_notification(
+        user_id=user.id,
+        message="You have successfully logged in to your account.",
+        notification_type='login'
+    )
+    flash('Logged in successfully!')
     return redirect(url_for('main.dashboard'))
 
 @main.route('/forgot-password', methods=['GET', 'POST'])
@@ -191,42 +197,36 @@ def dashboard():
 def logout():
     session.clear()
     return redirect(url_for('main.index')) 
-    
 
-# Sample data for requests 
-requests_data = [
-        {"name": "Nafis", "current": "Hostel A", "desired": "Hostel B", "type": "Single", "status": "pending", "date": "02-03-2025"},
-        {"name": "Azim", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "pending", "date": "03-04-2025"},
-        {"name": "Megat", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "pending", "date": "05-04-2025"}
-    ]
-@main.route('/admin/requests')
-def swap_requests():
-    search_query = request.args.get('search','').lower()
-    status_filter = request.args.get('status', 'all')
-    
-    filtered_requests = []
-    for r in requests_data:
-        if (search_query in r['name'].lower()) and (status_filter == 'all' or r['status'] == status_filter):
-            filtered_requests.append(r)
+#Notification system
+@main.route('/notification')
+def notification():
+    if not is_logged_in():
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
+    user_notifications = get_user_notifications(user_id)
+    return render_template('notification.html', notifications=user_notifications)
 
-    return render_template('admin_requests.html', requests=filtered_requests, search=search_query, status=status_filter)
+@main.route('/mark-as-read/<int:notification_id>', methods=['POST'])
+def mark_notification_as_read(notification_id):
+    notification = Notification.query.get(notification_id)
+    if notification:
+        notification.is_read = True
+        db.session.commit()
+        return jsonify({"success": True})
+    return jsonify({"success": False, "message": "Notification not found"})
 
-@main.route('/admin/approve', methods=['POST'])
-def approve_request():
-    name = request.form['name']
-    for r in requests_data:
-        if r['name'] == name:
-            r['status'] = 'approved'
-            break
-    return redirect(url_for('main.swap_requests'))
+@main.route('/delete-notification/<int:notification_id>', methods=['POST'])
+def delete_notification(notification_id):
+    if not is_logged_in():
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
-@main.route('/admin/reject', methods=['POST'])
-def reject_request():
-    name = request.form['name']
-    for r in requests_data:
-        if r['name'] == name:
-            r['status'] = 'rejected'
-            break
-    return redirect(url_for('main.swap_requests'))
+    user_id = session.get('user_id')
+    notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
+    if not notification:
+        return jsonify({'success': False, 'message': 'Notification not found'}), 404
 
-     
+    db.session.delete(notification)
+    db.session.commit()
+    return jsonify({'success': True})

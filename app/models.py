@@ -12,3 +12,13 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, default=False)
     verification_token = db.Column(db.String(100), unique=True)
     reset_token = db.Column(db.String(100), unique=True)
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
+    message = db.Column(db.String(255))
+    is_read = db.Column(db.Boolean, default=False)
+    notification_type = db.Column(db.String(50))
+
+    def __repr__(self):
+        return f'<Notification {self.id} - {self.message}>'
