@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from . import db, mail
 from .models import User
 from .utils import (is_valid_mmu_email, is_logged_in, generate_token, 
-                   setup_user_session, send_email, send_2fa_email)
+                   setup_user_session, send_email, send_2fa_email,
+                   send_verification_email)
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 
@@ -25,6 +26,7 @@ def register():
             'room': request.form.get('room')
         }
 
+
         if not is_valid_mmu_email(form_data['email']):
             flash('Please use a valid MMU student email address', 'error')
             return redirect(url_for('main.register'))
@@ -37,7 +39,6 @@ def register():
             flash('Student ID already registered', 'error')
             return redirect(url_for('main.register'))
 
-        verification_token = generate_token()
         user = User(
             fullname=form_data['fullname'],
             email=form_data['email'],
@@ -46,12 +47,11 @@ def register():
             hostel=form_data['hostel'],
             block=form_data['block'],
             room=form_data['room'],
-            verification_token=verification_token
         )
 
         try:
             db.session.add(user)
-            
+
             if send_verification_email(user):
                 flash('Registration successful! Please check your email to verify your account.', 'success')
                 return redirect(url_for('main.login'))
@@ -61,6 +61,7 @@ def register():
 
         except Exception as e:
             db.session.rollback()
+            print(f"Error during user registration: {str(e)}")
             flash('An error occurred during registration. Please try again.', 'error')
             return redirect(url_for('main.register'))
 

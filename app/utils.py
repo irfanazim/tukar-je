@@ -1,9 +1,9 @@
 from email_validator import validate_email, EmailNotValidError
 import secrets
 from datetime import timedelta
-from flask import session, current_app
+from flask import session, current_app, url_for
 from flask_mail import Message
-from . import mail
+from . import mail, db
 
 def is_valid_mmu_email(email):
     try:
@@ -46,12 +46,11 @@ If you did not request this code, please ignore this email.
 Best regards,
 Tukar-Je Support Team
 '''
-    send_email('Your Tukar-Je Login Verification Code', user.email, body) 
+    send_email('Your Tukar-Je Login Verification Code', user.email, body)
 
 def send_verification_email(user):
     verification_token = generate_token()
     user.verification_token = verification_token
-    
     try:
         db.session.add(user) 
         db.session.commit()
@@ -65,5 +64,5 @@ def send_verification_email(user):
     except Exception as e:
         print(f"Error sending verification email: {str(e)}")
         db.session.rollback()
-        user.verification_token = None
+        user.verification_token = None 
         return False 
