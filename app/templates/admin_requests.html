@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/style.css">
+        <title>Swap Requests</title>
+    </head>
+    <body>
+        <header class="header">
+          <div class="logo">
+            <img src="images/Multimedia_University_logo.png" alt="MMU Logo">
+            <img src="images/tukar_logo.png" alt="Tukar Logo">
+        </div>
+            <nav class="navbar">
+                <a href="index.html">Home</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="notification.html">Notification</a>
+                <a href="logout.html">Logout</a>
+                
+            </nav>
+            
+        </header>
+        
+        <div class="section">
+            <h2>Swap Requests</h2>
+        </div>
+        <div class="nav-wrapper">
+            <div class="nav-icon">☰</div>
+            <nav class="sidebar">
+              <ul>
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">Requests</a></li>
+                <li><a href="#">Students</a></li>
+                <li><a href="#">Settings</a></li>
+              </ul>
+            </nav>
+          </div>
+
+          <div class="table-controls">
+            <!-- Search Bar -->
+            <div class="search-container">
+              <input type="text" id="search-input" placeholder="Search...">
+              <span class="search-icon">🔍</span>
+            </div>
+          
+            <!-- Status Filter -->
+            <div class="filter-container">
+              <select id="status-filter">
+                <option value="all"> Filter Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+
+        <table class="table"  border="1">
+            <thead>
+            <tr>
+                <th>Name</th>            
+                <th>Current Hostel</th>
+                <th>Desired Hostel</th>
+                <th>Room Type</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <!-- just tryna show how the table works-->
+            <tr>
+                <td>Nafis</td>
+                <td>Hostel A</td>
+                <td>Hostel B</td>
+                <td>Single</td>
+                <td class="status"><span class="status-pending">⏳Pending</span></td>
+                <td>02-03-2025</td>
+                <td class="actions">
+                    <button class="btn-approve">Approve</button>
+                    <button class="btn-reject">Reject</button></td></tr>
+            <tr>
+                <td>Azim</td>
+                <td>Hostel B</td>
+                <td>Hostel A</td>
+                <td>Double</td>
+                <td><span class="status-approved"> ✅ Approved</span></td>
+                <td>03-04-2025</td>
+                <td class="actions">
+                    <button class="btn-approve" disabled>Approve</button>
+                    <button class="btn-reject" disabled>Reject</button></td></tr>
+            <tr>
+                <td>Megat</td>
+                <td>Hostel B</td>
+                <td>Hostel A</td>
+                <td>Double</td>
+                <td><span class="status-rejected"> ❌ Rejected</span></td>
+                <td>05-04-2025</td>
+                <td class="actions">
+                    <button class="btn-approve" disabled>Approve</button>
+                    <button class="btn-reject" disabled>Reject</button></td>
+        </table>
+
+        <footer>
+          <div class="footer-col">
+              <ul>
+              <div class="logo">
+              <img src="images/tukar_logo.png" alt="Tukar Logo"></div>
+                  <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+              </ul>
+          </div>
+          <div class="footer-col">
+              <h4>Quick Links</h4>
+              <ul>
+                  <li><a href="">About</a></li>
+                  <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
+                  <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+              </ul>
+          </div>
+          <div class="footer-col">
+              <h4>Contact Us</h4>
+              <ul>
+                  <li><a href="#">support@mmu.com</a></li>
+              </ul>
+          </div> 
+      </footer>
+    </body>
+</html>
