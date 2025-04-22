@@ -23,7 +23,7 @@
             <div class="form-box">
                 <h2>Verify 2FA Code</h2>
                 <p class="info-text">Please enter the 2FA code sent to your email.</p>
-                <form action="{{ url_for('main.verify_2fa') }}" method="POST">
+                <form action="{{ url_for('verify_2fa') }}" method="POST">
                     <div class="input-box">
                         <label for="2fa_code">2FA Code</label>
                         <input type="text" id="2fa_code" name="2fa_code" required>
@@ -33,7 +33,7 @@
                 </form>
 
                 <div class="bottom-text">
-                    <a href="{{ url_for('main.login') }}">Back to Login</a>
+                    <a href="{{ url_for('login') }}">Back to Login</a>
                 </div>
             </div>
         </div>
