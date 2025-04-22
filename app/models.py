@@ -1,10 +1,9 @@
 from . import db
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.String(20), primary_key=True)
     fullname = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    student_id = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     hostel = db.Column(db.String(10), nullable=False)
     block = db.Column(db.String(1), nullable=False)
