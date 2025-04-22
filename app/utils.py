@@ -47,3 +47,23 @@ Best regards,
 Tukar-Je Support Team
 '''
     send_email('Your Tukar-Je Login Verification Code', user.email, body) 
+
+def send_verification_email(user):
+    verification_token = generate_token()
+    user.verification_token = verification_token
+    
+    try:
+        db.session.add(user) 
+        db.session.commit()
+
+        verification_url = url_for('main.verify_email', token=verification_token, _external=True)
+        subject = 'Verify Your Email - Tukar-Je'
+        body = f'''Please click the following link to verify your email:
+{verification_url}'''
+        send_email(subject, user.email, body)
+        return True 
+    except Exception as e:
+        print(f"Error sending verification email: {str(e)}")
+        db.session.rollback()
+        user.verification_token = None
+        return False 

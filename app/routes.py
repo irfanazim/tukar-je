@@ -25,8 +25,6 @@ def register():
             'room': request.form.get('room')
         }
 
-        # Check if any required field is missing
-
         if not is_valid_mmu_email(form_data['email']):
             flash('Please use a valid MMU student email address', 'error')
             return redirect(url_for('main.register'))
@@ -53,16 +51,14 @@ def register():
 
         try:
             db.session.add(user)
-            db.session.commit()
-
-            verification_url = url_for('main.verify_email', token=verification_token, _external=True)
-            body = f'''Please click the following link to verify your email:
-{verification_url}'''
-
-            send_email('Verify Your Email - Tukar-Je', form_data['email'], body)
             
-            flash('Registration successful! Please check your email to verify your account.', 'success')
-            return redirect(url_for('main.login'))
+            if send_verification_email(user):
+                flash('Registration successful! Please check your email to verify your account.', 'success')
+                return redirect(url_for('main.login'))
+            else:
+                flash('Registration successful, but failed to send verification email. Please contact support.', 'warning')
+                return redirect(url_for('main.login'))
+
         except Exception as e:
             db.session.rollback()
             flash('An error occurred during registration. Please try again.', 'error')
