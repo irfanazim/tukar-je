@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <title>Swap Requests</title>
     </head>
     <body>
@@ -12,51 +13,61 @@
             <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png')}}" alt="MMU Logo">
             <img src="{{url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
         </div>
-            <nav class="navbar">
-                <a href="{{ url_for('main.index') }}">Home</a>
-                <a href="{{ url_for('main.dashboard') }}">Dashboard</a> 
-                <a href="#">Notification</a>
-                <a href="{{ url_for('main.logout') }}">Logout</a> 
-                
-            </nav>
+        <nav class="navbar">
+          <a href="{{ url_for('main.index') }}">Home</a>
+          <a href="{{ url_for('main.dashboard') }}">Dashboard</a> 
+          <a href="{{ url_for('main.logout') }}">Logout</a> 
+          <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+          <span class="material-icons">notifications</span>
+          </button></a>
+      </nav>
             
         </header>
-        
+        <div class="adminrequests-container">
         <div class="section">
             <h2>Swap Requests</h2>
         </div>
         <div class="nav-wrapper">
-            <div class="nav-icon">☰</div>
-            <nav class="sidebar">
+            <div class="nav-icon" onclick="toggleSidebar()">☰</div>
+            <nav class="sidebar" id="sidebar">
               <ul>
-                <li><a href="#">Dashboard</a></li>
-                <li><a href="#">Requests</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
                 <li><a href="#">Students</a></li>
                 <li><a href="#">Settings</a></li>
               </ul>
             </nav>
           </div>
-          
 
           <div class="table-controls">
-            <form method="GET" action="/admin/requests" style="display: flex; gap: 1rem;">
+            <form id="filter-form" method="GET" action="/admin/requests" style="display: flex; gap: 1rem;">
             <!-- Search Bar -->
             <div class="search-container">
-              <input type="text" id="search-input" name="search" placeholder="Search..." value="{{search}}"   >
-              <span class="search-icon">🔍</span>
+                <input id="search-input" type="text" name="search" placeholder="Search..." value="{{ search }}" >
+              <span class="search-icon">🔎</span>
             </div>
           
             <!-- Status Filter -->
             <div class="filter-container">
-              <select id="status-filter" name="status">
+
+              <select id="status-filter" name="status" onchange="document.getElementById('filter-form').submit()">
                 <option value="all" {% if status == 'all' %}selected{% endif %}>Filter Status</option>
                 <option value="pending" {% if status == 'pending'%}selected{% endif %} >Pending</option>
                 <option value="approved" {% if status == 'approved' %}selected{% endif %}   >Approved</option>
                 <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
               </select>
             </div>
+
+            <!-- Sort dropdown -->
+           <select id="sort-select" name="sort" onchange="document.getElementById('filter-form').submit()">
+            <option value="">Sort By</option>
+            <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+            <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+            <option value="date_new" {% if sort == 'date_new' %}selected{% endif %}>Date (Newest)</option>
+            <option value="date_old" {% if sort == 'date_old' %}selected{% endif %}>Date (Oldest)</option>
+           </select>
         
-            <button type="submit">Apply</button>
+            
         </form>
     </div>
          
@@ -110,6 +121,24 @@
                 {% endfor %}
             </tbody>
         </table>
+        <div class="pagination">
+            {% if page > 1 %}
+              <a href="{{ url_for('main.swap_requests', page=page-1, search=search, status=status, sort=sort) }}">Previous</a>
+            {% endif %}
+          
+            {% for p in range(1, total_pages + 1) %}
+              {% if p == page %}
+                <span class="current">{{ p }}</span>
+              {% else %}
+                <a href="{{ url_for('main.swap_requests', page=p, search=search, status=status, sort=sort) }}">{{ p }}</a>
+              {% endif %}
+            {% endfor %}
+          
+            {% if page < total_pages %}
+              <a href="{{ url_for('main.swap_requests', page=page+1, search=search, status=status, sort=sort) }}">Next</a>
+            {% endif %}
+          </div>
+    </div>
 
         <footer>
           <div class="footer-col">
@@ -130,9 +159,17 @@
           <div class="footer-col">
               <h4>Contact Us</h4>
               <ul>
-                  <li><a href="#">tukarje@gmail.com</a></li>
+                  <li><a href="#">support@mmu.com</a></li>
               </ul>
           </div> 
+
       </footer>
+      <script>
+        function toggleSidebar() {
+          const sidebar = document.getElementById('sidebar');
+          sidebar.classList.toggle('sidebar-open');
+        }
+      </script>
+      
     </body>
 </html>

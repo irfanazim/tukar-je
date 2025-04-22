@@ -579,7 +579,7 @@ button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
-/* Above is the end of admin request table css */
+
 
 /* sidebar */
 .nav-wrapper {
@@ -597,6 +597,7 @@ button:disabled {
     padding: 10px;
     border-radius: 4px;
     z-index: 101;
+    cursor: pointer;
   }
   
   
@@ -613,14 +614,11 @@ button:disabled {
     z-index: 100;
   }
   
-  /* Show sidebar on hover */
-  .nav-icon:hover + .sidebar,
-  .sidebar:hover {
+  .sidebar.sidebar-open {
     left: 0;
   }
   
-  
-  
+
   .sidebar ul {
     list-style: none;
     margin: 0;
@@ -680,3 +678,43 @@ button:disabled {
     align-self: flex-start; 
   }
 
+  #sort-select {
+    padding: 10px 15px;
+    width: 100px; 
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-left: 0; 
+    align-self: flex-start; 
+  }
+
+  .adminrequests-container {
+    flex: 1;
+    min-height: 700px; /* or however tall you want */
+    
+}
+/* Pagination */
+.pagination {
+    text-align: center;
+    margin: 30px 0;
+  }
+  
+  .pagination a,
+  .pagination span {
+    display: inline-block;
+    padding: 8px 14px;
+    margin: 0 3px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+  
+  .pagination .current {
+    background-color: #034EA1;
+    color: white;
+    font-weight: bold;
+  }
+
+/* Above is the end of admin request table css */
