@@ -6,6 +6,8 @@ from .utils import (create_notification, get_user_notifications, is_valid_mmu_em
                    send_verification_email)
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
+from math import ceil
+from datetime import datetime
 
 main = Blueprint('main', __name__)
 
@@ -202,7 +204,7 @@ def logout():
 @main.route('/notification')
 def notification():
     if not is_logged_in():
-        return redirect(url_for('login'))
+        return redirect(url_for('main.login'))
         
     user_id = session['user_id']
     user_notifications = get_user_notifications(user_id)
@@ -230,3 +232,144 @@ def delete_notification(notification_id):
     db.session.delete(notification)
     db.session.commit()
     return jsonify({'success': True})
+
+
+# Sample data for requests 
+requests_data = [
+        {"name": "Nafis", "current": "Hostel A", "desired": "Hostel B", "type": "Single", "status": "pending", "date": "02-03-2025"},
+        {"name": "Azim", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "pending", "date": "03-04-2025"},
+        {"name": "Megat", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "pending", "date": "05-04-2025"},
+        {"name": "Aisyah", "current": "Hostel C", "desired": "Hostel A", "type": "Double", "status": "approved", "date": "04-03-2025"},
+        {"name": "Zafran", "current": "Hostel B", "desired": "Hostel C", "type": "Single", "status": "rejected", "date": "10-03-2025"},
+        {"name": "Iqbal", "current": "Hostel D", "desired": "Hostel A", "type": "Double", "status": "pending", "date": "12-03-2025"},
+        {"name": "Amira", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "approved", "date": "15-03-2025"},
+        {"name": "Farhan", "current": "Hostel B", "desired": "Hostel C", "type": "Double", "status": "pending", "date": "18-03-2025"},
+        {"name": "Siti", "current": "Hostel C", "desired": "Hostel A", "type": "Single", "status": "rejected", "date": "20-03-2025"},
+        {"name": "Adam", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "pending", "date": "22-03-2025"},
+        {"name": "Liyana", "current": "Hostel A", "desired": "Hostel C", "type": "Single", "status": "approved", "date": "24-03-2025"},
+        {"name": "Hakim", "current": "Hostel B", "desired": "Hostel D", "type": "Double", "status": "pending", "date": "26-03-2025"},
+        {"name": "Nadia", "current": "Hostel C", "desired": "Hostel D", "type": "Single", "status": "pending", "date": "28-03-2025"},
+        {"name": "Reza", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "approved", "date": "30-03-2025"},
+        {"name": "Syafiq", "current": "Hostel A", "desired": "Hostel C", "type": "Single", "status": "pending", "date": "01-04-2025"},
+        {"name": "Zara", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "rejected", "date": "03-04-2025"},
+        {"name": "Hanis", "current": "Hostel C", "desired": "Hostel D", "type": "Single", "status": "pending", "date": "05-04-2025"},
+        {"name": "Daniel", "current": "Hostel D", "desired": "Hostel A", "type": "Double", "status": "approved", "date": "07-04-2025"},
+        {"name": "Aina", "current": "Hostel B", "desired": "Hostel C", "type": "Single", "status": "pending", "date": "09-04-2025"},
+        {"name": "Haikal", "current": "Hostel C", "desired": "Hostel B", "type": "Double", "status": "pending", "date": "10-04-2025"},
+        {"name": "Yasmin", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "rejected", "date": "12-04-2025"},
+        {"name": "Rafiq", "current": "Hostel D", "desired": "Hostel C", "type": "Double", "status": "approved", "date": "14-04-2025"},
+        {"name": "Sabrina", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "pending", "date": "15-04-2025"},
+        {"name": "Faiz", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "approved", "date": "16-04-2025"},
+        {"name": "Alia", "current": "Hostel C", "desired": "Hostel D", "type": "Single", "status": "rejected", "date": "17-04-2025"},
+        {"name": "Nabil", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "pending", "date": "18-04-2025"},
+        {"name": "Hani", "current": "Hostel A", "desired": "Hostel C", "type": "Single", "status": "pending", "date": "19-04-2025"},
+        {"name": "Rizwan", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "approved", "date": "20-04-2025"},
+        {"name": "Syaza", "current": "Hostel C", "desired": "Hostel B", "type": "Single", "status": "rejected", "date": "21-04-2025"},
+        {"name": "Taufiq", "current": "Hostel D", "desired": "Hostel C", "type": "Double", "status": "pending", "date": "22-04-2025"},
+        {"name": "Luqman", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "approved", "date": "23-04-2025"},
+        {"name": "Farah", "current": "Hostel B", "desired": "Hostel C", "type": "Double", "status": "rejected", "date": "24-04-2025"},
+        {"name": "Aiman", "current": "Hostel C", "desired": "Hostel A", "type": "Single", "status": "pending", "date": "25-04-2025"},
+        {"name": "Zainab", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "approved", "date": "26-04-2025"},
+        {"name": "Hakimi", "current": "Hostel A", "desired": "Hostel B", "type": "Single", "status": "pending", "date": "27-04-2025"},
+        {"name": "Khalis", "current": "Hostel B", "desired": "Hostel D", "type": "Double", "status": "rejected", "date": "28-04-2025"},
+        {"name": "Sarah", "current": "Hostel C", "desired": "Hostel A", "type": "Single", "status": "pending", "date": "29-04-2025"},
+{"name": "Faris", "current": "Hostel D", "desired": "Hostel A", "type": "Double", "status": "approved", "date": "30-04-2025"},
+{"name": "Nurin", "current": "Hostel A", "desired": "Hostel C", "type": "Single", "status": "rejected", "date": "01-05-2025"},
+{"name": "Shahrul", "current": "Hostel B", "desired": "Hostel C", "type": "Double", "status": "pending", "date": "02-05-2025"},
+{"name": "Suhaila", "current": "Hostel C", "desired": "Hostel D", "type": "Single", "status": "approved", "date": "03-05-2025"},
+{"name": "Irfan", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "pending", "date": "04-05-2025"},
+{"name": "Aida", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "rejected", "date": "05-05-2025"},
+{"name": "Zul", "current": "Hostel B", "desired": "Hostel A", "type": "Double", "status": "pending", "date": "06-05-2025"},
+{"name": "Fatin", "current": "Hostel C", "desired": "Hostel B", "type": "Single", "status": "approved", "date": "07-05-2025"},
+{"name": "Hafiz", "current": "Hostel D", "desired": "Hostel C", "type": "Double", "status": "pending", "date": "08-05-2025"},
+{"name": "Ain", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "rejected", "date": "09-05-2025"},
+{"name": "Rina", "current": "Hostel B", "desired": "Hostel C", "type": "Double", "status": "pending", "date": "10-05-2025"},
+{"name": "Zaki", "current": "Hostel C", "desired": "Hostel A", "type": "Single", "status": "approved", "date": "11-05-2025"},
+{"name": "Afiq", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "pending", "date": "12-05-2025"},
+{"name": "Nina", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "rejected", "date": "13-05-2025"},
+{"name": "Rizal", "current": "Hostel B", "desired": "Hostel C", "type": "Double", "status": "pending", "date": "14-05-2025"},
+{"name": "Lina", "current": "Hostel C", "desired": "Hostel A", "type": "Single", "status": "approved", "date": "15-05-2025"},
+{"name": "Fikri", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "pending", "date": "16-05-2025"},
+{"name": "Ayu", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "rejected", "date": "17-05-2025"},
+{"name": "Haziq", "current": "Hostel B", "desired": "Hostel C", "type": "Double", "status": "pending", "date": "18-05-2025"},
+{"name": "Mira", "current": "Hostel C", "desired": "Hostel A", "type": "Single", "status": "approved", "date": "19-05-2025"},
+    {"name": "Zulfi", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "pending", "date": "20-05-2025"},
+    {"name": "Siti Aishah", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "rejected", "date": "21-05-2025"},
+    {"name": "Fauzi", "current": "Hostel B", "desired": "Hostel C", "type": "Double", "status": "pending", "date": "22-05-2025"},
+    {"name": "Nadia", "current": "Hostel C", "desired": "Hostel A", "type": "Single", "status": "approved", "date": "23-05-2025"},
+    {"name": "Sham", "current": "Hostel D", "desired": "Hostel B", "type": "Double", "status": "pending", "date": "24-05-2025"},
+    {"name": "Aida", "current": "Hostel A", "desired": "Hostel D", "type": "Single", "status": "rejected", "date": "25-05-2025"},
+ ]
+@main.route('/admin/requests')
+def swap_requests():
+    # GET query parameters
+    search_query = request.args.get('search', '').lower()
+    status_filter = request.args.get('status', 'all')
+    sort = request.args.get('sort', '')
+    page = int(request.args.get('page', 1))
+    per_page = 50
+
+    # Base list (replace with DB call later)
+    filtered_requests = [
+        r for r in requests_data
+        if (search_query in r['name'].lower()) and (status_filter == 'all' or r['status'] == status_filter)
+    ]
+
+    # Sorting
+    reverse = False
+    if sort == 'name_asc':
+        sort_key = 'name'
+    elif sort == 'name_desc':
+        sort_key = 'name'
+        reverse = True
+    elif sort == 'date_new':
+        sort_key = 'date'
+        reverse = True
+    elif sort == 'date_old':
+        sort_key = 'date'
+    else:
+        sort_key = None
+
+    if sort_key:
+        if sort_key == 'date':
+            filtered_requests.sort(
+                key=lambda x: datetime.strptime(x['date'], "%d-%m-%Y"),
+                reverse=reverse
+        )
+        else:
+            filtered_requests.sort(key=lambda x: x[sort_key].lower(), reverse=reverse)
+
+    # Pagination
+    total_requests = len(filtered_requests)
+    total_pages = ceil(total_requests / per_page)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_requests = filtered_requests[start:end]
+
+    return render_template(
+        'admin_requests.html',
+        requests=paginated_requests,
+        search=search_query,
+        status=status_filter,
+        sort=sort,
+        page=page,
+        total_pages=total_pages
+    )
+
+@main.route('/admin/approve', methods=['POST'])
+def approve_request():
+    name = request.form['name']
+    for r in requests_data:
+        if r['name'] == name:
+            r['status'] = 'approved'
+            break
+    return redirect(url_for('main.swap_requests'))
+
+@main.route('/admin/reject', methods=['POST'])
+def reject_request():
+    name = request.form['name']
+    for r in requests_data:
+        if r['name'] == name:
+            r['status'] = 'rejected'
+            break
+    return redirect(url_for('main.swap_requests'))
