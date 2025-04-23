@@ -373,3 +373,26 @@ def reject_request():
             r['status'] = 'rejected'
             break
     return redirect(url_for('main.swap_requests'))
+
+#for testing purposes only
+@main.route('/submit', methods=['GET', 'POST'])
+def submit_request():
+    if request.method == 'POST':
+        name = request.form['name']
+        current = request.form['current']
+        desired = request.form['desired']
+        room_type = request.form['type']
+        date = datetime.now().strftime("%d-%m-%Y")
+
+        requests_data.append({
+            "name": name,
+            "current": current,
+            "desired": desired,
+            "type": room_type,
+            "status": "pending",
+            "date": date
+        })
+
+        return redirect(url_for('main.swap_requests'))
+
+    return render_template('submit_form.html')
