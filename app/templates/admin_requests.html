@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <title>Swap Requests</title>
+        <title>Admin-Swap Requests - tukar-je</title>
     </head>
     <body>
         <header class="header">
@@ -28,7 +28,9 @@
             <h2>Swap Requests</h2>
         </div>
         <div class="nav-wrapper">
-            <div class="nav-icon" onclick="toggleSidebar()">☰</div>
+            <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span>
+            
+            </div>
             <nav class="sidebar" id="sidebar">
               <ul>
                 <li><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
@@ -43,8 +45,8 @@
             <form id="filter-form" method="GET" action="/admin/requests" style="display: flex; gap: 1rem;">
             <!-- Search Bar -->
             <div class="search-container">
-                <input id="search-input" type="text" name="search" placeholder="Search..." value="{{ search }}" >
-              <span class="search-icon">🔎</span>
+                <input id="search-input" type="text" name="search" placeholder="Search..." value="{{ search }}"  >
+                <span class="material-icons" id="search-icon">search</span>
             </div>
           
             <!-- Status Filter -->
@@ -105,11 +107,11 @@
                         {% if req.status == 'pending' %}
                             
                         <form method="POST" action="{{ url_for('main.approve_request') }}" style="display:inline;">
-                            <input type="hidden" name="name" value="{{ req.name }}">
+                            <input type="hidden" name="id" value="{{ req.id }}">
                             <button type="submit" class="btn-approve" >Approve</button>
                         </form>
                         <form action="{{ url_for('main.reject_request') }}" method="POST" style="display:inline;">
-                            <input type="hidden" name="name" value="{{ req.name }}">
+                            <input type="hidden" name="id" value="{{ req.id }}">
                             <button type="submit" class="btn-reject">Reject</button>
                         </form>
                         {% else %}

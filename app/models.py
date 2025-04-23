@@ -22,3 +22,12 @@ class Notification(db.Model):
 
     def __repr__(self):
         return f'<Notification {self.id} - {self.message}>'
+    
+class SwapRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    current = db.Column(db.String(50), nullable=False)
+    desired = db.Column(db.String(50), nullable=False)
+    type = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    date = db.Column(db.String(20), nullable=False)
