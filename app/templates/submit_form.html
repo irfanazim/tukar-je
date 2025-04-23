@@ -1,0 +1,43 @@
+<!-- This is just for testing purpose-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Submit Swap Request</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+</head>
+<body>
+  <div class="section">
+    <h2>Submit a Swap Request</h2>
+    <form method="POST" action="/submit" style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px;">
+      <input type="text" name="name" placeholder="Your Name" required>
+      
+      <select name="current" required>
+        <option value="">Current Hostel</option>
+        <option value="Hostel A">Hostel A</option>
+        <option value="Hostel B">Hostel B</option>
+        <option value="Hostel C">Hostel C</option>
+        <option value="Hostel D">Hostel D</option>
+      </select>
+      <select name="desired" required>
+        <option value="">Desired Hostel</option>
+        <option value="Hostel A">Hostel A</option>
+        <option value="Hostel B">Hostel B</option>
+        <option value="Hostel C">Hostel C</option>
+        <option value="Hostel D">Hostel D</option>
+      </select>
+
+      <select name="type" required>
+        <option value="">Room Type</option>
+        <option value="Single">Single</option>
+        <option value="Double">Double</option>
+      </select>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
+</html>

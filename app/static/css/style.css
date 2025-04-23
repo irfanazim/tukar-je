@@ -658,12 +658,12 @@ button:disabled {
     font-size: 14px;
   }
   
-  .search-icon {
+  #search-icon {
     position: absolute;
     left: 12px; 
     top: 50%; 
     transform: translateY(-50%); 
-    color: #777;
+    color: black;
     pointer-events: none; 
   }
   
@@ -680,7 +680,7 @@ button:disabled {
 
   #sort-select {
     padding: 10px 15px;
-    width: 100px; 
+    width: 200px; 
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
