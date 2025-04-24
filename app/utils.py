@@ -69,6 +69,7 @@ def send_verification_email(user):
         user.verification_token = None 
         return False 
 
+# Notification system
 def create_notification(user_id, message, notification_type):
     notification = Notification(
         user_id=user_id,
@@ -82,14 +83,6 @@ def create_notification(user_id, message, notification_type):
 
 def get_user_notifications(user_id):
     return Notification.query.filter_by(user_id=user_id).all()
-
-def mark_notification_as_read(notification_id, user_id):
-    notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
-    if notification:
-        notification.is_read = True
-        db.session.commit()
-        return True
-    return False
 
 def mark_notification_as_read(notification_id, user_id):
     notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
