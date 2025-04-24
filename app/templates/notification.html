@@ -64,10 +64,7 @@
         const notificationId = notificationItem.dataset.id;
 
         fetch(`/mark-as-read/${notificationId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
+            method: 'POST'
         })
         .then(response => response.json())
         .then(data => {
@@ -95,10 +92,7 @@
             const notificationId = this.getAttribute('data-id');
             
             fetch(`/delete-notification/${notificationId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
+                method: 'POST'
             })
             .then(response => response.json())
             .then(data => {
