@@ -252,7 +252,7 @@ def swap_requests():
     #searching
     if search:
         query = query.filter(func.lower(SwapRequest.name).like(f"%{search}%"))
-
+    #filtering by status
     if status != 'all':
         query = query.filter_by(status=status)
     #sorting 
@@ -320,6 +320,6 @@ def submit_request():
         db.session.add(new_swap)
         db.session.commit()
 
-        return redirect(url_for('main.swap_requests'))
+        
 
     return render_template('submit_form.html')
