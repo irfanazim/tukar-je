@@ -91,3 +91,18 @@ def mark_notification_as_read(notification_id, user_id):
         db.session.commit()
         return True
     return False
+
+# Admin Sessions
+def is_admin_logged_in():
+    return 'admin_id' in session
+
+def setup_admin_session(admin, remember=False):
+    session.clear()
+    session.permanent = True
+    if remember:
+        current_app.permanent_session_lifetime = timedelta(days=30)
+    else:
+        current_app.permanent_session_lifetime = timedelta(hours=1)
+    session['admin_id'] = admin.id
+    session['admin_username'] = admin.username
+    session['is_admin'] = True

@@ -1,8 +1,9 @@
-from flask import Blueprint, jsonify, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from . import db, mail
-from .models import Notification, User
-from .utils import (create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, generate_token, 
-                   setup_user_session, send_email, send_2fa_email,
+from .models import Notification, User, Admin
+from .utils import (create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, 
+                   setup_user_session, setup_admin_session, generate_token,
+                   send_email, send_2fa_email,
                    send_verification_email)
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
@@ -15,7 +16,9 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return render_template('index.html', logged_in=is_logged_in())
+    return render_template('index.html', 
+                        logged_in=is_logged_in(),
+                        admin_logged_in=is_admin_logged_in())
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
@@ -239,8 +242,9 @@ def delete_notification(notification_id):
 
 @main.route('/admin/requests')
 def swap_requests():
-    if not is_logged_in():
-        return redirect(url_for('main.login'))
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
     # GET query parameters
     search = request.args.get('search', '').lower()
     status = request.args.get('status', 'all')
@@ -323,3 +327,55 @@ def submit_request():
         
 
     return render_template('submit_form.html')
+
+# Admin routes
+@main.route('/admin/register', methods=['GET', 'POST'])
+def admin_register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        secret_key = request.form.get('secret_key')
+        
+        if secret_key != current_app.config['ADMIN_SECRET_KEY']:
+            flash('Invalid secret key', 'error')
+            return redirect(url_for('main.admin_register'))
+            
+        if Admin.query.filter_by(username=username).first():
+            flash('Username already exists', 'error')
+            return redirect(url_for('main.admin_register'))
+            
+        admin = Admin(
+            username=username,
+            password=generate_password_hash(password)
+        )
+        
+        db.session.add(admin)
+        db.session.commit()
+        
+        flash('Admin account created successfully', 'success')
+        return redirect(url_for('main.admin_login'))
+        
+    return render_template('admin_register.html')
+
+@main.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = request.form.get('remember') == 'on'
+        
+        admin = Admin.query.filter_by(username=username).first()
+        
+        if admin and check_password_hash(admin.password, password):
+            setup_admin_session(admin, remember)
+            return redirect(url_for('main.swap_requests'))
+            
+        flash('Invalid username or password', 'error')
+        return redirect(url_for('main.admin_login'))
+        
+    return render_template('admin_login.html')
+
+@main.route('/admin/logout')
+def admin_logout():
+    session.clear()
+    return redirect(url_for('main.index'))

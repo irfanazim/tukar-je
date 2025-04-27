@@ -19,3 +19,6 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
     MAIL_DEBUG = True
+
+    # Admin configuration
+    ADMIN_SECRET_KEY = os.environ.get('ADMIN_SECRET_KEY', 'your-default-admin-secret-key')

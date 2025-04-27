@@ -23,6 +23,9 @@
                     <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
                         <span class="material-icons">notifications</span>
                         </button></a>
+                {% elif admin_logged_in %}
+                    <a href="{{ url_for('main.swap_requests') }}">Admin Dashboard</a>
+                    <a href="{{ url_for('main.admin_logout') }}">Logout</a>
                 {% else %}
                     <a href="{{ url_for('main.register') }}">Register</a>
                     <a href="{{ url_for('main.login') }}">Login</a>
@@ -38,10 +41,12 @@
             <div class="info">
                 <p>A simple platform for MMU students who wants to swap rooms with other fellow residents.
                   Whether you're looking for a quieter space or a specific block, you can easily browse available listings based on your preferences. Find rooms based on your preferences, make a request, and get approval from the hostel management. Simple, convenient, and made to improve hostel life for the MMU community! </p>
-                {% if not logged_in %}
+                {% if not logged_in and not admin_logged_in %}
                     <a href="{{ url_for('main.register') }}" class="button">Get Started</a>
-                {% else %}
+                {% elif logged_in %}
                     <a href="{{ url_for('main.dashboard') }}" class="button">Go to Dashboard</a>
+                {% elif admin_logged_in %}
+                    <a href="{{ url_for('main.swap_requests') }}" class="button">Go to Admin Dashboard</a>
                 {% endif %}
             </div>
         </div>
