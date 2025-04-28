@@ -238,6 +238,15 @@ def delete_notification(notification_id):
     db.session.commit()
     return jsonify({'success': True})
 
+@main.route('/notification-count')
+def notification_count():
+    if not is_logged_in():
+        return jsonify({'count': 0})
+    
+    user_id = session.get('user_id')
+    count = Notification.query.filter_by(user_id=user_id, is_read=False).count()
+    return jsonify({'count': count})
+
 
 
 @main.route('/admin/requests')
