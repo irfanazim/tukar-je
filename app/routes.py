@@ -318,6 +318,10 @@ def submit_request():
         return redirect(url_for('main.login'))
 
     user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()  # Clear invalid session
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.login'))
     current_location = {
         'hostel': user.hostel,
         'block': user.block,
