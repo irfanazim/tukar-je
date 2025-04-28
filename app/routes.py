@@ -136,7 +136,6 @@ def verify_2fa():
         message="You have successfully logged in to your account.",
         notification_type='login'
     )
-    flash('Logged in successfully!')
     return redirect(url_for('main.dashboard'))
 
 @main.route('/forgot-password', methods=['GET', 'POST'])
@@ -312,30 +311,66 @@ def reject_request():
         db.session.commit()
     return redirect(request.referrer or url_for('main.swap_requests'))
 
-# Swap request will be reworked placebo as for now.
-#@main.route('/submit', methods=['GET', 'POST'])
-#def submit_request():
-    #if request.method == 'POST':
-        #name = request.form['name']
-        #current = request.form['current']
-        #desired = request.form['desired']
-       # room_type = request.form['type']
-      #  date = datetime.now().strftime("%d-%m-%Y")
+@main.route('/submit', methods=['GET', 'POST'])
+def submit_request():
+    if not is_logged_in():
+        flash('Please login to submit a swap request', 'error')
+        return redirect(url_for('main.login'))
 
-     #   new_swap = SwapRequest(
-    #        name=name,
-   #         current=current,
-  #          desired=desired,
-  #          type=room_type,
-  #          status="pending",
-  #          date=date
-  #      )
-  #      db.session.add(new_swap)
-  #      db.session.commit()
+    user = User.query.get(session['user_id'])
+    current_location = {
+        'hostel': user.hostel,
+        'block': user.block,
+        'room': user.room
+    }
 
+    if request.method == 'POST':
+        desired_hostel = request.form.get('desired_hostel')
+        desired_block = request.form.get('desired_block')
+        desired_room = request.form.get('desired_room')
         
+        print(f"Form data: desired_hostel={desired_hostel}, desired_block={desired_block}, desired_room={desired_room}")
+        print(f"User data: id={user.id}, hostel={user.hostel}, block={user.block}, room={user.room}")
 
-    # return render_template('submit_form.html') 
+        # Create new swap request
+        new_swap = SwapRequest(
+            user_id=user.id,
+            current_hostel=user.hostel,
+            current_block=user.block,
+            current_room=user.room,
+            desired_hostel=desired_hostel,
+            desired_block=desired_block,
+            desired_room=desired_room,
+            status="pending"
+        )
+
+        try:
+            db.session.add(new_swap)
+            db.session.commit()
+            print("Swap request added successfully")
+            
+            # Create notification for the user
+            create_notification(
+                user_id=user.id,
+                message="Your swap request has been submitted successfully.",
+                notification_type='swap_request'
+            )
+            
+            flash('Swap request submitted successfully!', 'success')
+            return redirect(url_for('main.submit_request'))
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error submitting swap request: {str(e)}")
+            print(f"Error type: {type(e)}")
+            import traceback
+            print(traceback.format_exc())
+            flash('An error occurred while submitting your request. Please try again.', 'error')
+            return redirect(url_for('main.submit_request'))
+
+    return render_template('submit_form.html', 
+                         current_location=current_location,
+                         logged_in=is_logged_in(),
+                         admin_logged_in=is_admin_logged_in())
 
 # Admin routes
 @main.route('/admin/register', methods=['GET', 'POST'])
