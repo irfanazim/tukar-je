@@ -40,7 +40,9 @@
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% if category != 'success' or 'swap' in message.lower() %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endif %}
                     {% endfor %}
                 {% endif %}
             {% endwith %}
@@ -49,7 +51,8 @@
                 <div class="input-box">
                     <label>Current Location</label>
                     <div class="current-location">
-                        <p>Hostel-Block: {{ current_location.hostel_block }}</p>
+                        <p>Hostel: {{ current_location.hostel }}</p>
+                        <p>Block: {{ current_location.block }}</p>
                         <p>Room: {{ current_location.room }}</p>
                     </div>
                 </div>
