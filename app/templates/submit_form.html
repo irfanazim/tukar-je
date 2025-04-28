@@ -6,38 +6,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Submit Swap Request</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Submit Swap Request - tukar-je</title>
 </head>
 <body>
-  <div class="section">
-    <h2>Submit a Swap Request</h2>
-    <form method="POST" action="/submit" style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px;">
-      <input type="text" name="name" placeholder="Your Name" required>
-      
-      <select name="current" required>
-        <option value="">Current Hostel</option>
-        <option value="Hostel A">Hostel A</option>
-        <option value="Hostel B">Hostel B</option>
-        <option value="Hostel C">Hostel C</option>
-        <option value="Hostel D">Hostel D</option>
-      </select>
-      <select name="desired" required>
-        <option value="">Desired Hostel</option>
-        <option value="Hostel A">Hostel A</option>
-        <option value="Hostel B">Hostel B</option>
-        <option value="Hostel C">Hostel C</option>
-        <option value="Hostel D">Hostel D</option>
-      </select>
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('main.index') }}">Home</a>
+            {% if logged_in %}
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('main.logout') }}">Logout</a>
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                    <span class="material-icons">notifications</span>
+                    </button></a>
+            {% elif admin_logged_in %}
+                <a href="{{ url_for('main.swap_requests') }}">Admin Dashboard</a>
+                <a href="{{ url_for('main.admin_logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('main.register') }}">Register</a>
+                <a href="{{ url_for('main.login') }}">Login</a>
+            {% endif %}
+        </nav>
+    </header>
 
-      <select name="type" required>
-        <option value="">Room Type</option>
-        <option value="Single">Single</option>
-        <option value="Double">Double</option>
-      </select>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
+    <div class="form-container">
+        <div class="form-box">
+            <h2>Submit Swap Request</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST">
+                <div class="input-box">
+                    <label>Current Location</label>
+                    <div class="current-location">
+                        <p>Hostel-Block: {{ current_location.hostel_block }}</p>
+                        <p>Room: {{ current_location.room }}</p>
+                    </div>
+                </div>
+
+                <div class="input-box">
+                    <label>Desired Location</label>
+                    <div class="room-group">
+                        <select name="desired_hostel" required>
+                            <option value="">Select Hostel</option>
+                            <option value="HB1">HB1</option>
+                            <option value="HB2">HB2</option>
+                            <option value="HB3">HB3</option>
+                            <option value="HB4">HB4</option>
+                        </select>
+                        <select name="desired_block" required>
+                            <option value="">Select Block</option>
+                            <option value="A">Block A</option>
+                            <option value="B">Block B</option>
+                            <option value="C">Block C</option>
+                        </select>
+                        <input type="text" name="desired_room" placeholder="Room Number" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-col">
+            <ul>
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+                </div>
+                <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="">About</a></li>
+                <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
+                <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <ul>
+                <li><a href="#">tukarje@gmail.com</a></li>
+            </ul>
+        </div>
+    </footer>
 </body>
 </html>
