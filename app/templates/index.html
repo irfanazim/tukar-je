@@ -22,6 +22,7 @@
                     <a href="{{ url_for('main.logout') }}">Logout</a>
                     <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
                         <span class="material-icons">notifications</span>
+                        <span class="notification-badge" style="display:none;"></span>
                         </button></a>
                 {% elif admin_logged_in %}
                     <a href="{{ url_for('main.swap_requests') }}">Admin Dashboard</a>
@@ -74,7 +75,40 @@
                     <li><a href="#">tukarje@gmail.com</a></li>
                 </ul>
             </div> 
-        </footer>
 
+        <!-- Notification count -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Fetch notification count every time a page is loaded
+                    function fetchNotificationCount() {
+                        fetch('/notification-count')
+                            .then(response => response.json())
+                            .then(data => {
+                                const count = data.count;
+                                let badge = document.querySelector('.icon-button .notification-badge');
+                                
+                                if (!badge && count > 0) {
+                                    // Create badge if not exist
+                                    badge = document.createElement('span');
+                                    badge.classList.add('notification-badge');
+                                    document.querySelector('.icon-button').appendChild(badge);
+                                }
+                                
+                                if (badge) {
+                                    if (count > 0) {
+                                        badge.textContent = count;
+                                        badge.style.display = 'flex';
+                                    } else {
+                                        badge.style.display = 'none';
+                                    }
+                                }
+                            });
+                    }
+        
+                    fetchNotificationCount();
+                    setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
+                });
+            </script>
+        </footer>
     </body>
 </html>
