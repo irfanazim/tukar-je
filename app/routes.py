@@ -258,20 +258,20 @@ def swap_requests():
     status = request.args.get('status', 'all')
     sort = request.args.get('sort', '')
     page = int(request.args.get('page', 1))
-    per_page = 5
+    per_page = 50
 
     query = SwapRequest.query
     #searching
     if search:
-        query = query.filter(func.lower(SwapRequest.name).like(f"%{search}%"))
+        query = SwapRequest.query.join(User).filter(func.lower(User.fullname).like(f"%{search}%"))
     #filtering by status
     if status != 'all':
         query = query.filter_by(status=status)
     #sorting 
     if sort == 'name_asc':
-        query = query.order_by(SwapRequest.name.asc())
+        query = SwapRequest.query.join(User).order_by(User.fullname.asc())
     elif sort == 'name_desc':
-        query = query.order_by(SwapRequest.name.desc())
+        query = SwapRequest.query.join(User).order_by(User.fullname.desc())
     elif sort == 'date_new':
         query = query.order_by(SwapRequest.date.desc())
     elif sort == 'date_old':
