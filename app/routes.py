@@ -312,30 +312,30 @@ def reject_request():
         db.session.commit()
     return redirect(request.referrer or url_for('main.swap_requests'))
 
-#for testing purposes only
-@main.route('/submit', methods=['GET', 'POST'])
-def submit_request():
-    if request.method == 'POST':
-        name = request.form['name']
-        current = request.form['current']
-        desired = request.form['desired']
-        room_type = request.form['type']
-        date = datetime.now().strftime("%d-%m-%Y")
+# Swap request will be reworked placebo as for now.
+#@main.route('/submit', methods=['GET', 'POST'])
+#def submit_request():
+    #if request.method == 'POST':
+        #name = request.form['name']
+        #current = request.form['current']
+        #desired = request.form['desired']
+       # room_type = request.form['type']
+      #  date = datetime.now().strftime("%d-%m-%Y")
 
-        new_swap = SwapRequest(
-            name=name,
-            current=current,
-            desired=desired,
-            type=room_type,
-            status="pending",
-            date=date
-        )
-        db.session.add(new_swap)
-        db.session.commit()
+     #   new_swap = SwapRequest(
+    #        name=name,
+   #         current=current,
+  #          desired=desired,
+  #          type=room_type,
+  #          status="pending",
+  #          date=date
+  #      )
+  #      db.session.add(new_swap)
+  #      db.session.commit()
 
         
 
-    return render_template('submit_form.html')
+    # return render_template('submit_form.html') 
 
 # Admin routes
 @main.route('/admin/register', methods=['GET', 'POST'])

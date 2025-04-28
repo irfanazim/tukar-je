@@ -29,9 +29,15 @@ class Notification(db.Model):
     
 class SwapRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    current = db.Column(db.String(50), nullable=False)
-    desired = db.Column(db.String(50), nullable=False)
-    type = db.Column(db.String(20), nullable=False)
-    status = db.Column(db.String(20), nullable=False)
-    date = db.Column(db.String(20), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    current_hostel = db.Column(db.String(10), nullable=False)  
+    current_block = db.Column(db.String(1), nullable=False)    
+    current_room = db.Column(db.String(10), nullable=False)
+    desired_hostel = db.Column(db.String(10), nullable=False)  
+    desired_block = db.Column(db.String(1), nullable=False)    
+    desired_room = db.Column(db.String(10), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="pending")  
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship with User model
+    user = db.relationship('User', backref=db.backref('swap_requests', lazy=True))
