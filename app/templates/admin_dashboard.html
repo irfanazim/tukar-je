@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <title>tukar-je</title>
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+            </div>
+            <nav class="navbar">
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a> 
+                <a href="{{ url_for('main.logout') }}">Logout</a> 
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                <span class="material-icons">notifications</span>
+                </button></a>
+            </nav>
+        </header>
+        
+        <div class="title2">
+            <h1>Welcome, Admin!</h1>
+        </div>
+        <div class="nav-wrapper">
+          <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span>
+          
+          </div>
+          <nav class="sidebar" id="sidebar">
+            <ul>
+              <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+              <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
+              <li><a href="#">Students</a></li>
+              <li><a href="#">Settings</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="admin-dashboard-page">
+        <div class="stats-container">
+          <!--First Row-->
+          <div class="stats-row1">
+          <div class="stat-card">
+            <h3>Pending</h3>
+            <p>{{ pending_requests }}</p>
+          </div>
+
+          <div class="stat-card">
+            <h3>Approved</h3>
+            <p>{{ approved_requests }}</p>
+          </div>
+
+          <div class="stat-card">
+            <h3>Rejected</h3>
+            <p>{{ rejected_requests }}</p>
+          </div>
+
+        </div>
+        <!--Second Row-->
+        <div class="stats-row2">
+          <div class="stat-card">
+            <h3>Total Requests</h3>
+            <p>{{ total_requests }}</p>
+          </div>
+
+          <div class="stat-card">
+            <h3>Registered Students</h3>
+            <p>35</p>
+          </div>
+        </div>
+        
+        
+        <div class="recent-request-content">
+          <h3>Recent Swap Requests</h3>
+          
+            <table >
+              <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Student ID</th>
+                    <th>Current Location</th>
+                    <th>Desired Location</th>
+                    <th>Status</th>
+                    <th>Submitted Date</th>
+                    <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for req in recent_requests %}
+                <tr>
+                    <td>{{ req.user.fullname }}</td>
+                    <td>{{ req.user.student_id }}</td>
+                    <td>{{ req.current_hostel }}-{{ req.current_block }}-{{ req.current_room }}</td>
+                    <td>{{ req.desired_hostel }}-{{ req.desired_block }}-{{ req.desired_room }}</td>
+                    <td class="status">
+                        {% if req.status == "pending" %}
+                            <div class="status-item status-pending">
+                                <span class="status-cube"></span>
+                                <span class="status-text">Pending</span>
+                            </div>
+                        {% elif req.status == "approved" %}
+                            <div class="status-item status-approved">
+                                <span class="status-cube"></span>
+                                <span class="status-text">Approved</span>
+                             </div>
+                        {% else %}
+                            <div class="status-item status-rejected">
+                                <span class="status-cube"></span>
+                                <span class="status-text">Rejected</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>{{ req.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="actions">
+                        {% if req.status == 'pending' %}
+                            
+                        <form method="POST" action="{{ url_for('main.approve_request') }}" style="display:inline;">
+                            <input type="hidden" name="id" value="{{ req.id }}">
+                            <button type="submit" class="btn-approve" >Approve</button>
+                        </form>
+                        <form action="{{ url_for('main.reject_request') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="id" value="{{ req.id }}">
+                            <button type="submit" class="btn-reject">Reject</button>
+                        </form>
+                        {% else %}
+                    <button class="btn-approve" disabled>Approve</button>
+                    <button class="btn-reject" disabled>Reject</button>
+                {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6">No recent requests found.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>    
+          </div>
+        
+          
+        </div>
+        
+        <div class="shortcuts">
+          <a href="{{ url_for('main.swap_requests') }}" class="shortcut">Manage Requests</a>
+          <a href="#" class="shortcut">Manage Students</a>
+          <a href="#" class="shortcut">Edit Rooms</a>
+          <a href="#" class="shortcut">View Reports</a>
+          
+        </div>
+        
+        
+        </div>
+    
+
+    <footer>
+        <div class="footer-col">
+            <ul>
+            <div class="logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
+                <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="">About</a></li>
+                <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
+                <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <ul>
+                <li><a href="#">tukarje@gmail.com</a></li>
+            </ul>
+        </div> 
+    </footer>
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('sidebar-open');
+      }
+    </script>
+    <!-- Notification count -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch notification count every time a page is loaded
+            function fetchNotificationCount() {
+                fetch('/notification-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        const count = data.count;
+                        let badge = document.querySelector('.icon-button .notification-badge');
+                        
+                        if (!badge && count > 0) {
+                            // Create badge if not exist
+                            badge = document.createElement('span');
+                            badge.classList.add('notification-badge');
+                            document.querySelector('.icon-button').appendChild(badge);
+                        }
+                        
+                        if (badge) {
+                            if (count > 0) {
+                                badge.textContent = count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    });
+            }
+
+            fetchNotificationCount();
+            setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
+        });
+    </script>
+    
+
+</body>
+</html>
+
+    

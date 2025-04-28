@@ -247,6 +247,20 @@ def notification_count():
     return jsonify({'count': count})
 
 
+#ADMIN ROUTES
+@main.route('/admin/dashboard')
+def admin_dashboard():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    total_requests = SwapRequest.query.count()
+    pending_requests = SwapRequest.query.filter_by(status='pending').count()
+    approved_requests = SwapRequest.query.filter_by(status='approved').count()
+    rejected_requests = SwapRequest.query.filter_by(status='rejected').count()
+    recent_requests = SwapRequest.query.order_by(SwapRequest.date.desc()).limit(5).all()
+
+    return render_template('admin_dashboard.html', total_requests=total_requests, pending_requests=pending_requests,
+                            approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests)
 
 @main.route('/admin/requests')
 def swap_requests():
@@ -416,7 +430,7 @@ def admin_login():
         
         if admin and check_password_hash(admin.password, password):
             setup_admin_session(admin, remember)
-            return redirect(url_for('main.swap_requests'))
+            return redirect(url_for('main.admin_dashboard'))
             
         flash('Invalid username or password', 'error')
         return redirect(url_for('main.admin_login'))

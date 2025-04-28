@@ -546,6 +546,146 @@ ul li a:hover{
 
 /*Above is the end of Register and Login Page css*/
 
+/* CSS for admin dashboard page */
+.stats-container {
+    padding: 0 100px;
+    margin-top: 30px;
+    
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.stats-row1 {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+.stats-row2 {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    height: 100px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    flex: 1 1 200px;
+    flex-direction: column;    
+    display: flex;
+}
+
+
+
+.stat-card h3 {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.stat-card p {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: #1e40af;
+}
+
+.recent-request-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.recent-request-content h3 {
+    margin-bottom: 15px;
+      font-size: 20px;
+      color: #1e3a8a;
+}
+
+.recent-request-content table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+.recent-request-content th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+.recent-request-content th {
+    background-color: #e0e7ff;
+    color: #1e3a8a;
+  }
+
+.recent-request-content .actions button {
+    padding: 6px 12px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+  }
+
+  
+.recent-request-content .btn-approve { background-color: #10b981; }
+.recent-request-content  .btn-decline { background-color: #ef4444; }
+.recent-request-content .actions  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.status-item {
+    display: flex;
+    align-items: center; 
+    gap: 8px; 
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Small colored cube */
+.status-cube {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px; 
+}
+
+
+
+
+.status-text {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+
+
+.recent-request-content .status-pending .status-cube {
+    background-color: #f8d15a; 
+}
+
+
+.recent-request-content .status-approved .status-cube{
+    background-color: #10b981; 
+}
+
+
+.recent-request-content .status-rejected .status-cube{
+    background-color: #ef4444; 
+}
+
+/*End for admin dashboard page */
+
+
 /*admin request table css*/
 .table {
     width: 90%;
@@ -725,7 +865,7 @@ button:disabled {
 
   .adminrequests-container {
     flex: 1;
-    min-height: 700px; /* or however tall you want */
+    min-height: 700px; 
     
 }
 /* Pagination */
