@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Swap Request - tukar-je</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('main.logout') }}">Logout</a>
+            <a href="{{ url_for('main.notification') }}">
+                <button type="button" class="icon-button">
+                    <span class="material-icons">notifications</span>
+                </button>
+            </a>
+        </nav>
+    </header>
+<div class="form-container-request">
+    <h1>Edit Swap Request</h1>
+
+    <form method="POST" action="" class="edit-form-request">
+        <div class="form-grid-request">
+            <div>
+            <div>
+              <label for="desired_hostel">Desired Location:</label></div>
+              <div class="locationn"><div class="room-group">
+                    <select name="desired_hostel" required>
+                        <option value="">Select Hostel</option>
+                        <option value="HB1">HB1</option>
+                        <option value="HB2">HB2</option>
+                        <option value="HB3">HB3</option>
+                        <option value="HB4">HB4</option>
+                    </select>
+                    <select name="desired_block" required>
+                        <option value="">Select Block</option>
+                        <option value="A">Block A</option>
+                        <option value="B">Block B</option>
+                        <option value="C">Block C</option>
+                    </select></div>
+            </div>
+            <div class="locationn">
+                <label for="desired_room">Desired Room:</label>
+                <input type="text" id="desired_room" name="desired_room" value="{{ swap_request.desired_room }}"></div>
+            </div>
+        </div>
+        <button type="submit" class="submit-btn">Save Changes</button>
+    </form>
+</div>
+</body>
+</html>
