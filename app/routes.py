@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, render_template, request, redirect, url_for, flash, session, current_app
+from flask import Blueprint, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from . import db, mail
 from .models import Notification, User, Admin
-from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, 
+from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
                    send_verification_email)
@@ -131,11 +131,6 @@ def verify_2fa():
 
     user = User.query.get(session['temp_user_id'])
     setup_user_session(user, session.get('remember_me', False))
-    create_notification(
-        user_id=user.id,
-        message="You have successfully logged in to your account.",
-        notification_type='login'
-    )
     return redirect(url_for('main.dashboard'))
 
 @main.route('/forgot-password', methods=['GET', 'POST'])
@@ -263,6 +258,20 @@ def notification_count():
         return jsonify({'count': 0})
 
 
+#ADMIN ROUTES
+@main.route('/admin/dashboard')
+def admin_dashboard():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    total_requests = SwapRequest.query.count()
+    pending_requests = SwapRequest.query.filter_by(status='pending').count()
+    approved_requests = SwapRequest.query.filter_by(status='approved').count()
+    rejected_requests = SwapRequest.query.filter_by(status='rejected').count()
+    recent_requests = SwapRequest.query.order_by(SwapRequest.date.desc()).limit(5).all()
+
+    return render_template('admin_dashboard.html', total_requests=total_requests, pending_requests=pending_requests,
+                            approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests)
 
 @main.route('/admin/requests')
 def swap_requests():
@@ -274,20 +283,20 @@ def swap_requests():
     status = request.args.get('status', 'all')
     sort = request.args.get('sort', '')
     page = int(request.args.get('page', 1))
-    per_page = 5
+    per_page = 50
 
     query = SwapRequest.query
     #searching
     if search:
-        query = query.filter(func.lower(SwapRequest.name).like(f"%{search}%"))
+        query = SwapRequest.query.join(User).filter(func.lower(User.fullname).like(f"%{search}%"))
     #filtering by status
     if status != 'all':
         query = query.filter_by(status=status)
     #sorting 
     if sort == 'name_asc':
-        query = query.order_by(SwapRequest.name.asc())
+        query = SwapRequest.query.join(User).order_by(User.fullname.asc())
     elif sort == 'name_desc':
-        query = query.order_by(SwapRequest.name.desc())
+        query = SwapRequest.query.join(User).order_by(User.fullname.desc())
     elif sort == 'date_new':
         query = query.order_by(SwapRequest.date.desc())
     elif sort == 'date_old':
@@ -316,13 +325,23 @@ def approve_request():
     if swap:
         swap.status = "approved"
         db.session.commit()
-        # Notify the user
-        create_notification(
-            user_id=swap.user_id,
-            message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been approved!",
-            notification_type='swap_approved'
-        )
 
+        user = User.query.get(swap.user_id)
+    
+    # Send simple text email
+    try:
+        send_swap_approved_email(user, swap)
+    except Exception as e:
+        app.logger.error(f"Email sending failed: {str(e)}")
+        flash('Approved but failed to send email', 'warning')
+        
+    # Notify the user
+    create_notification(
+        user_id=swap.user_id,
+         message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been approved!",
+         notification_type='swap_approved'
+        )
+    flash('Request approved', 'success')
     return redirect(request.referrer or url_for('main.swap_requests'))
 
 @main.route('/admin/reject', methods=['POST'])
@@ -332,12 +351,23 @@ def reject_request():
     if swap:
         swap.status = "rejected"
         db.session.commit()
-        # Notify the user
-        create_notification(
-            user_id=swap.user_id,
-             message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been rejected.",
-            notification_type='swap_rejected'
+
+        user = User.query.get(swap.user_id)
+    
+    # Send simple text email
+    try:
+        send_swap_rejected_email(user, swap)
+    except Exception as e:
+        app.logger.error(f"Email sending failed: {str(e)}")
+        flash('Rejected but failed to send email', 'warning')
+        
+    # Notify the user
+    create_notification(
+        user_id=swap.user_id,
+        message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been rejected.",
+        notification_type='swap_rejected'
         )
+    flash('Request rejected', 'success')
     return redirect(request.referrer or url_for('main.swap_requests'))
 
 @main.route('/submit', methods=['GET', 'POST'])
@@ -385,10 +415,10 @@ def submit_request():
             # Create notification for the user
             create_notification(
                 user_id=user.id,
-                message="Your swap request has been submitted successfully.",
+                message=f"Your swap request to {desired_hostel}-{desired_block}-{desired_room} has been submitted successfully.",
                 notification_type='swap_request'
             )
-            # Notify all admins
+             # Notify all admins
             admins = Admin.query.all()
             for admin in admins:
                 create_notification(
@@ -453,7 +483,7 @@ def admin_login():
         
         if admin and check_password_hash(admin.password, password):
             setup_admin_session(admin, remember)
-            return redirect(url_for('main.swap_requests'))
+            return redirect(url_for('main.admin_dashboard'))
             
         flash('Invalid username or password', 'error')
         return redirect(url_for('main.admin_login'))
@@ -464,3 +494,28 @@ def admin_login():
 def admin_logout():
     session.clear()
     return redirect(url_for('main.index'))
+
+# History and status
+@main.route('/edit-request/<int:request_id>', methods=['GET', 'POST'])
+def edit_request(request_id):
+    swap_request = SwapRequest.query.get_or_404(request_id)
+
+    if request.method == 'POST':
+        # Update fields from form data
+        swap_request.desired_hostel = request.form.get('desired_hostel')
+        swap_request.desired_block = request.form.get('desired_block')
+        swap_request.desired_room = request.form.get('desired_room')
+        
+        db.session.commit()
+        flash("Request updated successfully!", "success")
+        return redirect(url_for('main.dashboard'))
+
+    return render_template('edit_request.html', swap_request=swap_request)
+
+@main.route('/delete_request/<int:request_id>', methods=['GET'])
+def delete_request(request_id):
+    req = SwapRequest.query.get_or_404(request_id)
+    db.session.delete(req)
+    db.session.commit()
+    flash("Deleted successfully!", "success")
+    return redirect(url_for('main.dashboard'))

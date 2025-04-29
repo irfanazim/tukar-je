@@ -83,7 +83,7 @@ def create_notification(message, notification_type, user_id=None, admin_id=None)
     return notification
 
 def get_user_notifications(user_id):
-    notifications = Notification.query.filter_by(user_id=user_id).all()
+    notifications = Notification.query.filter_by(user_id=user_id).order_by(Notification.timestamp.desc()).all()
     for n in notifications:
         n.timestamp = n.timestamp + timedelta(hours=8)  # Malaysia Time 
     return notifications
@@ -102,6 +102,35 @@ def mark_notification_as_read(notification_id, user_id):
         db.session.commit()
         return True
     return False
+
+def send_swap_approved_email(user, swap):
+    body = f'''Dear {user.fullname},
+
+Your swap request has been approved!
+
+Current Location: {swap.current_hostel} - Block {swap.current_block}, Room {swap.current_room}
+New Location: {swap.desired_hostel} - Block {swap.desired_block}, Room {swap.desired_room}
+
+Please contact your hostel office for further instructions.
+
+Best regards,
+Tukar-Je Support Team
+'''
+    send_email('Swap Request Approved', user.email, body)
+
+def send_swap_rejected_email(user, swap):
+    body = f'''Dear {user.fullname},
+
+We regret to inform you that your swap request has been rejected.
+
+Requested Location: {swap.desired_hostel} - Block {swap.desired_block}, Room {swap.desired_room}
+
+If you have any questions, please reply to this email.
+
+Best regards,
+Tukar-Je Support Team
+'''
+    send_email('Swap Request Rejected', user.email, body)
 
 # Admin Sessions
 def is_admin_logged_in():
