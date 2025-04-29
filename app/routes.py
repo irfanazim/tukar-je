@@ -325,6 +325,14 @@ def reject_request():
         db.session.commit()
     return redirect(request.referrer or url_for('main.swap_requests'))
 
+@main.route('/admin/students')
+def admin_students():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    students = User.query.all()
+    return render_template('admin_students.html', students=students)
+
 @main.route('/submit', methods=['GET', 'POST'])
 def submit_request():
     if not is_logged_in():
@@ -390,7 +398,7 @@ def submit_request():
                          logged_in=is_logged_in(),
                          admin_logged_in=is_admin_logged_in())
 
-# Admin routes
+
 @main.route('/admin/register', methods=['GET', 'POST'])
 def admin_register():
     if request.method == 'POST':
