@@ -42,40 +42,52 @@
           </nav>
         </div>
 
-        <div class="admin-dashboard-page">
-        <div class="stats-container">
+        <div class="admin-dashboard">
+        <div class="dashboard-container">
           <!--First Row-->
           <div class="stats-row1">
           <div class="stat-card">
-            <h3>Pending</h3>
+            <h3>
+              <span class="pending-stat">Pending</span>
+            </h3>
             <p>{{ pending_requests }}</p>
           </div>
 
           <div class="stat-card">
-            <h3>Approved</h3>
+            <h3>
+              <span class="approved-stat">Approved</span>
+            </h3>
             <p>{{ approved_requests }}</p>
           </div>
 
           <div class="stat-card">
-            <h3>Rejected</h3>
+            <h3>
+              <span class="rejected-stat">Rejected</span>
+            </h3>
             <p>{{ rejected_requests }}</p>
           </div>
 
         </div>
         <!--Second Row-->
         <div class="stats-row2">
-          <div class="stat-card">
-            <h3>Total Requests</h3>
-            <p>{{ total_requests }}</p>
+          <div class="stat-card stat-with-button">
+            <div class="stat-left">
+              <h3>Total Requests</h3>
+              <p>{{ total_requests }}</p>
+            </div>
+            <a href="{{ url_for('main.swap_requests') }}" class="shortcut">Manage Requests</a>
           </div>
 
-          <div class="stat-card">
-            <h3>Registered Students</h3>
-            <p>35</p>
+          <div class="stat-card stat-with-button">
+            <div class="stat-left">
+              <h3>Registered Students</h3>
+              <p>35</p>
+            </div>
+            <a href="#" class="shortcut">Manage Students</a>
           </div>
         </div>
         
-        
+        <!--Recent 5 requests table-->
         <div class="recent-request-content">
           <h3>Recent Swap Requests</h3>
           
@@ -140,19 +152,16 @@
               </tbody>
             </table>    
           </div>
-        
+
+          <div class="admin-dashboard-hostel-content hostel-with-button">
+            <div class="hostel-text">
+              <h3>Hostel Map</h3>
+              <p>Hostel Map Content</p>
+            </div>
+            <a href="#" class="shortcut">Edit Rooms</a>
+          </div>
           
-        </div>
-        
-        <div class="shortcuts">
-          <a href="{{ url_for('main.swap_requests') }}" class="shortcut">Manage Requests</a>
-          <a href="#" class="shortcut">Manage Students</a>
-          <a href="#" class="shortcut">Edit Rooms</a>
-          <a href="#" class="shortcut">View Reports</a>
           
-        </div>
-        
-        
         </div>
     
 

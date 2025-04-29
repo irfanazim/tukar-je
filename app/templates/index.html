@@ -25,7 +25,7 @@
                         <span class="notification-badge" style="display:none;"></span>
                         </button></a>
                 {% elif admin_logged_in %}
-                    <a href="{{ url_for('main.swap_requests') }}">Admin Dashboard</a>
+                    <a href="{{ url_for('main.admin_dashboard') }}">Admin Dashboard</a>
                     <a href="{{ url_for('main.admin_logout') }}">Logout</a>
                 {% else %}
                     <a href="{{ url_for('main.register') }}">Register</a>
@@ -47,7 +47,7 @@
                 {% elif logged_in %}
                     <a href="{{ url_for('main.dashboard') }}" class="button">Go to Dashboard</a>
                 {% elif admin_logged_in %}
-                    <a href="{{ url_for('main.swap_requests') }}" class="button">Go to Admin Dashboard</a>
+                    <a href="{{ url_for('main.admin_dashboard') }}" class="button">Go to Admin Dashboard</a>
                 {% endif %}
             </div>
         </div>
