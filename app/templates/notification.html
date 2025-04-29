@@ -37,6 +37,9 @@
                 {% if not notification.is_read %}• New{% endif %}
             </span>
             <p class="notification-message">{{ notification.message }}</p>
+            <p class="notification-time">
+                {{ notification.timestamp.strftime('%Y-%m-%d %H:%M') }}
+            </p>
             <div class="notification-actions">
                 <button type="button" class="delete-notification" data-id="{{ notification.id }}" title="Delete">✕</button>
                 {% if not notification.is_read %}
