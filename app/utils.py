@@ -70,9 +70,10 @@ def send_verification_email(user):
         return False 
 
 # Notification system
-def create_notification(user_id, message, notification_type):
+def create_notification(message, notification_type, user_id=None, admin_id=None):
     notification = Notification(
         user_id=user_id,
+        admin_id=admin_id,
         message=message,
         is_read=False,
         notification_type=notification_type
@@ -82,7 +83,17 @@ def create_notification(user_id, message, notification_type):
     return notification
 
 def get_user_notifications(user_id):
-    return Notification.query.filter_by(user_id=user_id).all()
+    notifications = Notification.query.filter_by(user_id=user_id).all()
+    for n in notifications:
+        n.timestamp = n.timestamp + timedelta(hours=8)  # Malaysia Time 
+    return notifications
+
+def get_admin_notifications(admin_id):
+    notifications = Notification.query.filter_by(admin_id=admin_id).order_by(Notification.timestamp.desc()).all()
+    for n in notifications:
+        n.timestamp = n.timestamp + timedelta(hours=8)  # Malaysia Time 
+    return notifications
+
 
 def mark_notification_as_read(notification_id, user_id):
     notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()

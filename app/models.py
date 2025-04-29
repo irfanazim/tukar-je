@@ -23,9 +23,11 @@ class Admin(db.Model):
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id')) 
     message = db.Column(db.String(255))
     is_read = db.Column(db.Boolean, default=False)
     notification_type = db.Column(db.String(50))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     
 class SwapRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)

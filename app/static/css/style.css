@@ -303,6 +303,14 @@ ul li a:hover{
     color: green;
 }
 
+.notification-time {
+    font-size: 0.75rem;
+    color: #95a5a6; /* Light grey */
+    margin-top: 8px;
+    font-style: italic;
+    display: block;
+}
+
 /*Dashboord Page css*/
 .title2 {
     margin-top: 120px;

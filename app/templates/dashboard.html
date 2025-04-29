@@ -47,8 +47,38 @@
             <div class="dashboard-card wide-card">
                 <h3>History and Status</h3>
                 <div class="status-content">
-                    <!-- Content would go here -->
-                    <p>None</p>
+                    <table class="table" border="1">
+                        <thead>
+                            <tr>
+                              <th>Student Name</th>
+                              <th>Student ID</th>
+                              <th>Current Location</th>
+                              <th>Desired Location</th>
+                              <th>Status</th>
+                              <th>Submitted Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr>
+                                <td>{{ req.user.fullname }}</td>
+                                <td>{{ req.user.student_id }}</td>
+                                <td>{{ req.current_hostel }}-{{ req.current_block }}-{{ req.current_room }}</td>
+                                <td>{{ req.desired_hostel }}-{{ req.desired_block }}-{{ req.desired_room }}</td>
+                                <td class="status">
+                                    {% if req.status == "pending" %}
+                                        <span class="status-pending">⏳Pending</span>
+                                    {% elif req.status == "approved" %}
+                                        <span class="status-approved">✅ Approved</span>
+                                    {% else %}
+                                        <span class="status-rejected">❌ Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ req.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

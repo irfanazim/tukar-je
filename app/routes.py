@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from . import db, mail
 from .models import Notification, User, Admin
-from .utils import (create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, 
+from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, 
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
                    send_verification_email)
@@ -197,7 +197,9 @@ def reset_password(token):
 def dashboard():
     if not is_logged_in():
         return redirect(url_for('main.login'))
-    return render_template('dashboard.html', logged_in=True)
+    user_id = session.get('user_id')
+    swap_requests = SwapRequest.query.filter_by(user_id=user_id).all()
+    return render_template('dashboard.html', logged_in=True, requests=swap_requests)
 
 @main.route('/logout')
 def logout():
@@ -207,13 +209,17 @@ def logout():
 #Notification system
 @main.route('/notification')
 def notification():
-    if not is_logged_in():
+    if not (is_logged_in() or is_admin_logged_in()):
         return redirect(url_for('main.login'))
         
-    user_id = session['user_id']
-    user_notifications = get_user_notifications(user_id)
-    return render_template('notification.html', notifications=user_notifications)
-
+    if is_logged_in():
+        user_id = session['user_id']
+        notifications = get_user_notifications(user_id)
+    else:  # is admin
+        admin_id = session['admin_id']
+        notifications = get_admin_notifications(admin_id)
+        
+    return render_template('notification.html', notifications=notifications)
 @main.route('/mark-as-read/<int:notification_id>', methods=['POST'])
 def mark_notification_as_read(notification_id):
     notification = Notification.query.get(notification_id)
@@ -225,11 +231,16 @@ def mark_notification_as_read(notification_id):
 
 @main.route('/delete-notification/<int:notification_id>', methods=['POST'])
 def delete_notification(notification_id):
-    if not is_logged_in():
+    # Check if logged in as USER or ADMIN
+    if is_logged_in():
+        user_id = session.get('user_id')
+        notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
+    elif is_admin_logged_in():
+        admin_id = session.get('admin_id')
+        notification = Notification.query.filter_by(id=notification_id, admin_id=admin_id).first()
+    else:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
-    user_id = session.get('user_id')
-    notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
     if not notification:
         return jsonify({'success': False, 'message': 'Notification not found'}), 404
 
@@ -237,14 +248,19 @@ def delete_notification(notification_id):
     db.session.commit()
     return jsonify({'success': True})
 
+
 @main.route('/notification-count')
 def notification_count():
-    if not is_logged_in():
+    if is_logged_in():
+        user_id = session.get('user_id')
+        count = Notification.query.filter_by(user_id=user_id, is_read=False).count()
+        return jsonify({'count': count})
+    elif is_admin_logged_in():
+        admin_id = session.get('admin_id')
+        count = Notification.query.filter_by(admin_id=admin_id, is_read=False).count()
+        return jsonify({'count': count})
+    else:
         return jsonify({'count': 0})
-    
-    user_id = session.get('user_id')
-    count = Notification.query.filter_by(user_id=user_id, is_read=False).count()
-    return jsonify({'count': count})
 
 
 
@@ -300,6 +316,13 @@ def approve_request():
     if swap:
         swap.status = "approved"
         db.session.commit()
+        # Notify the user
+        create_notification(
+            user_id=swap.user_id,
+            message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been approved!",
+            notification_type='swap_approved'
+        )
+
     return redirect(request.referrer or url_for('main.swap_requests'))
 
 @main.route('/admin/reject', methods=['POST'])
@@ -309,6 +332,12 @@ def reject_request():
     if swap:
         swap.status = "rejected"
         db.session.commit()
+        # Notify the user
+        create_notification(
+            user_id=swap.user_id,
+             message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been rejected.",
+            notification_type='swap_rejected'
+        )
     return redirect(request.referrer or url_for('main.swap_requests'))
 
 @main.route('/submit', methods=['GET', 'POST'])
@@ -359,6 +388,14 @@ def submit_request():
                 message="Your swap request has been submitted successfully.",
                 notification_type='swap_request'
             )
+            # Notify all admins
+            admins = Admin.query.all()
+            for admin in admins:
+                create_notification(
+                    admin_id=admin.id,
+                    message=f"New swap request from Student ID: {user.student_id}",
+                    notification_type='new_request'
+                    )
             
             flash('Swap request submitted successfully!', 'success')
             return redirect(url_for('main.submit_request'))
