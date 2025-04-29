@@ -547,10 +547,9 @@ ul li a:hover{
 /*Above is the end of Register and Login Page css*/
 
 /* CSS for admin dashboard page */
-.stats-container {
+.admin-dashboard .dashboard-container {
     padding: 0 100px;
     margin-top: 30px;
-    
     display: flex;
     gap: 20px;
     margin-bottom: 30px;
@@ -582,12 +581,11 @@ ul li a:hover{
     display: flex;
 }
 
-
-
 .stat-card h3 {
     font-size: 16px;
     color: #555;
     margin-bottom: 8px;
+    
 }
 
 .stat-card p {
@@ -596,6 +594,25 @@ ul li a:hover{
     margin: 0;
     color: #1e40af;
 }
+
+.pending-stat {
+    background: #f8d15a;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+.approved-stat {
+    background: #10b981 ;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+.rejected-stat {
+    background: #e57373;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
 
 .recent-request-content {
     background: white;
@@ -607,8 +624,8 @@ ul li a:hover{
 
 .recent-request-content h3 {
     margin-bottom: 15px;
-      font-size: 20px;
-      color: #1e3a8a;
+    font-size: 20px;
+    color: #1e3a8a;
 }
 
 .recent-request-content table {
@@ -618,7 +635,7 @@ ul li a:hover{
 
 .recent-request-content th, td {
     padding: 12px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #eee;
   }
 .recent-request-content th {
@@ -634,7 +651,6 @@ ul li a:hover{
     cursor: pointer;
     color: white;
   }
-
   
 .recent-request-content .btn-approve { background-color: #10b981; }
 .recent-request-content  .btn-decline { background-color: #ef4444; }
@@ -658,30 +674,88 @@ ul li a:hover{
     border-radius: 3px; 
 }
 
-
-
-
 .status-text {
     font-weight: bold;
     font-size: 14px;
     color: #333;
 }
 
-
-
 .recent-request-content .status-pending .status-cube {
     background-color: #f8d15a; 
 }
-
 
 .recent-request-content .status-approved .status-cube{
     background-color: #10b981; 
 }
 
-
 .recent-request-content .status-rejected .status-cube{
     background-color: #ef4444; 
 }
+
+.admin-dashboard-hostel-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    
+}
+
+.admin-dashboard-hostel-content h3 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #1e3a8a;
+}
+
+.hostel-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+.hostel-text {
+    display: flex;
+    flex-direction: column;
+  }
+  
+.hostel-with-button .shortcut {
+    margin-top: 10px; 
+    white-space: nowrap;
+  }
+  
+
+.shortcut {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color 0.3s ;
+    
+  }
+
+.shortcut:hover {
+    background-color: #3749b4;
+  }
+.stat-with-button {
+    flex-direction: row;        
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+.stat-with-button .shortcut {
+    margin-top: 15px;
+}
+  
+.stat-left {
+    display: flex;
+    flex-direction: column;
+  }
 
 /*End for admin dashboard page */
 
