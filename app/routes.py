@@ -265,12 +265,13 @@ def admin_dashboard():
         flash('Please login as admin', 'error')
         return redirect(url_for('main.admin_login'))
     total_requests = SwapRequest.query.count()
+    total_students = User.query.count()
     pending_requests = SwapRequest.query.filter_by(status='pending').count()
     approved_requests = SwapRequest.query.filter_by(status='approved').count()
     rejected_requests = SwapRequest.query.filter_by(status='rejected').count()
     recent_requests = SwapRequest.query.order_by(SwapRequest.date.desc()).limit(5).all()
 
-    return render_template('admin_dashboard.html', total_requests=total_requests, pending_requests=pending_requests,
+    return render_template('admin_dashboard.html', total_requests=total_requests, total_students=total_students, pending_requests=pending_requests,
                             approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests)
 
 @main.route('/admin/requests')
@@ -370,6 +371,14 @@ def reject_request():
     flash('Request rejected', 'success')
     return redirect(request.referrer or url_for('main.swap_requests'))
 
+@main.route('/admin/students')
+def admin_students():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    students = User.query.all()
+    return render_template('admin_students.html', students=students)
+
 @main.route('/submit', methods=['GET', 'POST'])
 def submit_request():
     if not is_logged_in():
@@ -443,7 +452,7 @@ def submit_request():
                          logged_in=is_logged_in(),
                          admin_logged_in=is_admin_logged_in())
 
-# Admin routes
+
 @main.route('/admin/register', methods=['GET', 'POST'])
 def admin_register():
     if request.method == 'POST':
