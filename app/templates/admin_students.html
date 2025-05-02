@@ -35,13 +35,53 @@
               <ul>
                 <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
                 <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
-                <li><a href="#">Students</a></li>
+                <li><a href="{{ url_for('main.admin_students')}}">Students</a></li>
                 <li><a href="#">Settings</a></li>
               </ul>
             </nav>
           </div>
 
-          <table border="1">
+          
+            <form id="filter-form" method="GET" action="/admin/students" >
+            <div class="table-controls-container">
+
+            <!-- Search Bar -->
+            <div class="search-input-container">
+                <span class="material-icons" id="search-icon">search</span>
+                <input type="text" class="search-input" placeholder="Search by name..." name="search" value="{{ search }}">
+              
+            </div>
+            <!-- Hostel Filter -->
+            <div class="filter-container">
+                <span class="material-icons" id="filter-icon">filter_list</span>
+                <label for="hostel-filter">Hostel:</label>
+                <select id="hostel-filter" class="filter-select" name="hostel" onchange="document.getElementById('filter-form').submit()">
+                    <option value="all" {% if hostel == 'all' %}selected{% endif %}>All</option>
+                    <option value="HB1" {% if hostel == 'HB1' %}selected{% endif %}>HB1</option>
+                    <option value="HB2" {% if hostel == 'HB2' %}selected{% endif %}>HB2</option>
+                    <option value="HB3" {% if hostel == 'HB3' %}selected{% endif %}>HB3</option>
+                    <option value="HB4" {% if hostel == 'HB4' %}selected{% endif %}>HB4</option>
+                </select>
+            </div>
+            <!-- Block Filter -->
+            <div class="filter-container">
+                <span class="material-icons" id="filter-icon">filter_list</span>
+                <label for="block-filter">Block:</label>
+                <select id="block-filter" class="filter-select" name="block" onchange="document.getElementById('filter-form').submit()">
+                    <option value="all" {% if block == 'all' %}selected{% endif %}>All</option>
+                    <option value="A" {% if block == 'A' %}selected{% endif %}>Block A</option>
+                    <option value="B" {% if block == 'B' %}selected{% endif %}>Block B</option>
+                    <option value="C" {% if block == 'C' %}selected{% endif %}>Block C</option>
+                </select>
+            </div>
+        </div>
+            
+            </form>
+          
+          
+        <!-- Registered Students Table -->
+          <div class="registered-students-content">
+          <table class="table" border="1">
             <thead>
                 <tr>
                     <th>Student Name</th>
@@ -62,12 +102,35 @@
                     <td>{{ student.block }}</td>
                     <td>{{ student.room }}</td>
                 </tr>
+                {% else %}
+                <tr><td colspan="6" style="color: #999;">No Student Details Found.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
 
+        <div class="pagination">
+            {% if page > 1 %}
+              <a href="{{ url_for('main.admin_students', page=page-1, search=search, hostel=hostel, block=block) }}">Previous</a>
+            {% endif %}
+          
+            {% for p in range(1, total_pages + 1) %}
+              {% if p == page %}
+                <span class="current">{{ p }}</span>
+              {% else %}
+                <a href="{{ url_for('main.admin_students', page=p, search=search, hostel=hostel, block=block) }}">{{ p }}</a>
+              {% endif %}
+            {% endfor %}
+          
+            {% if page < total_pages %}
+              <a href="{{ url_for('main.admin_students', page=page+1, search=search, hostel=hostel,block=block) }}">Next</a>
+            {% endif %}
+          </div>
+
 
         </div>
+        </div>
+    
+    
 
 
         <footer>

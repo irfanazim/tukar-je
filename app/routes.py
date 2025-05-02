@@ -214,7 +214,7 @@ def notification():
         admin_id = session['admin_id']
         notifications = get_admin_notifications(admin_id)
         
-    return render_template('notification.html', notifications=notifications)
+    return render_template('notification.html', notifications=notifications, is_logged_in=is_logged_in(), is_admin_logged_in=is_admin_logged_in())
 @main.route('/mark-as-read/<int:notification_id>', methods=['POST'])
 def mark_notification_as_read(notification_id):
     notification = Notification.query.get(notification_id)
@@ -292,7 +292,7 @@ def swap_requests():
         query = SwapRequest.query.join(User).filter(func.lower(User.fullname).like(f"%{search}%"))
     #filtering by status
     if status != 'all':
-        query = query.filter_by(status=status)
+        query = query.filter(SwapRequest.status==status)
     #sorting 
     if sort == 'name_asc':
         query = SwapRequest.query.join(User).order_by(User.fullname.asc())
@@ -376,8 +376,33 @@ def admin_students():
     if not is_admin_logged_in():
         flash('Please login as admin', 'error')
         return redirect(url_for('main.admin_login'))
-    students = User.query.all()
-    return render_template('admin_students.html', students=students)
+    
+    # GET query parameters
+    search = request.args.get('search', '').lower()
+    hostel = request.args.get('hostel', 'all')
+    block = request.args.get('block', 'all')
+    page = int(request.args.get('page', 1))
+    per_page = 50
+    query = User.query
+
+    #searching
+    if search:
+        query = query.filter(func.lower(User.fullname).like(f"%{search}%"))
+    #filtering by hostel
+    if hostel != 'all':
+        query = query.filter(User.hostel==hostel)
+    #filtering by block
+    if block != 'all':
+        query = query.filter(User.block==block)
+    #pagination
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page
+    requests = query.offset((page - 1) * per_page).limit(per_page).all()
+    
+    
+    students = query.all()
+    return render_template('admin_students.html', students=students , search=search, hostel=hostel, block=block,
+                           page=page,total_pages=total_pages)
 
 @main.route('/submit', methods=['GET', 'POST'])
 def submit_request():
