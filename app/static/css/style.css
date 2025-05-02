@@ -557,6 +557,10 @@ ul li a:hover{
 /*Above is the end of Register and Login Page css*/
 
 /* CSS for admin dashboard page */
+.admin-dashboard {
+    margin-right: 20px; 
+}
+
 .admin-dashboard .dashboard-container {
     padding: 0 100px;
     margin-top: 30px;
@@ -641,9 +645,21 @@ ul li a:hover{
 .recent-request-content table {
     width: 100%;
     border-collapse: collapse;
+    
   }
+.recent-request-content table tbody tr:hover {
+    background-color: #e3f2fd;
+  }
+  
+.recent-request-content th {
+    text-align: center;
+    white-space: nowrap; 
+    padding: 10px;
+    box-sizing: border-box;
+    width: auto; 
+}
 
-.recent-request-content th, td {
+.recent-request-content th, .recent-request-content td  {
     padding: 12px;
     text-align: center;
     border-bottom: 1px solid #eee;
@@ -652,6 +668,14 @@ ul li a:hover{
     background-color: #e0e7ff;
     color: #1e3a8a;
   }
+
+.recent-request-content td {
+    text-align: center;
+    white-space: nowrap; 
+    padding: 10px;
+    box-sizing: border-box;
+    width: auto; 
+}
 
 .recent-request-content .actions button {
     padding: 6px 12px;
@@ -705,7 +729,7 @@ ul li a:hover{
 .admin-dashboard-hostel-content {
     background: white;
     border-radius: 12px;
-    padding: 20px;
+    padding: 30px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     margin-bottom: 30px;
     
@@ -722,7 +746,7 @@ ul li a:hover{
     justify-content: space-between;
     align-items: center;
     border: 1px solid #e0e0e0;
-    width: 100%;
+    width: 1100px;
     box-sizing: border-box;
   }
   
@@ -786,16 +810,23 @@ ul li a:hover{
 }
 .table th, .table td {
     padding: 12px 15px;
-    border: 1px solid #ccc;
+    
     text-align: center;
+    border: none;                  
+    border-bottom: 1px solid #ccc; 
+
 }
 
 .table thead {
-    background-color: #333;
-    color: #fff;
+    background-color: #e0e7ff;
+    color: #1e3a8a;
 }
 .table tbody tr:hover {
     background-color: #e3f2fd;
+}
+.table tbody tr {
+    transition: background-color 0.3s ease;
+    background-color: #fff;
 }
 .table td.actions {
     text-align: center;
@@ -891,63 +922,8 @@ button:disabled {
   font-size: 16px;
   }
 
- 
-.table-controls {
-    display: flex; 
-    justify-content: flex-start; 
-    align-items: center; 
-    gap: 10px; 
-    margin-bottom: 20px;
-    padding: 0 10px;
-    margin-left: 55px; 
-}
-  
-  
-  .search-container {
-    position: relative; 
-    flex: 1; 
-    max-width: 400px; 
-  }
-  
-  #search-input {
-    width: 100%; 
-    padding: 10px 15px 10px 35px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-  
-  #search-icon {
-    position: absolute;
-    left: 12px; 
-    top: 50%; 
-    transform: translateY(-50%); 
-    color: black;
-    pointer-events: none; 
-  }
-  
-  
-  #status-filter {
-    padding: 10px 15px;
-    width: 200px; 
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-left: 0; 
-    align-self: flex-start; 
-  }
 
-  #sort-select {
-    padding: 10px 15px;
-    width: 200px; 
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-left: 0; 
-    align-self: flex-start; 
-  }
-
-  .adminrequests-container {
+.adminrequests-container {
     flex: 1;
     min-height: 700px; 
     
@@ -957,6 +933,8 @@ button:disabled {
     text-align: center;
     margin: 30px 0;
   }
+
+
   
   .pagination a,
   .pagination span {
@@ -969,6 +947,9 @@ button:disabled {
     text-decoration: none;
     border-radius: 4px;
   }
+  .pagination a:hover {
+    background: #E3ECF7;
+  }
   
   .pagination .current {
     background-color: #034EA1;
@@ -977,6 +958,135 @@ button:disabled {
   }
 
 /* Above is the end of admin request table css */
+
+/* CSS for total students page */
+.registered-students-container {
+flex: 1;
+min-height: 700px; }
+
+.table-controls-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 90%;
+    margin: 20px auto;
+    padding: 15px 20px;
+    background-color: #f9fbfc;
+    border: 1px solid #d4dbe0;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .search-input-container {
+    position: relative;
+    flex: 2;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 8px 12px 8px 35px;
+    font-size: 14px;
+    border: 1px solid #ccd4dc;
+    border-radius: 6px;
+    background-color: white;
+    box-sizing: border-box;
+  }
+
+ .search-input-container #search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 20px;
+    pointer-events: none;  
+  }
+  
+  /* Filter and Sort Dropdowns */
+  .filter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .filter-container label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #999;
+    white-space: nowrap;
+  }
+
+  #filter-icon {
+    color: #999;
+  }
+  
+  .filter-select {
+    flex: 1;
+    padding: 7px 10px;
+    font-size: 14px;
+    border: 1px solid #ccd4dc;
+    border-radius: 6px;
+    background-color: white;
+  }
+  
+  .sort-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .sort-container label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #999;
+    white-space: nowrap;
+  }
+
+  #sort-icon {
+    color: #999;
+  }
+  
+  .sort-select {
+    flex: 1;
+    padding: 7px 10px;
+    font-size: 14px;
+    border: 1px solid #ccd4dc;
+    border-radius: 6px;
+    background-color: white;
+  }
+
+/* Pagination */
+.pagination {
+    text-align: center;
+    margin: 30px 0;
+  }
+  
+.pagination a,
+.pagination span {
+    display: inline-block;
+    padding: 8px 14px;
+    margin: 0 3px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.3s ease-in-out;
+  }
+.pagination a:hover {
+    background: #E3ECF7;
+  }
+  
+.pagination .current {
+    background-color: #034EA1;
+    color: white;
+    font-weight: bold;
+  }
+/* End for total students page */
 
 .current-location {
     background: #f8f9fa;

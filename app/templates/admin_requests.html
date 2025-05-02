@@ -41,37 +41,45 @@
             </nav>
           </div>
 
-          <div class="table-controls">
-            <form id="filter-form" method="GET" action="/admin/requests" style="display: flex; gap: 1rem;">
+          
+            <form id="filter-form" method="GET" action="/admin/requests" >
+            <div class="table-controls-container">
+
             <!-- Search Bar -->
-            <div class="search-container">
-                <input id="search-input" type="text" name="search" placeholder="Search..." value="{{ search }}"  >
-                <span class="material-icons" id="search-icon">search</span>
+            <div class="search-input-container">
+              <span class="material-icons" id="search-icon">search</span>
+              <input type="text" class="search-input" placeholder="Search by name..." name="search" value="{{ search }}">
             </div>
           
             <!-- Status Filter -->
             <div class="filter-container">
-
-              <select id="status-filter" name="status" onchange="document.getElementById('filter-form').submit()">
-                <option value="all" {% if status == 'all' %}selected{% endif %}>Filter Status</option>
-                <option value="pending" {% if status == 'pending'%}selected{% endif %} >Pending</option>
-                <option value="approved" {% if status == 'approved' %}selected{% endif %}   >Approved</option>
-                <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
+              <span class="material-icons" id="filter-icon">filter_list</span>
+              <label for="hostel-filter">Status:</label>
+              <select id="hostel-filter" class="filter-select" name="status" onchange="document.getElementById('filter-form').submit()">
+                  <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+                  <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                  <option value="approved" {% if status == 'approved' %}selected{% endif %}>Approved</option>
+                  <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
               </select>
-            </div>
+          </div>
 
             <!-- Sort dropdown -->
-           <select id="sort-select" name="sort" onchange="document.getElementById('filter-form').submit()">
-            <option value="">Sort By</option>
+          <div class="sort-container">
+            <span class="material-icons" id="sort-icon">sort</span>
+            <label for="sort-filter">Sort By:</label>
+           <select id="sort-filter" class="sort-select" name="sort" onchange="document.getElementById('filter-form').submit()">
+            <option value="">Default</option>
             <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
             <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
-            <option value="date_new" {% if sort == 'date_new' %}selected{% endif %}>Date (Newest)</option>
-            <option value="date_old" {% if sort == 'date_old' %}selected{% endif %}>Date (Oldest)</option>
+            <option value="date_new" {% if sort == 'date_new' %}selected{% endif %}>Latest</option>
+            <option value="date_old" {% if sort == 'date_old' %}selected{% endif %}>Oldest</option>
            </select>
+          </div>
+        </div>
         
             
         </form>
-    </div>
+    
          
 
         <table class="table" border="1">
@@ -120,6 +128,8 @@
                 {% endif %}
                     </td>
                 </tr>
+                {% else %}
+                <tr><td colspan="7" style="color: #999;">No requests found.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -141,6 +151,7 @@
             {% endif %}
           </div>
     </div>
+  
 
         <footer>
           <div class="footer-col">
