@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Hostel Map</title>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('main.index') }}">Home</a>
+            {% if logged_in %}
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('main.logout') }}">Logout</a>
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                    <span class="material-icons">notifications</span>
+                    </button></a>
+            {% elif admin_logged_in %}
+                <a href="{{ url_for('main.swap_requests') }}">Admin Dashboard</a>
+                <a href="{{ url_for('main.admin_logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('main.register') }}">Register</a>
+                <a href="{{ url_for('main.login') }}">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <div class="title3">
+        <h1>Hostel Map</h1>
+        </div>
+    <div class="map-container">
+        <div class="map-row">
+            <div class="map-card">
+        <svg version="1.1" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <!-- Background Image -->
+            <image width="100%" height="100%" preserveAspectRatio="none"  xlink:href="{{ url_for('static', filename='images/TEST.png') }}"/>
+            
+
+            <a xlink:href="https://example.com/link1" target="_blank">
+                <path class="clickable-region" d="m815.65 243.1h152.77l1.3284 200.59-158.08-2.6568z"  data-tooltip="Block B - Room 1" />
+            </a>
+            
+            <a xlink:href="https://example.com/link2" target="_blank">
+                <path class="clickable-region" d="m812.99 454.32 154.1-1.3284 5.3136 201.92h-158.08z" data-tooltip="Block B - Room 2"/>
+            </a>
+            
+            <a xlink:href="https://example.com/link3" target="_blank">
+                <path class="clickable-region" d="m810.33 658.89h155.42l2.6568 205.9-162.07-5.3137z" data-tooltip="Block B - Room 3"/>
+            </a>
+            
+            <a xlink:href="https://example.com/link4" target="_blank">
+                <path class="clickable-region" d="m123.54 236.46h158.08l1.3284 201.92-163.39-1.3284z" data-tooltip="Block A - Room 1"/>
+            </a>
+            
+            <a xlink:href="https://example.com/link5" target="_blank">
+                <path class="clickable-region" d="m122.21 446.35 159.41 3.9852 1.3284 204.58-159.41-2.6568z" data-tooltip="Block A - Room 2"/>
+            </a>
+            
+            <a xlink:href="https://example.com/link6" target="_blank">
+                <path class="clickable-region" d="m126.2 664.21 158.08-2.6568v199.26l-159.41 2.6568z" data-tooltip="Block A - Room 3"/>
+            </a>
+        </svg>
+    </div>
+</div>
+
+<div id="simple-tooltip"></div>
+            
+        </div>
+    </div>
+    
+    <script>
+        const regions = document.querySelectorAll('.clickable-region');
+        const tooltip = document.getElementById('simple-tooltip');
+    
+        regions.forEach(region => {
+            region.addEventListener('mousemove', (e) => {
+
+                tooltip.textContent = region.getAttribute('data-tooltip');
+                
+                tooltip.style.left = `${e.clientX + 15}px`;
+                tooltip.style.top = `${e.clientY + 15}px`;
+                
+                tooltip.style.display = 'block';
+            });
+    
+            region.addEventListener('mouseout', () => {
+                tooltip.style.display = 'none';
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch notification count every time a page is loaded
+            function fetchNotificationCount() {
+                fetch('/notification-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        const count = data.count;
+                        let badge = document.querySelector('.icon-button .notification-badge');
+                        
+                        if (!badge && count > 0) {
+                            // Create badge if not exist
+                            badge = document.createElement('span');
+                            badge.classList.add('notification-badge');
+                            document.querySelector('.icon-button').appendChild(badge);
+                        }
+                        
+                        if (badge) {
+                            if (count > 0) {
+                                badge.textContent = count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    });
+            }
+
+            fetchNotificationCount();
+            setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
+        });
+    </script>
+</body>
+
+<footer>
+    <div class="footer-col">
+        <ul>
+        <div class="logo">
+        <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
+            <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+        </ul>
+    </div>
+    <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+            <li><a href="">About</a></li>
+            <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
+            <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+        </ul>
+    </div>
+    <div class="footer-col">
+        <h4>Contact Us</h4>
+        <ul>
+            <li><a href="#">tukarje@gmail.com</a></li>
+        </ul>
+    </div> 
+</footer>
