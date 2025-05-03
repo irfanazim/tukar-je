@@ -1227,3 +1227,67 @@ min-height: 700px; }
     margin-bottom:10px;
 }
 
+
+/* Hostel Map */
+
+.map-container {
+    padding: 0 45px;  
+    margin: 20px auto; 
+    max-width: 780px; 
+}
+
+.map-row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.map-card {
+    background: #ffffff;
+    padding: 6px; 
+    border-radius: 8px;
+    width: 76%; 
+    margin: 0 auto; 
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+
+/* SVG map */
+.map-card svg {
+    width: 81%; 
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 4px;
+    max-width: 660px; 
+}
+
+
+.clickable-region {
+    fill-opacity: 0;
+    cursor: pointer;
+    transition: fill-opacity 0.3s ease;
+}
+
+.clickable-region:hover {
+    fill-opacity: 0.3;
+    fill: #4285f4;
+}
+
+.title3 {
+    margin-top: 120px; 
+    text-align: center;
+    font-size: 22px;
+}
+
+#simple-tooltip {
+    position: fixed;
+    background: black;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: none;
+    z-index: 100;
+}

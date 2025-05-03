@@ -553,3 +553,10 @@ def delete_request(request_id):
     db.session.commit()
     flash("Deleted successfully!", "success")
     return redirect(url_for('main.dashboard'))
+
+# Hostel Map
+@main.route('/map')
+def hostel_map():
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+    return render_template('map.html', logged_in=is_logged_in())
