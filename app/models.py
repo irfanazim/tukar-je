@@ -43,3 +43,10 @@ class SwapRequest(db.Model):
     
     # Relationship with User model
     user = db.relationship('User', backref=db.backref('swap_requests', lazy=True))
+
+class Announcement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
+    admin = db.relationship('Admin', backref=db.backref('announcements', lazy=True))
