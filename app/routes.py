@@ -15,7 +15,7 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    announcements = Announcement.query.order_by(Announcement.date_posted.desc()).limit(3).all()
+    announcements = Announcement.query.order_by(Announcement.date_posted.desc()).limit(10).all()
     return render_template('index.html', 
                         logged_in=is_logged_in(),
                         admin_logged_in=is_admin_logged_in(),
