@@ -1,6 +1,6 @@
 from flask import Blueprint, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from . import db, mail
-from .models import Notification, User, Admin
+from .models import Notification, User, Admin, SwapRequest, Announcement
 from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
@@ -9,16 +9,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from math import ceil
 from datetime import datetime
-from app.models import SwapRequest
 from sqlalchemy import func
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
+    announcements = Announcement.query.order_by(Announcement.date_posted.desc()).limit(3).all()
     return render_template('index.html', 
                         logged_in=is_logged_in(),
-                        admin_logged_in=is_admin_logged_in())
+                        admin_logged_in=is_admin_logged_in(),
+                        announcements=announcements)
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
@@ -270,9 +271,10 @@ def admin_dashboard():
     approved_requests = SwapRequest.query.filter_by(status='approved').count()
     rejected_requests = SwapRequest.query.filter_by(status='rejected').count()
     recent_requests = SwapRequest.query.order_by(SwapRequest.date.desc()).limit(5).all()
-
+    announcements = Announcement.query.order_by(Announcement.date_posted.desc()).all()
     return render_template('admin_dashboard.html', total_requests=total_requests, total_students=total_students, pending_requests=pending_requests,
-                            approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests)
+                            approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests,
+                            announcements=announcements)
 
 @main.route('/admin/requests')
 def swap_requests():
@@ -560,3 +562,60 @@ def hostel_map():
     if not is_logged_in():
         return redirect(url_for('main.login'))
     return render_template('map.html', logged_in=is_logged_in())
+
+@main.route('/admin/announcement/add', methods=['POST'])
+def add_announcement():
+    if not is_admin_logged_in():
+        flash('Unauthorized', 'error')
+        return redirect(url_for('main.admin_dashboard'))
+    content = request.form.get('content')
+    if not content:
+        flash('Announcement content required', 'error')
+        return redirect(url_for('main.admin_announcements'))
+    admin_id = session.get('admin_id')
+    ann = Announcement(content=content, admin_id=admin_id)
+    db.session.add(ann)
+    db.session.commit()
+    flash('Announcement posted!', 'success')
+    return redirect(url_for('main.admin_announcements'))
+
+@main.route('/admin/announcement/edit/<int:id>', methods=['POST'])
+def edit_announcement(id):
+    if not is_admin_logged_in():
+        flash('Unauthorized', 'error')
+        return redirect(url_for('main.admin_dashboard'))
+    ann = Announcement.query.get_or_404(id)
+    if ann.admin_id != session.get('admin_id'):
+        flash('You can only edit your own announcements.', 'error')
+        return redirect(url_for('main.admin_dashboard'))
+    new_content = request.form.get('content')
+    if new_content:
+        ann.content = new_content
+        db.session.commit()
+        flash('Announcement updated!', 'success')
+    else:
+        flash('Content cannot be empty.', 'error')
+    return redirect(url_for('main.admin_announcements'))
+
+@main.route('/admin/announcement/delete/<int:id>', methods=['POST'])
+def delete_announcement(id):
+    if not is_admin_logged_in():
+        flash('Unauthorized', 'error')
+        return redirect(url_for('main.admin_dashboard'))
+    ann = Announcement.query.get_or_404(id)
+    if ann.admin_id != session.get('admin_id'):
+        flash('You can only delete your own announcements.', 'error')
+        return redirect(url_for('main.admin_dashboard'))
+    db.session.delete(ann)
+    db.session.commit()
+    flash('Announcement deleted!', 'success')
+    return redirect(url_for('main.admin_announcements'))
+
+@main.route('/admin/announcements')
+def admin_announcements():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    announcements = Announcement.query.order_by(Announcement.date_posted.desc()).all()
+    edit_id = request.args.get('edit_id', type=int)
+    return render_template('admin_announcements.html', announcements=announcements, edit_id=edit_id)

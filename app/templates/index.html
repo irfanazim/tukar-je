@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/announcement.css') }}">
         <title>tukar-je</title>
     </head>
 
@@ -49,6 +50,20 @@
                 {% elif admin_logged_in %}
                     <a href="{{ url_for('main.admin_dashboard') }}" class="button">Go to Admin Dashboard</a>
                 {% endif %}
+            </div>
+            <div class="announcement-box">
+                <div class="announcement-title">Announcement</div>
+                <div class="announcement-list">
+                    {% if announcements %}
+                        {% for ann in announcements %}
+                            <div class="announcement-content">{{ ann.content }}</div>
+                            <div class="announcement-meta">Posted by {{ ann.admin.username }} on {{ ann.date_posted.strftime('%Y-%m-%d %H:%M') }}</div>
+                            {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="announcement-content">No announcements at the moment.</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
         
