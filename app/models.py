@@ -14,6 +14,9 @@ class User(db.Model):
     verification_token = db.Column(db.String(100), unique=True)
     reset_token = db.Column(db.String(100), unique=True)
 
+    swap_requests = db.relationship('SwapRequest', backref='user', cascade="all, delete-orphan", passive_deletes=True)
+    notifications = db.relationship('Notification', backref='user', cascade="all, delete-orphan", passive_deletes=True)
+
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -22,7 +25,7 @@ class Admin(db.Model):
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE')) 
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id')) 
     message = db.Column(db.String(255))
     is_read = db.Column(db.Boolean, default=False)
@@ -31,7 +34,7 @@ class Notification(db.Model):
     
 class SwapRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     current_hostel = db.Column(db.String(10), nullable=False)  
     current_block = db.Column(db.String(1), nullable=False)    
     current_room = db.Column(db.String(10), nullable=False)
@@ -41,8 +44,7 @@ class SwapRequest(db.Model):
     status = db.Column(db.String(20), nullable=False, default="pending")  
     date = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship with User model
-    user = db.relationship('User', backref=db.backref('swap_requests', lazy=True))
+    
 
 class Announcement(db.Model):
     id = db.Column(db.Integer, primary_key=True)

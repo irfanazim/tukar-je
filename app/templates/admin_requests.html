@@ -115,18 +115,26 @@
                     <td class="actions">
                         {% if req.status == 'pending' %}
                             
-                        <form method="POST" action="{{ url_for('main.approve_request') }}" style="display:inline;">
+                        <form method="POST" action="{{ url_for('main.approve_request') }}" >
                             <input type="hidden" name="id" value="{{ req.id }}">
                             <button type="submit" class="btn-approve" >Approve</button>
                         </form>
-                        <form action="{{ url_for('main.reject_request') }}" method="POST" style="display:inline;">
+                        <form action="{{ url_for('main.reject_request') }}" method="POST" >
                             <input type="hidden" name="id" value="{{ req.id }}">
                             <button type="submit" class="btn-reject">Reject</button>
                         </form>
+                       
                         {% else %}
                 <button class="btn-approve" disabled>Approve</button>
                 <button class="btn-reject" disabled>Reject</button>
                 {% endif %}
+                <form action="{{ url_for('main.delete_request_admin' , request_id=req.id) }}" method="POST"  
+                      onsubmit="return confirm('Are you sure you want to delete this request?');">
+                  <input type="hidden" name="id" value="{{ req.id }}">
+                  <button type="submit" class="delete-btn" >
+                      <span class="material-icons">delete</span>
+                  </button>
+                </form>
                     </td>
                 </tr>
                 {% else %}

@@ -373,6 +373,18 @@ def reject_request():
     flash('Request rejected', 'success')
     return redirect(request.referrer or url_for('main.swap_requests'))
 
+@main.route('/admin/request/delete', methods=['POST'])
+def delete_request_admin():
+    request_id = request.form.get('id')
+    swap = SwapRequest.query.get_or_404(request_id)
+    if swap:
+        db.session.delete(swap)
+        db.session.commit()
+        flash('Request deleted', 'success')
+    else:
+        flash('Request not found', 'error')
+    return redirect(request.referrer or url_for('main.swap_requests'))
+
 @main.route('/admin/students')
 def admin_students():
     if not is_admin_logged_in():
@@ -399,12 +411,24 @@ def admin_students():
     #pagination
     total = query.count()
     total_pages = (total + per_page - 1) // per_page
-    requests = query.offset((page - 1) * per_page).limit(per_page).all()
+    students = query.offset((page - 1) * per_page).limit(per_page).all()
     
     
     students = query.all()
     return render_template('admin_students.html', students=students , search=search, hostel=hostel, block=block,
                            page=page,total_pages=total_pages)
+
+@main.route('/admin/student/delete', methods=['POST'])
+def delete_student_admin():
+    student_id = request.form.get('id')
+    student = User.query.get_or_404(student_id)
+    if student:
+        db.session.delete(student)
+        db.session.commit()
+        flash('Student deleted', 'success')
+    else:
+        flash('Student not found', 'error')
+    return redirect(request.referrer or url_for('main.admin_students'))
 
 @main.route('/submit', methods=['GET', 'POST'])
 def submit_request():
