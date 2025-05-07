@@ -15,7 +15,7 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    announcements = Announcement.query.order_by(Announcement.date_posted.desc()).limit(10).all()
+    announcements = Announcement.query.order_by(Announcement.date_posted.desc()).limit(99).all()
     return render_template('index.html', 
                         logged_in=is_logged_in(),
                         admin_logged_in=is_admin_logged_in(),
@@ -585,9 +585,6 @@ def edit_announcement(id):
         flash('Unauthorized', 'error')
         return redirect(url_for('main.admin_dashboard'))
     ann = Announcement.query.get_or_404(id)
-    if ann.admin_id != session.get('admin_id'):
-        flash('You can only edit your own announcements.', 'error')
-        return redirect(url_for('main.admin_dashboard'))
     new_content = request.form.get('content')
     if new_content:
         ann.content = new_content
@@ -603,9 +600,6 @@ def delete_announcement(id):
         flash('Unauthorized', 'error')
         return redirect(url_for('main.admin_dashboard'))
     ann = Announcement.query.get_or_404(id)
-    if ann.admin_id != session.get('admin_id'):
-        flash('You can only delete your own announcements.', 'error')
-        return redirect(url_for('main.admin_dashboard'))
     db.session.delete(ann)
     db.session.commit()
     flash('Announcement deleted!', 'success')
