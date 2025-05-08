@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/announcement.css') }}">
+        <title>Edit Student Details - tukar-je</title>
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+            </div>
+            <nav class="navbar">
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a> 
+                <a href="{{ url_for('main.admin_logout') }}">Logout</a> 
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                <span class="material-icons">notifications</span>
+                </button></a>
+            </nav>
+        </header>
+        
+        
+        <div class="nav-wrapper">
+          <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span>
+          
+          </div>
+          <nav class="sidebar" id="sidebar">
+            <ul>
+              <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+              <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
+              <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
+              <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
+              <li><a href="#">Settings</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="form-container-request">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+        
+            <button class="close-btn" id="close-btn">X</button>
+
+            <h1>Edit Student Details</h1>
+        
+            <form method="POST" action="{{ url_for('main.edit_student', student_id=student.id) }}" class="edit-form-request">
+                <div class="form-grid-request">
+                    <div>
+                        <div>
+                            <label for="hostel">Current Location:</label>
+                        </div>
+                        <div class="locationn">
+                            <div class="room-group">
+                                <select name="hostel" required>
+                                    <option value="">Select Hostel</option>
+                                    <option value="HB1" {% if student.hostel == 'HB1' %}selected{% endif %}>HB1</option>
+                                    <option value="HB2" {% if student.hostel == 'HB2' %}selected{% endif %}>HB2</option>
+                                    <option value="HB3" {% if student.hostel == 'HB3' %}selected{% endif %}>HB3</option>
+                                    <option value="HB4" {% if student.hostel == 'HB4' %}selected{% endif %}>HB4</option>
+                                </select>
+                                <select name="block" required>
+                                    <option value="">Select Block</option>
+                                    <option value="A" {% if student.block == 'A' %}selected{% endif %}>Block A</option>
+                                    <option value="B" {% if student.block == 'B' %}selected{% endif %}>Block B</option>
+                                    <option value="C" {% if student.block == 'C' %}selected{% endif %}>Block C</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="locationn">
+                            <label for="room">Current Room:</label>
+                            <input type="text" id="room" name="room" value="{{ student.room }}" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Save Changes</button>
+                <a href="{{ url_for('main.admin_students') }}" class="cancel-btn">Cancel</a>
+
+            </form>
+        </div>
+        
+
+        
+    
+    
+
+    <footer>
+        <div class="footer-col">
+            <ul>
+            <div class="logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
+                <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="">About</a></li>
+                <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
+                <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <ul>
+                <li><a href="#">tukarje@gmail.com</a></li>
+            </ul>
+        </div> 
+    </footer>
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('sidebar-open');
+      }
+    </script>
+    <!-- Notification count -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch notification count every time a page is loaded
+            function fetchNotificationCount() {
+                fetch('/notification-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        const count = data.count;
+                        let badge = document.querySelector('.icon-button .notification-badge');
+                        
+                        if (!badge && count > 0) {
+                            // Create badge if not exist
+                            badge = document.createElement('span');
+                            badge.classList.add('notification-badge');
+                            document.querySelector('.icon-button').appendChild(badge);
+                        }
+                        
+                        if (badge) {
+                            if (count > 0) {
+                                badge.textContent = count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    });
+            }
+
+            fetchNotificationCount();
+            setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
+        });
+    </script>
+    <script>
+        // Auto-hide flash messages 
+        setTimeout(function () {
+          const flashes = document.querySelectorAll('.flash');
+          flashes.forEach(flash => {
+            flash.style.transition = "opacity 0.5s ease";
+            flash.style.opacity = 0;
+            setTimeout(() => flash.remove(), 500); // Remove after fade out
+          });
+        }, 4000);
+      </script>
+      <script>
+        document.getElementById("close-btn").onclick = function() {
+          window.location.href = "{{ url_for('main.admin_students') }}";
+        };
+      </script>
+    
+
+</body>
+</html>
+
+    

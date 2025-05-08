@@ -380,7 +380,7 @@ def delete_request_admin():
     if swap:
         db.session.delete(swap)
         db.session.commit()
-        flash('Request deleted', 'success')
+        flash('Request deleted successfully!', 'success')
     else:
         flash('Request not found', 'error')
     return redirect(request.referrer or url_for('main.swap_requests'))
@@ -425,10 +425,26 @@ def delete_student_admin():
     if student:
         db.session.delete(student)
         db.session.commit()
-        flash('Student deleted', 'success')
+        flash('Student deleted successfully!', 'success')
     else:
         flash('Student not found', 'error')
     return redirect(request.referrer or url_for('main.admin_students'))
+
+@main.route('/admin/student/edit/<int:student_id>', methods=['GET', 'POST'])
+def edit_student(student_id):
+    student = User.query.get_or_404(student_id)
+    #update user details
+    if request.method == 'POST':
+        student.hostel = request.form.get('hostel')
+        student.block = request.form.get('block')
+        student.room = request.form.get('room')
+
+        db.session.commit()
+        flash("Student details updated successfully!", "success")
+        return redirect(url_for('main.edit_student', student_id=student.id)) 
+
+    return render_template('edit_student.html', student=student) 
+
 
 @main.route('/submit', methods=['GET', 'POST'])
 def submit_request():
