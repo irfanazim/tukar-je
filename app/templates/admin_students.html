@@ -111,6 +111,8 @@
                                 <span class="material-icons">delete</span>
                             </button>
                         </form>
+                        <a href="{{ url_for('main.edit_student', student_id=student.id) }}" class="edit-btn">
+                            <span class="material-icons">edit</span>
                     </td>
                     
                 </tr>
@@ -208,5 +210,16 @@
             setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
         });
     </script>
+    <script>
+        // Auto-hide flash messages 
+        setTimeout(function () {
+          const flashes = document.querySelectorAll('.flash');
+          flashes.forEach(flash => {
+            flash.style.transition = "opacity 0.5s ease";
+            flash.style.opacity = 0;
+            setTimeout(() => flash.remove(), 500); 
+          });
+        }, 4000);
+      </script>
     </body>
 </html>
