@@ -265,12 +265,12 @@ def admin_dashboard():
     if not is_admin_logged_in():
         flash('Please login as admin', 'error')
         return redirect(url_for('main.admin_login'))
-    total_requests = SwapRequest.query.count()
-    total_students = User.query.count()
-    pending_requests = SwapRequest.query.filter_by(status='pending').count()
-    approved_requests = SwapRequest.query.filter_by(status='approved').count()
-    rejected_requests = SwapRequest.query.filter_by(status='rejected').count()
-    recent_requests = SwapRequest.query.order_by(SwapRequest.date.desc()).limit(5).all()
+    total_requests = SwapRequest.query.filter_by(is_deleted=False).count()
+    total_students = User.query.filter_by(is_deleted=False).count()
+    pending_requests = SwapRequest.query.filter(SwapRequest.status == 'pending', SwapRequest.is_deleted == False).count()
+    approved_requests = SwapRequest.query.filter(SwapRequest.status == 'approved', SwapRequest.is_deleted == False).count()
+    rejected_requests = SwapRequest.query.filter(SwapRequest.status == 'rejected', SwapRequest.is_deleted == False).count()
+    recent_requests = SwapRequest.query.filter_by(is_deleted=False).order_by(SwapRequest.date.desc()).limit(5).all()
     announcements = Announcement.query.order_by(Announcement.date_posted.desc()).all()
     return render_template('admin_dashboard.html', total_requests=total_requests, total_students=total_students, pending_requests=pending_requests,
                             approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests,
@@ -288,7 +288,7 @@ def swap_requests():
     page = int(request.args.get('page', 1))
     per_page = 50
 
-    query = SwapRequest.query
+    query = SwapRequest.query.filter_by(is_deleted=False)
     #searching
     if search:
         query = SwapRequest.query.join(User).filter(func.lower(User.fullname).like(f"%{search}%"))
@@ -344,7 +344,7 @@ def approve_request():
          message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been approved!",
          notification_type='swap_approved'
         )
-    flash('Request approved', 'success')
+    flash('Request approved!', 'success')
     return redirect(request.referrer or url_for('main.swap_requests'))
 
 @main.route('/admin/reject', methods=['POST'])
@@ -370,19 +370,29 @@ def reject_request():
         message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been rejected.",
         notification_type='swap_rejected'
         )
-    flash('Request rejected', 'success')
+    flash('Request rejected!', 'success')
     return redirect(request.referrer or url_for('main.swap_requests'))
 
 @main.route('/admin/request/delete', methods=['POST'])
 def delete_request_admin():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
     request_id = request.form.get('id')
     swap = SwapRequest.query.get_or_404(request_id)
-    if swap:
-        db.session.delete(swap)
-        db.session.commit()
-        flash('Request deleted successfully!', 'success')
-    else:
-        flash('Request not found', 'error')
+
+    if swap.is_deleted:
+        flash('Request already deleted', 'error')
+        return redirect(request.referrer or url_for('main.swap_requests'))
+    
+    admin_id = session.get('admin_id')
+
+    swap.is_deleted = True
+    swap.deleted_at = datetime.utcnow()
+    swap.deleted_by_admin_id = admin_id
+
+    db.session.commit()
+    flash('Request deleted successfully!', 'success')
     return redirect(request.referrer or url_for('main.swap_requests'))
 
 @main.route('/admin/students')
@@ -391,13 +401,15 @@ def admin_students():
         flash('Please login as admin', 'error')
         return redirect(url_for('main.admin_login'))
     
+    
+    
     # GET query parameters
     search = request.args.get('search', '').lower()
     hostel = request.args.get('hostel', 'all')
     block = request.args.get('block', 'all')
     page = int(request.args.get('page', 1))
     per_page = 50
-    query = User.query
+    query = User.query.filter_by(is_deleted=False)
 
     #searching
     if search:
@@ -414,20 +426,37 @@ def admin_students():
     students = query.offset((page - 1) * per_page).limit(per_page).all()
     
     
-    students = query.all()
+   
     return render_template('admin_students.html', students=students , search=search, hostel=hostel, block=block,
                            page=page,total_pages=total_pages)
 
 @main.route('/admin/student/delete', methods=['POST'])
 def delete_student_admin():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
     student_id = request.form.get('id')
     student = User.query.get_or_404(student_id)
-    if student:
-        db.session.delete(student)
-        db.session.commit()
-        flash('Student deleted successfully!', 'success')
-    else:
-        flash('Student not found', 'error')
+
+    if student.is_deleted:
+        flash('Student already deleted', 'error')
+        return redirect(request.referrer or url_for('main.admin_students'))
+    
+    admin_id = session.get('admin_id')
+
+    student.is_deleted = True
+    student.deleted_at = datetime.utcnow()
+    student.deleted_by_admin_id = admin_id
+
+    # Delete all swap requests associated with the student
+    for req in student.swap_requests:
+        req.is_deleted = True
+        req.deleted_at = datetime.utcnow()
+        req.deleted_by_admin_id = admin_id
+
+    db.session.commit()
+    flash('Student and related data deleted successfully!', 'success')
+        
     return redirect(request.referrer or url_for('main.admin_students'))
 
 @main.route('/admin/student/edit/<int:student_id>', methods=['GET', 'POST'])

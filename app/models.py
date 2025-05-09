@@ -13,7 +13,11 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, default=False)
     verification_token = db.Column(db.String(100), unique=True)
     reset_token = db.Column(db.String(100), unique=True)
+    is_deleted = db.Column(db.Boolean, default=False)  # Soft delete flag
+    deleted_at = db.Column(db.DateTime)
+    deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
 
+    deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_students', lazy=True))
     swap_requests = db.relationship('SwapRequest', backref='user', cascade="all, delete-orphan", passive_deletes=True)
     notifications = db.relationship('Notification', backref='user', cascade="all, delete-orphan", passive_deletes=True)
 
@@ -43,6 +47,11 @@ class SwapRequest(db.Model):
     desired_room = db.Column(db.String(10), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="pending")  
     date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_deleted = db.Column(db.Boolean, default=False)  # Soft delete flag
+    deleted_at = db.Column(db.DateTime)  
+    deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
+    
+    deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_swap_requests', lazy=True))
     
     
 
