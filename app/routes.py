@@ -106,6 +106,10 @@ def login():
         if not user.is_verified:
             flash('Please verify your email before logging in', 'error')
             return redirect(url_for('main.login'))
+        
+        if user.is_deleted:
+            flash('Your account has been deleted. Please contact support.', 'error')
+            return redirect(url_for('main.login'))
 
         twofa_code = ''.join(secrets.choice('0123456789') for _ in range(6))
         session['temp_2fa'] = twofa_code
@@ -194,7 +198,7 @@ def dashboard():
     if not is_logged_in():
         return redirect(url_for('main.login'))
     user_id = session.get('user_id')
-    swap_requests = SwapRequest.query.filter_by(user_id=user_id).all()
+    swap_requests = SwapRequest.query.filter_by(user_id=user_id, is_deleted=False).all()
     return render_template('dashboard.html', logged_in=True, requests=swap_requests)
 
 @main.route('/logout')
@@ -288,18 +292,18 @@ def swap_requests():
     page = int(request.args.get('page', 1))
     per_page = 50
 
-    query = SwapRequest.query.filter_by(is_deleted=False)
+    query = SwapRequest.query.join(User).filter(SwapRequest.is_deleted == False)
     #searching
     if search:
-        query = SwapRequest.query.join(User).filter(func.lower(User.fullname).like(f"%{search}%"))
+        query = query.filter(func.lower(User.fullname).like(f"%{search}%"))
     #filtering by status
     if status != 'all':
         query = query.filter(SwapRequest.status==status)
     #sorting 
     if sort == 'name_asc':
-        query = SwapRequest.query.join(User).order_by(User.fullname.asc())
+        query = query.order_by(User.fullname.asc())
     elif sort == 'name_desc':
-        query = SwapRequest.query.join(User).order_by(User.fullname.desc())
+        query = query.order_by(User.fullname.desc())
     elif sort == 'date_new':
         query = query.order_by(SwapRequest.date.desc())
     elif sort == 'date_old':
@@ -682,3 +686,11 @@ def admin_announcements():
     announcements = Announcement.query.order_by(Announcement.date_posted.desc()).all()
     edit_id = request.args.get('edit_id', type=int)
     return render_template('admin_announcements.html', announcements=announcements, edit_id=edit_id)
+
+@main.route('/admin/activitylog')
+def admin_activitylog():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    return render_template('admin_activity.html')
