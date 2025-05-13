@@ -28,6 +28,16 @@
         <div class="title2">
             <h1>Dashboard</h1>
         </div>
+
+        <div class="dashboard-container dashboard-row">
+                <div class="dashboard-card">
+                    <h3>Find My Roommate</h3>
+                    <p class="roommate-description">Use this feature to connect with other MMU hostel students looking to share a room. 
+                    Browse their preferences, view their profiles, and reach out directly to start a conversation!</p>
+                    <a href="{{ url_for('main.view_profiles') }}" class="card-btn">EXPLORE</a>
+                </div>
+            </div>
+            
         
         <div class="dashboard-container">
             <!-- First Row -->
@@ -42,7 +52,7 @@
                     <a href="{{ url_for('main.hostel_map') }}" class="card-btn">CHECKOUT</a>
                 </div>
             </div>
-            
+
             <!-- Second Row -->
             <div class="recent-request-content">
                     <h3>History and Status</h3>

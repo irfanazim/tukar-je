@@ -61,3 +61,17 @@ class Announcement(db.Model):
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
     admin = db.relationship('Admin', backref=db.backref('announcements', lazy=True))
+
+
+class RoommateProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship('User', backref=db.backref('roommate_profile', uselist=False))
+    about = db.Column(db.Text)
+    gender = db.Column(db.String(20), nullable=False)
+    course_level = db.Column(db.String(50))  
+    faculty = db.Column(db.String(50))  
+    year = db.Column(db.Integer, nullable=False)
+    contact_method = db.Column(db.String(50), nullable=False)
+    contact_info = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
