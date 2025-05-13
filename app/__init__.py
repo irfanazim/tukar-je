@@ -4,6 +4,7 @@ from flask_mail import Mail
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 import sqlite3
+from flask_migrate import Migrate
 
 # Enable foreign key support in SQLite
 @event.listens_for(Engine, "connect")
@@ -16,6 +17,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 # Initialize extensions
 db = SQLAlchemy()
 mail = Mail()
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
@@ -26,6 +28,7 @@ def create_app():
     # Initialize extensions with app
     db.init_app(app)
     mail.init_app(app)
+    migrate.init_app(app, db)
     
     # Register blueprints
     from .routes import main
