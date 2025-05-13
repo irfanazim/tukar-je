@@ -780,3 +780,160 @@ def delete_profile(profile_id):
     db.session.commit()
     flash("Your profile has been deleted successfully.", "success")
     return redirect(url_for('main.view_profiles'))
+    
+# Report Room Issues
+@main.route('/my-reports')
+def my_reports():
+    if not is_logged_in():
+        flash('Please login to view your reports', 'error')
+        return redirect(url_for('main.login'))
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.login'))
+
+    # Get query parameters
+    status = request.args.get('status', 'all')
+    page = int(request.args.get('page', 1))
+    per_page = 10
+
+    query = RoomReport.query.filter_by(user_id=user.id)
+
+    # Filtering by status
+    if status != 'all':
+        query = query.filter(RoomReport.status == status)
+
+    # Sorting by date (newest first)
+    query = query.order_by(RoomReport.date_reported.desc())
+
+    # Pagination
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page
+    reports = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    return render_template('my_reports.html',
+                         reports=reports,
+                         status=status,
+                         page=page,
+                         total_pages=total_pages,
+                         user=user,
+                         logged_in=is_logged_in(),
+                         admin_logged_in=is_admin_logged_in())
+
+@main.route('/admin/room-reports')
+def admin_room_reports():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    # Get query parameters
+    search = request.args.get('search', '').lower()
+    status = request.args.get('status', 'all')
+    priority = request.args.get('priority', 'all')
+    page = int(request.args.get('page', 1))
+    per_page = 50
+
+    query = RoomReport.query
+
+    # Searching
+    if search:
+        query = query.join(User).filter(
+            (func.lower(User.fullname).like(f"%{search}%")) |
+            (func.lower(RoomReport.description).like(f"%{search}%"))
+        )
+
+    # Filtering by status
+    if status != 'all':
+        query = query.filter(RoomReport.status == status)
+
+    # Filtering by priority
+    if priority != 'all':
+        query = query.filter(RoomReport.priority == priority)
+
+    # Sorting by date (newest first)
+    query = query.order_by(RoomReport.date_reported.desc())
+
+    # Pagination
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page
+    reports = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    return render_template('admin_room_reports.html',
+                         reports=reports,
+                         search=search,
+                         status=status,
+                         priority=priority,
+                         page=page,
+                         total_pages=total_pages)
+
+@main.route('/admin/room-report/<int:report_id>', methods=['GET', 'POST'])
+def admin_room_report_detail(report_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    report = RoomReport.query.get_or_404(report_id)
+
+    if request.method == 'POST':
+        status = request.form.get('status')
+        admin_notes = request.form.get('admin_notes')
+
+        report.status = status
+        report.admin_notes = admin_notes
+        report.admin_id = session.get('admin_id')
+
+        if status == 'resolved':
+            report.date_resolved = datetime.utcnow()
+            # Notify the user
+            create_notification(
+                user_id=report.user_id,
+                message=f"Your room report for {report.hostel}-{report.block}-{report.room} has been resolved.",
+                notification_type='report_resolved'
+            )
+
+        if status == 'in_progress':
+            create_notification(
+                user_id=report.user_id,
+                message=f"Your room report for {report.hostel}-{report.block}-{report.room} is now in progress.",
+                notification_type='report_in_progress'
+            )
+
+        db.session.commit()
+        flash('Report updated successfully!', 'success')
+        return redirect(url_for('main.admin_room_report_detail', report_id=report.id))
+
+    return render_template('admin_room_report_detail.html', report=report)
+
+@main.route('/mark-report-resolved/<int:report_id>', methods=['POST'])
+def mark_report_resolved(report_id):
+    if not is_logged_in():
+        flash('Please login to perform this action', 'error')
+        return redirect(url_for('main.login'))
+
+    report = RoomReport.query.get_or_404(report_id)
+    user = User.query.get(session['user_id'])
+    if report.user_id != user.id:
+        flash('You are not authorized to update this report.', 'error')
+        return redirect(url_for('main.my_reports'))
+
+    if report.status != 'in_progress':
+        flash('Only reports that are in progress can be marked as resolved.', 'error')
+        return redirect(url_for('main.my_reports'))
+
+    report.status = 'resolved'
+    report.date_resolved = datetime.utcnow()
+    db.session.commit()
+
+    # Notify all admins
+    admins = Admin.query.all()
+    for admin in admins:
+        create_notification(
+            admin_id=admin.id,
+            message=f"User {user.fullname} marked their room report for {report.hostel}-{report.block}-{report.room} as resolved.",
+            notification_type='user_resolved_report'
+        )
+
+    flash('Report marked as resolved. Thank you for confirming!', 'success')
+    return redirect(url_for('main.my_reports'))

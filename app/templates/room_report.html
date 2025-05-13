@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/room_reports.css') }}">
+    <title>Room Report - tukar-je</title>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('main.logout') }}">Logout</a>
+            <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                <span class="material-icons">notifications</span>
+            </button></a>
+        </nav>
+    </header>
+
+    <div class="title2">
+        <h1>Report Room Issue</h1>
+    </div>
+
+    <div class="dashboard-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container">
+            <form method="POST" class="form-box">
+                <div class="input-box">
+                    <label>Current Location</label>
+                    <div class="room-group">
+                        <input type="text" value="{{ user.hostel }}" disabled>
+                        <input type="text" value="Block {{ user.block }}" disabled>
+                        <input type="text" value="Room {{ user.room }}" disabled>
+                    </div>
+                </div>
+
+                <div class="input-box">
+                    <label for="issue_type">Issue Type</label>
+                    <select name="issue_type" id="issue_type" required>
+                        <option value="" disabled selected>Select Issue Type</option>
+                        <option value="electrical">Electrical (Lights, Power Outlets, AC)</option>
+                        <option value="plumbing">Plumbing (Water, Toilet, Shower)</option>
+                        <option value="furniture">Furniture (Bed, Desk, Chair, Wardrobe)</option>
+                        <option value="structural">Structural (Walls, Floor, Windows, Door)</option>
+                        <option value="pest">Pest Control</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="input-box">
+                    <label for="priority">Priority Level</label>
+                    <select name="priority" id="priority" required>
+                        <option value="" disabled selected>Select Priority</option>
+                        <option value="high">High (Urgent - Needs Immediate Attention)</option>
+                        <option value="medium">Medium (Important - Needs Attention Soon)</option>
+                        <option value="low">Low (Minor Issue - Can Wait)</option>
+                    </select>
+                </div>
+
+                <div class="input-box">
+                    <label for="description">Description</label>
+                    <textarea name="description" id="description" rows="4" required 
+                              placeholder="Please provide a detailed description of the issue..." class="fixed-textarea"></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Report</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 
