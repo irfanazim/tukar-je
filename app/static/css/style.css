@@ -1373,3 +1373,233 @@ min-height: 700px; }
     display: none;
     z-index: 100;
 }
+
+
+/* Roommate */
+
+.profiles-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 100px 0;
+}
+
+.profiles-title {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.create-btn {
+    background-color: #034EA1;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.create-btn:hover {
+    background-color: #023b7d;
+}
+
+.roommate-description {
+    color: #495057;
+    font-style: italic;
+    margin: 0 0 25px;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Filters Section */
+
+.filters form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.filters {
+    padding: 20px 100px;
+    margin-bottom: 20px;
+    background:  rgb(240, 240, 240);
+}
+
+.filters select, .filters input {
+    padding: 8px;
+    margin-right: 10px;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    background: #034EA1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.filter-btn.reset {
+    background: #6c757d;
+}
+
+.filter-btn:hover {
+    background: #023b7d;
+}
+
+/* Profiles Grid */
+.profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 100px;
+}
+
+/* Profile Card */
+.profile-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+    word-wrap: break-word; /* Ensures long words break */
+}
+
+.profile-card:hover {
+   transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #212529;
+}
+
+.gender-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-left: 120px;
+}
+
+.gender-badge.male {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.gender-badge.female {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+/* Academic Info */
+.profile-academic {
+    margin-bottom: 15px;
+}
+
+.academic-item {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+.academic-item .label {
+    font-weight: 500;
+    color: #495057;
+    min-width: 80px;
+}
+
+.academic-item-special {
+    font-weight: 500;
+    color:#034EA1;
+    min-width: 80px;
+}
+/* About Section */
+.about-box {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.about-title {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.about-content {
+    color: #212529;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* Contact Section */
+.profile-contact {
+    margin-top: 15px;
+}
+
+.contact-method {
+    word-break: break-word;
+}
+
+.contact-method .label {
+    font-weight: 500;
+    color: #495057;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.contact-link, .contact-info {
+    color: #034EA1;
+    text-decoration: none;
+}
+
+.contact-link:hover {
+    text-decoration: underline;
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #f9f9f9;
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+ .form-section-title h2{
+    font-weight:580;
+    color: #1d1c1c;
+    font-size: 1.3rem;
+}
+ 
+.top-back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    color: #000000;
+    text-decoration: none;
+}

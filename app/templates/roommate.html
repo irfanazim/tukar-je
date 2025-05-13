@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>tukar-je</title>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a> 
+            <a href="{{ url_for('main.logout') }}">Logout</a> 
+            <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+            <span class="material-icons">notifications</span>
+            </button></a>
+        </nav>
+    </header>
+
+       <div class="form-container-request">
+          <a href="{{ url_for('main.view_profiles') }}" class="top-back-btn">
+        <span class="material-icons">arrow_back</span>
+    </a>
+        <h1>{% if profile %}Edit{% else %}Create{% endif %} Roommate Profile</h1>
+        
+        <form method="POST" class="edit-form-request">
+            <div class="form-section-title">
+                <h2>Personal Information</h2>
+            </div>
+            
+            <div class="form-grid-request">
+                <div>
+                    <label>Gender</label>
+                    <select name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male" {% if profile and profile.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if profile and profile.gender == 'Female' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section-title">
+                <h2>Academic Information</h2>
+            </div>
+            
+            <div class="form-grid-request">
+                <div>
+                    <label>Program</label>
+                    <select name="course" required>
+                        <option value="">Select Level</option>
+                        <option value="Foundation" {% if profile and profile.course_level == 'Foundation' %}selected{% endif %}>Foundation</option>
+                        <option value="Diploma" {% if profile and profile.course_level == 'Diploma' %}selected{% endif %}>Diploma</option>
+                        <option value="Degree" {% if profile and profile.course_level == 'Degree' %}selected{% endif %}>Degree</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label>Faculty</label>
+                    <select name="faculty" required>
+                        <option value="">Select Faculty</option>
+                        <option value="FAC" {% if profile and profile.faculty == 'FAC' %}selected{% endif %}>Applied Communication (FAC)</option>
+                        <option value="FOE" {% if profile and profile.faculty == 'FOE' %}selected{% endif %}>Engineering (FOE)</option>
+                        <option value="FCA" {% if profile and profile.faculty == 'FCA' %}selected{% endif %}>Cinematic Arts (FCA)</option>
+                        <option value="FCI" {% if profile and profile.faculty == 'FCI' %}selected{% endif %}>Computing & Informatics (FCI)</option>
+                        <option value="FCM" {% if profile and profile.faculty == 'FCM' %}selected{% endif %}>Creative Multimedia (FCM)</option>
+                        <option value="FOM" {% if profile and profile.faculty == 'FOM' %}selected{% endif %}>Management (FOM)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label>Year of Study</label>
+                    <select name="year" required>
+                        <option value="">Select Year</option>
+                        <option value="1" {% if profile and profile.year == 1 %}selected{% endif %}>Year 1</option>
+                        <option value="2" {% if profile and profile.year == 2 %}selected{% endif %}>Year 2</option>
+                        <option value="3" {% if profile and profile.year == 3 %}selected{% endif %}>Year 3</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section-title">
+                <span class="material-icons">edit</span>
+                <h2>About</h2>
+            </div>
+            
+            <div>
+                <textarea name="about" rows="5" placeholder="Type here." maxlength="1000" class="form-textarea">{{ profile.about if profile }}</textarea>
+            </div>
+
+            <div class="form-section-title">
+                <h2>Contact Information</h2>
+            </div>
+            
+            <div class="form-grid-request">
+                <div>
+                    <label>Preferred Contact Method</label>
+                    <select name="contact_method" required>
+                        <option value="">Select Method</option>
+                        <option value="Email" {% if profile and profile.contact_method == 'Email' %}selected{% endif %}>Email</option>
+                        <option value="Telegram" {% if profile and profile.contact_method == 'Telegram' %}selected{% endif %}>Telegram</option>
+                        <option value="WhatsApp" {% if profile and profile.contact_method == 'WhatsApp' %}selected{% endif %}>WhatsApp</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Contact Info</label>
+                    <input type="text" name="contact_info" value="{{ profile.contact_info if profile }}" require placeholder= "e.g phone number, email address">
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="submit-btn action-btn">
+                 Save Profile
+                </button>
+            </div>
+        </form>
+    </div>
+
+     <footer>
+        <div class="footer-col">
+            <ul>
+            <div class="logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
+                <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="">About</a></li>
+                <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
+                <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <ul>
+                <li><a href="#">tukarje@gmail.com</a></li>
+            </ul>
+        </div> 
+    </footer>
+
+    <!-- Notification count -->
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch notification count every time a page is loaded
+            function fetchNotificationCount() {
+                fetch('/notification-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        const count = data.count;
+                        let badge = document.querySelector('.icon-button .notification-badge');
+                        
+                        if (!badge && count > 0) {
+                            // Create badge if not exist
+                            badge = document.createElement('span');
+                            badge.classList.add('notification-badge');
+                            document.querySelector('.icon-button').appendChild(badge);
+                        }
+                        
+                        if (badge) {
+                            if (count > 0) {
+                                badge.textContent = count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    });
+            }
+
+            fetchNotificationCount();
+            setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
+        });
+    </script>
+
+</body>
+</html>

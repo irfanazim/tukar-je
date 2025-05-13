@@ -1,6 +1,6 @@
 from flask import Blueprint, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from . import db, mail
-from .models import Notification, User, Admin, SwapRequest, Announcement
+from .models import Notification, RoommateProfile, User, Admin, SwapRequest, Announcement
 from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
@@ -653,3 +653,101 @@ def admin_announcements():
     announcements = Announcement.query.order_by(Announcement.date_posted.desc()).all()
     edit_id = request.args.get('edit_id', type=int)
     return render_template('admin_announcements.html', announcements=announcements, edit_id=edit_id)
+
+# Roommate
+@main.route('/roommate', methods=['GET', 'POST'])
+def roommate():
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+    
+    user = User.query.get(session['user_id'])
+    profile = RoommateProfile.query.filter_by(user_id=user.id).first()
+
+    if request.method == 'POST':
+        # Validate year input
+        try:
+            year = int(request.form.get('year'))
+            if year not in [1, 2, 3]:
+                flash('Please select a valid year of study', 'error')
+                return redirect(url_for('main.roommate'))
+        except (ValueError, TypeError):
+            flash('Invalid year of study selected', 'error')
+            return redirect(url_for('main.roommate'))
+
+        # Profile data 
+        profile_data = {
+            'gender': request.form.get('gender'),
+            'course_level': request.form.get('course'),  
+            'faculty': request.form.get('faculty'),
+            'year': year,
+            'about': request.form.get('about'),
+            'contact_method': request.form.get('contact_method'),
+            'contact_info': request.form.get('contact_info')
+        }
+
+        # Validate required fields
+        required_fields = ['gender', 'course_level', 'faculty', 'contact_method', 'contact_info']
+        for field in required_fields:
+            if not profile_data[field]:
+                flash(f'{field.replace("_", " ").title()} is required', 'error')
+                return redirect(url_for('main.roommate'))
+
+        # Create or update profile
+        if profile:
+            for key, value in profile_data.items():
+                setattr(profile, key, value)
+        else:
+            profile = RoommateProfile(user_id=user.id, **profile_data)
+            db.session.add(profile)
+        
+        try:
+            db.session.commit()
+            flash('Profile saved successfully!', 'success')
+            return redirect(url_for('main.view_profiles'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while saving your profile', 'error')
+            return redirect(url_for('main.roommate'))
+
+    return render_template('roommate.html', profile=profile, logged_in=True)
+
+@main.route('/roommate/profiles')
+def view_profiles():
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+    
+    gender_filter = request.args.get('gender')
+    course_filter = request.args.get('course_level')  
+    faculty_filter = request.args.get('faculty')
+    year_filter = request.args.get('year')
+
+    query = RoommateProfile.query.join(User)
+    
+    if gender_filter:
+        query = query.filter(RoommateProfile.gender == gender_filter)
+    if course_filter:
+        query = query.filter(RoommateProfile.course_level.ilike(f"%{course_filter}%"))
+    if faculty_filter:
+        query = query.filter(RoommateProfile.faculty == faculty_filter)
+    if year_filter:
+        query = query.filter(RoommateProfile.year == year_filter)
+
+    profiles = query.all()
+    requests = SwapRequest.query.all()
+    return render_template('profiles.html', 
+                         profiles=profiles, 
+                         requests=requests, 
+                         logged_in=True)
+
+# To delete personal roommate profile
+@main.route('/delete_profile/<int:profile_id>', methods=['GET'])
+def delete_profile(profile_id):
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+
+    profile = RoommateProfile.query.get_or_404(profile_id)
+
+    db.session.delete(profile)
+    db.session.commit()
+    flash("Your profile has been deleted successfully.", "success")
+    return redirect(url_for('main.view_profiles'))
