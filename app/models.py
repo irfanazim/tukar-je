@@ -1,5 +1,5 @@
 from . import db
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

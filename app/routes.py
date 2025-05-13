@@ -1,6 +1,6 @@
 from flask import Blueprint, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from . import db, mail
-from .models import Notification, RoommateProfile, User, Admin, SwapRequest, Announcement
+from .models import Notification, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport
 from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
@@ -782,6 +782,58 @@ def delete_profile(profile_id):
     return redirect(url_for('main.view_profiles'))
     
 # Report Room Issues
+@main.route('/room-report', methods=['GET', 'POST'])
+def room_report():
+    if not is_logged_in():
+        flash('Please login to submit a room report', 'error')
+        return redirect(url_for('main.login'))
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.login'))
+
+    if request.method == 'POST':
+        issue_type = request.form.get('issue_type')
+        description = request.form.get('description')
+        priority = request.form.get('priority')
+
+        new_report = RoomReport(
+            user_id=user.id,
+            hostel=user.hostel,
+            block=user.block,
+            room=user.room,
+            issue_type=issue_type,
+            description=description,
+            priority=priority
+        )
+
+        try:
+            db.session.add(new_report)
+            db.session.commit()
+
+            # Notify all admins
+            admins = Admin.query.all()
+            for admin in admins:
+                create_notification(
+                    admin_id=admin.id,
+                    message=f"New room report from {user.fullname} ({user.hostel}-{user.block}-{user.room})",
+                    notification_type='room_report'
+                )
+
+            flash('Room report submitted successfully!', 'success')
+            return redirect(url_for('main.room_report'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while submitting your report. Please try again.', 'error')
+            return redirect(url_for('main.room_report'))
+
+    return render_template('room_report.html', 
+                         user=user,
+                         logged_in=is_logged_in(),
+                         admin_logged_in=is_admin_logged_in())
+
 @main.route('/my-reports')
 def my_reports():
     if not is_logged_in():
