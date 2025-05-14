@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <title>tukar-je</title>
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+            </div>
+            <nav class="navbar">
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a> 
+                <a href="{{ url_for('main.logout') }}">Logout</a> 
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                <span class="material-icons">notifications</span>
+                </button></a>
+            </nav>
+        </header>
+
+  <div class="section profiles-top">
+    <h1 class="profiles-title">Find Your Roommate</h1>
+    <a href="{{ url_for('main.roommate') }}" class="button create-btn">+ My Profile</a>
+</div>
+
+  <!-- Filters -->
+        <div class="filters">
+            <form method="GET" action="{{ url_for('main.view_profiles') }}">
+                <select name="gender">
+                    <option value="">Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                
+                <select name="course_level">
+                    <option value="">Program</option>
+                    <option value="Foundation">Foundation</option>
+                    <option value="Diploma">Diploma</option>
+                    <option value="Degree">Degree</option>
+                </select>
+                
+                <select name="faculty">
+                    <option value="">Faculty</option>
+                    <option value="FAC">FAC</option>
+                    <option value="FOE">FOE</option>
+                    <option value="FCA">FCA</option>
+                    <option value="FCI">FCI</option>
+                    <option value="FCM">FCM</option>
+                    <option value="FOM">FOM</option>
+                </select>
+                
+                <select name="year">
+                    <option value="">Year</option>
+                    <option value="1">Year 1</option>
+                    <option value="2">Year 2</option>
+                    <option value="3">Year 3</option>
+                </select>
+                
+                <button type="submit" class="filter-btn">Apply Filters</button>
+            </form>
+        </div>
+
+     <!-- Profiles Grid -->
+    <div class="profiles-grid">
+        {% for profile in profiles %}
+        <div class="profile-card">
+            <div class="profile-header">
+                <h3>{{ profile.user.fullname }}</h3>
+                <span class="gender-badge {{ profile.gender|lower }}">{{ profile.gender }}</span>
+                {% if profile.user_id == session['user_id'] %}
+            <a href="{{ url_for('main.delete_profile', profile_id=profile.id) }}" class="action-btn delete-btn"
+               onclick="return confirm('Are you sure you want to delete your profile?');">
+                <span class="material-icons">delete</span>
+            </a>
+            {% endif %}
+        </div>
+
+            
+            <div class="profile-academic">
+                <div class="academic-item">
+                    <span class="label">Program:</span>
+                    <span>{{ profile.course_level }}</span>
+                </div>
+                <div class="academic-item">
+                    <span class="label">Faculty:</span>
+                    <span>{{ profile.faculty }}</span>
+                </div>
+                <div class="academic-item">
+                    <span class="label">Year:</span>
+                    <span>{{ profile.year }}</span>
+                </div>
+                   {% for req in requests %}
+                    {% if req.user_id == profile.user_id %}
+                    <div class="academic-item-special">
+                        <span class="label"> Current Location: {{ req.current_hostel }}-{{ req.current_block }}-{{ req.current_room }}</span>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if profile.about %}
+            <div class="about-box">
+                <div class="about-title">About</div>
+                <div class="about-content">{{ profile.about }}</div>
+            </div>
+            {% endif %}
+            
+            <div class="profile-contact">
+                <div class="contact-method">
+                    <span class="label">Contact via {{ profile.contact_method }}:</span>
+                    {% if profile.contact_method == 'Email' %}
+                        <a href="mailto:{{ profile.contact_info }}" class="contact-link">{{ profile.contact_info }}</a>
+                    {% elif profile.contact_method == 'Telegram' %}
+                        <a href="https://t.me/{{ profile.contact_info }}" class="contact-link">@{{ profile.contact_info }}</a>
+                    {% elif profile.contact_method == 'WhatsApp' %}
+                        <a href="https://wa.me/{{ profile.contact_info }}" class="contact-link">{{ profile.contact_info }}</a>
+                    {% else %}
+                        <span class="contact-info">{{ profile.contact_info }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="material-icons">group_off</span>
+           <em><p>No profiles found.</p></em>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+    <!-- Notification count -->
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch notification count every time a page is loaded
+            function fetchNotificationCount() {
+                fetch('/notification-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        const count = data.count;
+                        let badge = document.querySelector('.icon-button .notification-badge');
+                        
+                        if (!badge && count > 0) {
+                            // Create badge if not exist
+                            badge = document.createElement('span');
+                            badge.classList.add('notification-badge');
+                            document.querySelector('.icon-button').appendChild(badge);
+                        }
+                        
+                        if (badge) {
+                            if (count > 0) {
+                                badge.textContent = count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    });
+            }
+
+            fetchNotificationCount();
+            setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
+        });
+    </script>
+
+</body>
+</html>

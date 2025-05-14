@@ -1,6 +1,6 @@
 from flask import Blueprint, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from . import db, mail
-from .models import Notification, User, Admin, SwapRequest, Announcement, AdminActivity
+from .models import Notification, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity
 from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
@@ -749,6 +749,312 @@ def admin_announcements():
     edit_id = request.args.get('edit_id', type=int)
     return render_template('admin_announcements.html', announcements=announcements, edit_id=edit_id)
 
+# Roommate
+@main.route('/roommate', methods=['GET', 'POST'])
+def roommate():
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+    
+    user = User.query.get(session['user_id'])
+    profile = RoommateProfile.query.filter_by(user_id=user.id).first()
+
+    if request.method == 'POST':
+        # Validate year input
+        try:
+            year = int(request.form.get('year'))
+            if year not in [1, 2, 3]:
+                flash('Please select a valid year of study', 'error')
+                return redirect(url_for('main.roommate'))
+        except (ValueError, TypeError):
+            flash('Invalid year of study selected', 'error')
+            return redirect(url_for('main.roommate'))
+
+        # Profile data 
+        profile_data = {
+            'gender': request.form.get('gender'),
+            'course_level': request.form.get('course'),  
+            'faculty': request.form.get('faculty'),
+            'year': year,
+            'about': request.form.get('about'),
+            'contact_method': request.form.get('contact_method'),
+            'contact_info': request.form.get('contact_info')
+        }
+
+        # Validate required fields
+        required_fields = ['gender', 'course_level', 'faculty', 'contact_method', 'contact_info']
+        for field in required_fields:
+            if not profile_data[field]:
+                flash(f'{field.replace("_", " ").title()} is required', 'error')
+                return redirect(url_for('main.roommate'))
+
+        # Create or update profile
+        if profile:
+            for key, value in profile_data.items():
+                setattr(profile, key, value)
+        else:
+            profile = RoommateProfile(user_id=user.id, **profile_data)
+            db.session.add(profile)
+        
+        try:
+            db.session.commit()
+            flash('Profile saved successfully!', 'success')
+            return redirect(url_for('main.view_profiles'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while saving your profile', 'error')
+            return redirect(url_for('main.roommate'))
+
+    return render_template('roommate.html', profile=profile, logged_in=True)
+
+@main.route('/roommate/profiles')
+def view_profiles():
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+    
+    gender_filter = request.args.get('gender')
+    course_filter = request.args.get('course_level')  
+    faculty_filter = request.args.get('faculty')
+    year_filter = request.args.get('year')
+
+    query = RoommateProfile.query.join(User)
+    
+    if gender_filter:
+        query = query.filter(RoommateProfile.gender == gender_filter)
+    if course_filter:
+        query = query.filter(RoommateProfile.course_level.ilike(f"%{course_filter}%"))
+    if faculty_filter:
+        query = query.filter(RoommateProfile.faculty == faculty_filter)
+    if year_filter:
+        query = query.filter(RoommateProfile.year == year_filter)
+
+    profiles = query.all()
+    requests = SwapRequest.query.all()
+    return render_template('profiles.html', 
+                         profiles=profiles, 
+                         requests=requests, 
+                         logged_in=True)
+
+# To delete personal roommate profile
+@main.route('/delete_profile/<int:profile_id>', methods=['GET'])
+def delete_profile(profile_id):
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+
+    profile = RoommateProfile.query.get_or_404(profile_id)
+
+    db.session.delete(profile)
+    db.session.commit()
+    flash("Your profile has been deleted successfully.", "success")
+    return redirect(url_for('main.view_profiles'))
+    
+# Report Room Issues
+@main.route('/room-report', methods=['GET', 'POST'])
+def room_report():
+    if not is_logged_in():
+        flash('Please login to submit a room report', 'error')
+        return redirect(url_for('main.login'))
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.login'))
+
+    if request.method == 'POST':
+        issue_type = request.form.get('issue_type')
+        description = request.form.get('description')
+        priority = request.form.get('priority')
+
+        new_report = RoomReport(
+            user_id=user.id,
+            hostel=user.hostel,
+            block=user.block,
+            room=user.room,
+            issue_type=issue_type,
+            description=description,
+            priority=priority
+        )
+
+        try:
+            db.session.add(new_report)
+            db.session.commit()
+
+            # Notify all admins
+            admins = Admin.query.all()
+            for admin in admins:
+                create_notification(
+                    admin_id=admin.id,
+                    message=f"New room report from {user.fullname} ({user.hostel}-{user.block}-{user.room})",
+                    notification_type='room_report'
+                )
+
+            flash('Room report submitted successfully!', 'success')
+            return redirect(url_for('main.room_report'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while submitting your report. Please try again.', 'error')
+            return redirect(url_for('main.room_report'))
+
+    return render_template('room_report.html', 
+                         user=user,
+                         logged_in=is_logged_in(),
+                         admin_logged_in=is_admin_logged_in())
+
+@main.route('/my-reports')
+def my_reports():
+    if not is_logged_in():
+        flash('Please login to view your reports', 'error')
+        return redirect(url_for('main.login'))
+
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.login'))
+
+    # Get query parameters
+    status = request.args.get('status', 'all')
+    page = int(request.args.get('page', 1))
+    per_page = 10
+
+    query = RoomReport.query.filter_by(user_id=user.id)
+
+    # Filtering by status
+    if status != 'all':
+        query = query.filter(RoomReport.status == status)
+
+    # Sorting by date (newest first)
+    query = query.order_by(RoomReport.date_reported.desc())
+
+    # Pagination
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page
+    reports = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    return render_template('my_reports.html',
+                         reports=reports,
+                         status=status,
+                         page=page,
+                         total_pages=total_pages,
+                         user=user,
+                         logged_in=is_logged_in(),
+                         admin_logged_in=is_admin_logged_in())
+
+@main.route('/admin/room-reports')
+def admin_room_reports():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    # Get query parameters
+    search = request.args.get('search', '').lower()
+    status = request.args.get('status', 'all')
+    priority = request.args.get('priority', 'all')
+    page = int(request.args.get('page', 1))
+    per_page = 50
+
+    query = RoomReport.query
+
+    # Searching
+    if search:
+        query = query.join(User).filter(
+            (func.lower(User.fullname).like(f"%{search}%")) |
+            (func.lower(RoomReport.description).like(f"%{search}%"))
+        )
+
+    # Filtering by status
+    if status != 'all':
+        query = query.filter(RoomReport.status == status)
+
+    # Filtering by priority
+    if priority != 'all':
+        query = query.filter(RoomReport.priority == priority)
+
+    # Sorting by date (newest first)
+    query = query.order_by(RoomReport.date_reported.desc())
+
+    # Pagination
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page
+    reports = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    return render_template('admin_room_reports.html',
+                         reports=reports,
+                         search=search,
+                         status=status,
+                         priority=priority,
+                         page=page,
+                         total_pages=total_pages)
+
+@main.route('/admin/room-report/<int:report_id>', methods=['GET', 'POST'])
+def admin_room_report_detail(report_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    report = RoomReport.query.get_or_404(report_id)
+
+    if request.method == 'POST':
+        status = request.form.get('status')
+        admin_notes = request.form.get('admin_notes')
+
+        report.status = status
+        report.admin_notes = admin_notes
+        report.admin_id = session.get('admin_id')
+
+        if status == 'resolved':
+            report.date_resolved = datetime.utcnow()
+            # Notify the user
+            create_notification(
+                user_id=report.user_id,
+                message=f"Your room report for {report.hostel}-{report.block}-{report.room} has been resolved.",
+                notification_type='report_resolved'
+            )
+
+        if status == 'in_progress':
+            create_notification(
+                user_id=report.user_id,
+                message=f"Your room report for {report.hostel}-{report.block}-{report.room} is now in progress.",
+                notification_type='report_in_progress'
+            )
+
+        db.session.commit()
+        flash('Report updated successfully!', 'success')
+        return redirect(url_for('main.admin_room_report_detail', report_id=report.id))
+
+    return render_template('admin_room_report_detail.html', report=report)
+
+@main.route('/mark-report-resolved/<int:report_id>', methods=['POST'])
+def mark_report_resolved(report_id):
+    if not is_logged_in():
+        flash('Please login to perform this action', 'error')
+        return redirect(url_for('main.login'))
+
+    report = RoomReport.query.get_or_404(report_id)
+    user = User.query.get(session['user_id'])
+    if report.user_id != user.id:
+        flash('You are not authorized to update this report.', 'error')
+        return redirect(url_for('main.my_reports'))
+
+    if report.status != 'in_progress':
+        flash('Only reports that are in progress can be marked as resolved.', 'error')
+        return redirect(url_for('main.my_reports'))
+
+    report.status = 'resolved'
+    report.date_resolved = datetime.utcnow()
+    db.session.commit()
+
+    # Notify all admins
+    admins = Admin.query.all()
+    for admin in admins:
+        create_notification(
+            admin_id=admin.id,
+            message=f"User {user.fullname} marked their room report for {report.hostel}-{report.block}-{report.room} as resolved.",
+            notification_type='user_resolved_report'
+        )
+
+    flash('Report marked as resolved. Thank you for confirming!', 'success')
+    return redirect(url_for('main.my_reports'))
 @main.route('/admin/activitylog')
 def admin_activitylog():
     if not is_admin_logged_in():

@@ -34,12 +34,13 @@
                 <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
                 <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
                 <li><a href="{{ url_for('main.admin_announcements') }}" class="active">Announcements</a></li>
+                <li><a href="{{ url_for('main.admin_room_reports') }}">Room Reports</a></li>
                 <li><a href="{{ url_for('main.admin_activitylog') }}">Activity Log</a></li>
                 <li><a href="#">Settings</a></li>
             </ul>
         </nav>
     </div>
-    <div class="dashboard-container">
+        <div class="dashboard-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -47,41 +48,41 @@
             {% endfor %}
           {% endif %}
         {% endwith %}
-        <div class="announcement-box">
-            <form method="POST" action="{{ url_for('main.add_announcement') }}">
-                <textarea name="content" rows="2" placeholder="Write new announcement..." required></textarea>
-                <button type="submit" class="announcement-form-btn">Post</button>
-            </form>
-            <hr>
-            {% if announcements %}
+            <div class="announcement-box">
+                <form method="POST" action="{{ url_for('main.add_announcement') }}">
+                    <textarea name="content" rows="2" placeholder="Write new announcement..." required class="fixed-textarea"></textarea>
+                    <button type="submit" class="announcement-form-btn">Post</button>
+                </form>
+                <hr>
+                {% if announcements %}
                 {% if edit_id %}
                     {% for ann in announcements %}
                         {% if edit_id == ann.id %}
                             <form method="POST" action="{{ url_for('main.edit_announcement', id=ann.id) }}" class="edit-announcement-form">
                                 <textarea name="content" rows="3" required style="height:80px; resize:none;">{{ ann.content }}</textarea>
                                 <div class="edit-actions">
-                                    <button type="submit" class="announcement-form-btn">Save</button>
+                                <button type="submit" class="announcement-form-btn">Save</button>
                                     <a href="{{ url_for('main.admin_announcements') }}" class="announcement-form-btn delete">Cancel</a>
                                 </div>
                             </form>
                         {% endif %}
                     {% endfor %}
-                {% else %}
+                        {% else %}
                     {% for ann in announcements %}
-                        <div class="announcement-content">{{ ann.content }}</div>
-                        <div class="announcement-meta">Posted by {{ ann.admin.username }} on {{ ann.date_posted.strftime('%Y-%m-%d %H:%M') }}</div>
-                        <div class="announcement-actions">
+                            <div class="announcement-content">{{ ann.content }}</div>
+                            <div class="announcement-meta">Posted by {{ ann.admin.username }} on {{ ann.date_posted.strftime('%Y-%m-%d %H:%M') }}</div>
+                            <div class="announcement-actions">
                             <a href="{{ url_for('main.admin_announcements', edit_id=ann.id) }}" class="edit announcement-form-btn">Edit</a>
-                            <form method="POST" action="{{ url_for('main.delete_announcement', id=ann.id) }}" style="display:inline;">
+                                <form method="POST" action="{{ url_for('main.delete_announcement', id=ann.id) }}" style="display:inline;">
                                 <button type="submit" class="delete announcement-form-btn" onclick="return confirm('Delete this announcement?')">Delete</button>
-                            </form>
-                        </div>
+                                </form>
+                            </div>
                         {% if not loop.last %}<hr>{% endif %}
                     {% endfor %}
                 {% endif %}
-            {% else %}
-                <div class="announcement-content">No announcements yet.</div>
-            {% endif %}
+                {% else %}
+                    <div class="announcement-content">No announcements yet.</div>
+                {% endif %}
         </div>
     </div>
     <script>

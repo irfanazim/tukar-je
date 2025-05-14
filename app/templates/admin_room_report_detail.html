@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/room_reports.css') }}">
+    <title>Room Report Details - tukar-je</title>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('main.admin_logout') }}">Logout</a>
+            <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                <span class="material-icons">notifications</span>
+            </button></a>
+        </nav>
+    </header>
+
+    <div class="title2">
+        <h1>Room Report Details</h1>
+    </div>
+
+    <div class="nav-wrapper">
+        <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span></div>
+        <nav class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
+                <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
+                <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
+                <li><a href="{{ url_for('main.admin_room_reports') }}" class="active">Room Reports</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="dashboard-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="report-details">
+            <div class="report-header">
+                <h2>Report #{{ report.id }}</h2>
+                <div class="report-meta">
+                    <span class="priority-badge priority-{{ report.priority }}">{{ report.priority|title }}</span>
+                    <span class="status-badge status-{{ report.status }}">
+                        {% if report.status == 'in_progress' %}
+                            In Progress
+                        {% else %}
+                            {{ report.status|title }}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="report-info-vertical">
+                <div class="info-group">
+                    <h3>Student Information</h3>
+                    <p><strong>Name:</strong> {{ report.user.fullname }}</p>
+                    <p><strong>Student ID:</strong> {{ report.user.student_id }}</p>
+                    <p><strong>Email:</strong> <div class="description-box">{{ report.user.email }}</div></p>
+                </div>
+
+                <div class="info-group">
+                    <h3>Location</h3>
+                    <p><strong>Hostel:</strong> {{ report.hostel }}</p>
+                    <p><strong>Block:</strong> {{ report.block }}</p>
+                    <p><strong>Room:</strong> {{ report.room }}</p>
+                </div>
+
+                <div class="info-group">
+                    <h3>Issue Details</h3>
+                    <p><strong>Type:</strong> {{ report.issue_type|title }}</p>
+                    <p><strong>Description:</strong></p>
+                    <div class="description-box">{{ report.description }}</div>
+                    <p><strong>Reported on:</strong> {{ report.date_reported_my.strftime('%Y-%m-%d %H:%M') }}</p>
+                    {% if report.date_resolved_my %}
+                        <p><strong>Resolved on:</strong> {{ report.date_resolved_my.strftime('%Y-%m-%d %H:%M') }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="info-group">
+                    <h3>Admin Notes</h3>
+                    <form method="POST" class="admin-notes-form">
+                        <textarea name="admin_notes" rows="4" placeholder="Add notes about this report...">{{ report.admin_notes or '' }}</textarea>
+                        
+                        <div class="status-update">
+                            <label for="status">Update Status:</label>
+                            <select name="status" id="status" required>
+                                <option value="pending" {% if report.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="in_progress" {% if report.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="resolved" {% if report.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Update Report</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ url_for('main.admin_room_reports') }}" class="back-btn">Back to Reports</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('sidebar-open');
+        }
+    </script>
+</body>
+</html> 

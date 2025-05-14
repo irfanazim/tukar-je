@@ -1,5 +1,5 @@
 from . import db
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -61,6 +61,46 @@ class Announcement(db.Model):
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
     admin = db.relationship('Admin', backref=db.backref('announcements', lazy=True))
+
+
+class RoommateProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    user = db.relationship('User', backref=db.backref('roommate_profile', uselist=False))
+    about = db.Column(db.Text)
+    gender = db.Column(db.String(20), nullable=False)
+    course_level = db.Column(db.String(50))  
+    faculty = db.Column(db.String(50))  
+    year = db.Column(db.Integer, nullable=False)
+    contact_method = db.Column(db.String(50), nullable=False)
+    contact_info = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class RoomReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    hostel = db.Column(db.String(10), nullable=False)
+    block = db.Column(db.String(1), nullable=False)
+    room = db.Column(db.String(10), nullable=False)
+    issue_type = db.Column(db.String(50), nullable=False)  # e.g., 'electrical', 'plumbing', 'furniture'
+    description = db.Column(db.Text, nullable=False)
+    priority = db.Column(db.String(20), nullable=False, default='medium')  # high, medium, low
+    status = db.Column(db.String(20), nullable=False, default='pending')  # pending, in_progress, resolved
+    date_reported = db.Column(db.DateTime, default=datetime.utcnow)
+    date_resolved = db.Column(db.DateTime)
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
+    admin_notes = db.Column(db.Text)
+    
+    user = db.relationship('User', backref=db.backref('room_reports', lazy=True))
+    admin = db.relationship('Admin', backref=db.backref('resolved_reports', lazy=True))
+
+    @property
+    def date_reported_my(self):
+        return self.date_reported + timedelta(hours=8) if self.date_reported else None
+
+    @property
+    def date_resolved_my(self):
+        return self.date_resolved + timedelta(hours=8) if self.date_resolved else None
 
 class AdminActivity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
