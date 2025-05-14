@@ -1,6 +1,6 @@
 from flask import Blueprint, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from . import db, mail
-from .models import Notification, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport
+from .models import Notification, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity
 from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
@@ -106,6 +106,10 @@ def login():
         if not user.is_verified:
             flash('Please verify your email before logging in', 'error')
             return redirect(url_for('main.login'))
+        
+        if user.is_deleted:
+            flash('Your account has been deleted. Please contact support.', 'error')
+            return redirect(url_for('main.login'))
 
         twofa_code = ''.join(secrets.choice('0123456789') for _ in range(6))
         session['temp_2fa'] = twofa_code
@@ -194,7 +198,7 @@ def dashboard():
     if not is_logged_in():
         return redirect(url_for('main.login'))
     user_id = session.get('user_id')
-    swap_requests = SwapRequest.query.filter_by(user_id=user_id).all()
+    swap_requests = SwapRequest.query.filter_by(user_id=user_id, is_deleted=False).all()
     return render_template('dashboard.html', logged_in=True, requests=swap_requests)
 
 @main.route('/logout')
@@ -288,18 +292,18 @@ def swap_requests():
     page = int(request.args.get('page', 1))
     per_page = 50
 
-    query = SwapRequest.query.filter_by(is_deleted=False)
+    query = SwapRequest.query.join(User).filter(SwapRequest.is_deleted == False)
     #searching
     if search:
-        query = SwapRequest.query.join(User).filter(func.lower(User.fullname).like(f"%{search}%"))
+        query = query.filter(func.lower(User.fullname).like(f"%{search}%"))
     #filtering by status
     if status != 'all':
         query = query.filter(SwapRequest.status==status)
     #sorting 
     if sort == 'name_asc':
-        query = SwapRequest.query.join(User).order_by(User.fullname.asc())
+        query = query.order_by(User.fullname.asc())
     elif sort == 'name_desc':
-        query = SwapRequest.query.join(User).order_by(User.fullname.desc())
+        query = query.order_by(User.fullname.desc())
     elif sort == 'date_new':
         query = query.order_by(SwapRequest.date.desc())
     elif sort == 'date_old':
@@ -386,10 +390,29 @@ def delete_request_admin():
         return redirect(request.referrer or url_for('main.swap_requests'))
     
     admin_id = session.get('admin_id')
+    admin = Admin.query.get_or_404(admin_id)
 
     swap.is_deleted = True
     swap.deleted_at = datetime.utcnow()
     swap.deleted_by_admin_id = admin_id
+
+    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    activity = AdminActivity(
+        admin_id=admin_id,
+        action='deleted',
+        entity_type='Swap Request',
+        entity_id=swap.id,
+        
+        details=(f"Record was deleted by { admin.username } for {swap.user.fullname} (ID: {swap.user.student_id}) on {timestamp}\n\n"
+                 f"Deleted Data:\n"
+                 f"Current Hostel: {swap.current_hostel}  | Desired Hostel: {swap.desired_hostel}\n"
+                 f"Current Block:  {swap.current_block}  | Desired Block: {swap.desired_block}\n"
+                 f"Current Room:   {swap.current_room}  | Desired Room:  {swap.desired_room}\n"
+                 f"Status: {swap.status}\n"
+                 f"Date: {swap.date}\n")
+    )
+        
+    db.session.add(activity)
 
     db.session.commit()
     flash('Request deleted successfully!', 'success')
@@ -443,33 +466,76 @@ def delete_student_admin():
         return redirect(request.referrer or url_for('main.admin_students'))
     
     admin_id = session.get('admin_id')
+    admin = Admin.query.get_or_404(admin_id)
 
     student.is_deleted = True
     student.deleted_at = datetime.utcnow()
     student.deleted_by_admin_id = admin_id
 
-    # Delete all swap requests associated with the student
-    for req in student.swap_requests:
-        req.is_deleted = True
-        req.deleted_at = datetime.utcnow()
-        req.deleted_by_admin_id = admin_id
-
+    
+    
+    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    activity = AdminActivity(
+        admin_id=admin_id,
+        action='deleted',
+        entity_type='Student',
+        entity_id=student.id,
+        details=(f"Record was deleted by { admin.username } for {student.fullname} (ID: {student.student_id}) on {timestamp}\n\n"
+                 f"Deleted Data:\n"
+                 f"Student ID: {student.student_id}\n"
+                 f"Name: {student.fullname}\n"
+                 f"Email: {student.email}\n"
+                 f"Hostel: {student.hostel}  | Block: {student.block} | Room: {student.room}\n"
+                 )
+                 
+        
+    )  
+    db.session.add(activity)
     db.session.commit()
-    flash('Student and related data deleted successfully!', 'success')
+    flash('Student data is deleted successfully!', 'success')
         
     return redirect(request.referrer or url_for('main.admin_students'))
+
+
+
 
 @main.route('/admin/student/edit/<int:student_id>', methods=['GET', 'POST'])
 def edit_student(student_id):
     student = User.query.get_or_404(student_id)
     #update user details
     if request.method == 'POST':
-        student.hostel = request.form.get('hostel')
-        student.block = request.form.get('block')
-        student.room = request.form.get('room')
+        admin_id = session.get('admin_id')
+        admin = Admin.query.get_or_404(admin_id)
 
+        old_hostel = student.hostel
+        old_block = student.block
+        old_room = student.room
+
+        new_hostel = request.form.get('hostel')
+        new_block = request.form.get('block')
+        new_room = request.form.get('room')
+
+        student.hostel = new_hostel
+        student.block = new_block
+        student.room = new_room
+
+        if old_hostel != new_hostel or old_block != new_block or old_room != new_room:
+            timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+            activity = AdminActivity(
+                admin_id=admin_id,
+                action='edited',
+                entity_type='Student',
+                entity_id=student.id,
+                details=(f"Record was updated by { admin.username } for {student.fullname} (ID: {student.student_id}) on {timestamp}\n\n"
+                         f"Changes:\n"
+                         f"Hostel: {old_hostel} -> {new_hostel}\n"
+                         f"Block: {old_block} -> {new_block}\n" 
+                         f"Room: {old_room} -> {new_room}\n"
+                     )
+                )
+            db.session.add(activity)
         db.session.commit()
-        flash("Student details updated successfully!", "success")
+        flash("Student details are updated successfully!", "success")
         return redirect(url_for('main.edit_student', student_id=student.id)) 
 
     return render_template('edit_student.html', student=student) 
@@ -989,3 +1055,138 @@ def mark_report_resolved(report_id):
 
     flash('Report marked as resolved. Thank you for confirming!', 'success')
     return redirect(url_for('main.my_reports'))
+@main.route('/admin/activitylog')
+def admin_activitylog():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    
+    # GET query parameters
+    search = request.args.get('search', '').lower()
+    action = request.args.get('action', 'all')
+    entity = request.args.get('entity', 'all')
+    from_date = request.args.get('from_date')
+    to_date = request.args.get('to_date')
+    page = int(request.args.get('page', 1))
+    per_page = 10
+
+    query = AdminActivity.query
+    #searching
+    if search:
+        query = query.filter(
+            func.lower(AdminActivity.details).like(f"%{search}%")
+        )
+    #filtering by action
+    if action != 'all':
+        query = query.filter(AdminActivity.action==action)
+    #filtering by entity
+    if entity != 'all':
+        query = query.filter(AdminActivity.entity_type==entity)
+    #filtering by date range
+    if from_date:
+        try:
+            from_dt = datetime.strptime(from_date, "%Y-%m-%d")
+            query = query.filter(AdminActivity.timestamp >= from_dt)
+        except ValueError:
+            pass
+
+    if to_date:
+        try:
+            to_dt = datetime.strptime(to_date, "%Y-%m-%d")
+            to_dt = to_dt.replace(hour=23, minute=59, second=59)
+            query = query.filter(AdminActivity.timestamp <= to_dt)
+        except ValueError:
+            pass
+    #pagination
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page
+    query = query.order_by(AdminActivity.timestamp.desc())
+    activities = query.offset((page - 1) * per_page).limit(per_page).all()
+    
+    # Fetch activity logs from the database
+    
+    return render_template('admin_activity.html', activities=activities, search=search, action=action, entity=entity,
+                            from_date=from_date, to_date=to_date,page=page, total_pages=total_pages,  )
+
+@main.route('/admin/request/restore', methods=['POST'])
+def restore_request_admin():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    request_id = request.form.get('id')
+    swap = SwapRequest.query.get_or_404(request_id)
+
+    if not swap.is_deleted:
+        flash('Request is not deleted', 'warning')
+        return redirect(request.referrer or url_for('main.swap_requests'))
+
+    admin_id = session.get('admin_id')
+    admin= Admin.query.get_or_404(admin_id)
+    
+
+    # Restore the swap request
+    swap.is_deleted = False
+    swap.deleted_at = None
+    swap.deleted_by_admin_id = None
+
+    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    activity = AdminActivity(
+        admin_id=admin_id,
+        action='restored',
+        entity_type='Swap Request',
+        entity_id=swap.id,
+        details=(f"Record was restored by { admin.username } for {swap.user.fullname} (ID: {swap.user.student_id}) on {timestamp}\n\n"
+                 f"Restored Data:\n"
+                 f"Current Hostel: {swap.current_hostel}  | Desired Hostel: {swap.desired_hostel}\n"
+                 f"Current Block:  {swap.current_block}  | Desired Block: {swap.desired_block}\n"
+                 f"Current Room:   {swap.current_room}  | Desired Room:  {swap.desired_room}\n"
+                 f"Status: {swap.status}\n"
+                 f"Date: {swap.date}\n")
+            )
+    db.session.add(activity)
+    db.session.commit()
+    flash('Request restored successfully!', 'success')
+    return redirect(request.referrer or url_for('main.swap_requests'))
+
+@main.route('/admin/student/restore', methods=['POST'])
+def restore_student_admin():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    student_id = request.form.get('id')
+    student = User.query.get_or_404(student_id)
+
+    if not student.is_deleted:
+        flash('Student data is not deleted', 'warning')
+        return redirect(request.referrer or url_for('main.admin_students'))
+
+    admin_id = session.get('admin_id')
+    admin= Admin.query.get_or_404(admin_id)
+    
+
+    # Restore the student data
+    student.is_deleted = False
+    student.deleted_at = None
+    student.deleted_by_admin_id = None
+
+    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    activity = AdminActivity(
+        admin_id=admin_id,
+        action='restored',
+        entity_type='Student',
+        entity_id=student.id,
+        details=(f"Record was restored by { admin.username } for {student.fullname} (ID: {student.student_id}) on {timestamp}\n\n"
+                 f"Restored Data:\n"
+                 f"Student ID: {student.student_id}\n"
+                 f"Name: {student.fullname}\n"
+                 f"Email: {student.email}\n"
+                 f"Hostel: {student.hostel}  | Block: {student.block} | Room: {student.room}\n"
+                 )  
+            )  
+    db.session.add(activity)
+    db.session.commit()
+    flash('Student data is restored successfully!', 'success')
+    return redirect(request.referrer or url_for('main.admin_students'))

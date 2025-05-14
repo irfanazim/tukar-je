@@ -101,3 +101,14 @@ class RoomReport(db.Model):
     @property
     def date_resolved_my(self):
         return self.date_resolved + timedelta(hours=8) if self.date_resolved else None
+
+class AdminActivity(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
+    entity_type = db.Column(db.String(50), nullable=False)  
+    entity_id = db.Column(db.Integer, nullable=False)
+    action = db.Column(db.String(50), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    details = db.Column(db.Text)  
+
+    admin = db.relationship('Admin', backref=db.backref('activities', lazy=True))

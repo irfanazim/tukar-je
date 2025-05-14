@@ -1204,6 +1204,130 @@ min-height: 700px; }
 }
 /* End for total students page */
 
+/* Admin Activity Log page */
+.admin-activity-container{
+    flex: 1;
+    min-height: 700px; 
+}
+.details {
+    transition: all 0.3s ease;
+}
+.details-header h3 {
+    font-weight: bold;
+    font-size: 15px;
+    text-align: left;
+}
+.details-body p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+    text-align: left;
+    line-height: 1.5;
+}
+
+
+.details-content {
+    background-color: #f8f8f8;
+    padding: 10px;
+    border-top: none;
+}
+
+.admin-activity-body .flash {
+    position: absolute;  
+    top: 100px;            
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99;        
+    padding: 12px 50px;
+    border-radius: 5px;
+    max-width: 80%;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.view-btn, .restore-btn {
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.view-btn {
+    background: #1e3a8a;
+    color: white;
+    transition: background-color 0.3s ;
+}
+.view-btn:hover {
+    background: #3749b4;
+}
+.restore-btn {
+    background: #4c9f81;
+    color: white;
+    transition: background-color 0.3s ;
+}
+.restore-btn:hover {
+    background: #0f9b6d;
+}
+.admin-activity-container .table-controls-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    width: 93%;
+    margin: 20px auto;
+    padding: 15px 20px;
+    background-color: #f9fbfc;
+    border: 1px solid #d4dbe0;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+.admin-activity-container .filter-container, 
+.admin-activity-container.search-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 180px; 
+    min-width: 170px;
+}
+.filter-container.date-range-container {
+    flex: 0 1 170px; 
+}
+.clear-button-row {
+  width: 100%;
+  margin-bottom: 2px;
+  margin-left: 1045px;
+}
+.clear-filters-link {
+  font-size: 14px;
+  color: #007BFF;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.clear-filters-link:hover {
+  color: #0056b3;
+}
+.act-deleted{
+    background: #f9e3e1;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border-color: #fecaca;
+}
+.act-updated{
+    background: #d9eaff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border-color: #bbf7d0;
+}
+.act-restored{
+    background: #d9fce8;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border-color: #bbf7d0;
+}
+/* End for Admin Activity Log page */
+
 .current-location {
     background: #f8f9fa;
     padding: 15px;
