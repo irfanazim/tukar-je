@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/room_reports.css') }}">
     <title>Room Report - tukar-je</title>
 </head>
-<body>
+<body class="room-report-body">
     <header class="header">
         <div class="logo">
             <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
@@ -28,18 +28,16 @@
         <h1>Report Room Issue</h1>
     </div>
 
-    <div class="dashboard-container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
+        <div class="form-container">
+            <form method="POST" class="form-box">
+                <div class="input-box">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="alert alert-{{ category }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-
-        <div class="form-container">
-            <form method="POST" class="form-box">
-                <div class="input-box">
                     <label>Current Location</label>
                     <div class="room-group">
                         <input type="text" value="{{ user.hostel }}" disabled>
