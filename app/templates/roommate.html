@@ -29,6 +29,14 @@
         <span class="material-icons">arrow_back</span>
     </a>
         <h1>{% if profile %}Edit{% else %}Create{% endif %} Roommate Profile</h1>
+
+         {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         
         <form method="POST" class="edit-form-request">
             <div class="form-section-title">

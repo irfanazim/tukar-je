@@ -96,13 +96,7 @@
                     <span class="label">Year:</span>
                     <span>{{ profile.year }}</span>
                 </div>
-                   {% for req in requests %}
-                    {% if req.user_id == profile.user_id %}
-                    <div class="academic-item-special">
-                        <span class="label"> Current Location: {{ req.current_hostel }}-{{ req.current_block }}-{{ req.current_room }}</span>
-                    </div>
-                    {% endif %}
-                {% endfor %}
+                
             </div>
 
             {% if profile.about %}

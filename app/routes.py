@@ -798,7 +798,7 @@ def roommate():
         try:
             db.session.commit()
             flash('Profile saved successfully!', 'success')
-            return redirect(url_for('main.view_profiles'))
+            return redirect(url_for('main.roommate'))
         except Exception as e:
             db.session.rollback()
             flash('An error occurred while saving your profile', 'error')
