@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from math import ceil
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 main = Blueprint('main', __name__)
 
@@ -283,6 +283,44 @@ def admin_dashboard():
     return render_template('admin_dashboard.html', total_requests=total_requests, total_students=total_students, pending_requests=pending_requests,
                             approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests,
                             announcements=announcements, admin=admin, logged_in=is_admin_logged_in())
+
+@main.route('/admin/registered_admins')
+def registered_admins():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    #GET query parameters
+    search = request.args.get('search', '').lower()
+    sort = request.args.get('sort', '')
+    page = int(request.args.get('page', 1))
+    per_page = 50
+    
+    admins = Admin.query
+    #searching
+    if search:
+        admins = admins.filter(
+            or_(func.lower(Admin.username).like(f"%{search}%"), 
+                func.lower(Admin.admin_name).like(f"%{search}%")
+                )
+        )
+    #sorting
+    if sort == 'date_new':
+        admins = admins.order_by(Admin.created_at.desc())
+    elif sort == 'date_old':
+        admins = admins.order_by(Admin.created_at.asc())
+    else:
+        admins = admins.order_by(Admin.created_at.desc())
+    #pagination
+    total = admins.count()
+    total_pages = (total + per_page - 1) // per_page
+    admins = admins.offset((page - 1) * per_page).limit(per_page).all()
+
+    # Get total registered admins
+    total_admins = Admin.query.count()
+
+    return render_template('admins.html', admins=admins, logged_in=is_admin_logged_in(), total_admins=total_admins, 
+                           search=search, sort=sort, page=page, total_pages=total_pages)
 
 @main.route('/admin/requests')
 def swap_requests():
@@ -622,6 +660,7 @@ def submit_request():
 @main.route('/admin/register', methods=['GET', 'POST'])
 def admin_register():
     if request.method == 'POST':
+        admin_name = request.form.get('admin_name')
         username = request.form.get('username')
         password = request.form.get('password')
         secret_key = request.form.get('secret_key')
@@ -635,6 +674,7 @@ def admin_register():
             return redirect(url_for('main.admin_register'))
             
         admin = Admin(
+            admin_name=admin_name,
             username=username,
             password=generate_password_hash(password)
         )
@@ -1073,7 +1113,7 @@ def admin_activitylog():
     from_date = request.args.get('from_date')
     to_date = request.args.get('to_date')
     page = int(request.args.get('page', 1))
-    per_page = 10
+    per_page = 50
 
     query = AdminActivity.query
     #searching

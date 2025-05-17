@@ -34,6 +34,10 @@
                 {% endwith %}
                 <form action="{{ url_for('main.admin_register') }}" method="POST">
                     <div class="input-box">
+                        <label for="admin_name">Full Name</label>
+                        <input type="text" id="admin_name" name="admin_name" required>
+                    </div>
+                    <div class="input-box">
                         <label for="username">Username</label>
                         <input type="text" id="username" name="username" required>
                     </div>
