@@ -35,6 +35,23 @@
     <div class="title3">
         <h1>Hostel Map</h1>
         </div>
+    
+        <div class="nav-wrapper">
+          <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span>
+          
+          </div>
+          <nav class="sidebar" id="sidebar">
+            <ul>
+              <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
+              <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
+              <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
+              <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
+              <li><a href="{{ url_for('main.my_reports') }}">My Reports</a></li>
+              <li><a href="#">Settings</a></li>
+            </ul>
+          </nav>
+        </div>
+
     <div class="map-container">
         <div class="map-row">
             <div class="map-card">
@@ -75,6 +92,12 @@
         </div>
     </div>
     
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('sidebar-open');
+      }
+    </script>
     <script>
         const regions = document.querySelectorAll('.clickable-region');
         const tooltip = document.getElementById('simple-tooltip');

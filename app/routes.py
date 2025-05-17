@@ -269,6 +269,10 @@ def admin_dashboard():
     if not is_admin_logged_in():
         flash('Please login as admin', 'error')
         return redirect(url_for('main.admin_login'))
+    # Get admin ID from session
+    admin_id = session.get('admin_id')
+    admin = Admin.query.get_or_404(admin_id)
+
     total_requests = SwapRequest.query.filter_by(is_deleted=False).count()
     total_students = User.query.filter_by(is_deleted=False).count()
     pending_requests = SwapRequest.query.filter(SwapRequest.status == 'pending', SwapRequest.is_deleted == False).count()
@@ -278,7 +282,7 @@ def admin_dashboard():
     announcements = Announcement.query.order_by(Announcement.date_posted.desc()).all()
     return render_template('admin_dashboard.html', total_requests=total_requests, total_students=total_students, pending_requests=pending_requests,
                             approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests,
-                            announcements=announcements)
+                            announcements=announcements, admin=admin, logged_in=is_admin_logged_in())
 
 @main.route('/admin/requests')
 def swap_requests():
