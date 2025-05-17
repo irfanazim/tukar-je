@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <title>Register Students - tukar-je</title>
+        <title>Registered Students - tukar-je</title>
     </head>
     <body class="admin-students-body">
         <header class="header">
@@ -47,6 +47,7 @@
                 <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
                 <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
                 <li><a href="{{ url_for('main.admin_room_reports') }}">Room Reports</a></li>
+                <li><a href="{{ url_for('main.registered_admins') }}">Admins</a></li>
                 <li><a href="{{ url_for('main.admin_activitylog') }}">Activity Log</a></li>
                 <li><a href="#">Settings</a></li>
               </ul>
