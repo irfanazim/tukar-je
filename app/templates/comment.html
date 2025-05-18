@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="alert alert-{{ category }}">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <h1> {{ profile.fullname }}'S FORUM</h1>
+    </div>
+        <!-- Back Button -->
+    <div class="back-button-container" style="margin-bottom: 1em;">
+            <a href="{{ url_for('main.view_profiles') }}" class="top-back-btn">
+                <span class="material-icons">arrow_back</span>
+            </a>
+    </div>
+
+    <!-- Comment Form -->
+    {% if is_logged_in() %}
+    <form method="POST" class="comment-form">
+          <div class="textarea-container">
+        <textarea name="comment" placeholder="Write a comment..." required></textarea>
+            <button type="submit">
+            <span class="material-icons">send</span>
+        </button>
+    </div>
+    </form>
+    {% else %}
+    <div class="login-prompt">
+        <a href="{{ url_for('main.login') }}">Log in</a> to post comments
+    </div>
+    {% endif %}
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h2>Public Comments</h2>
+        
+        {% if not comments %}
+        <p class="no-comments">No comments yet. Be the first to comment!</p>
+        {% endif %}
+
+        {% for comment in comments %}
+        <div class="comment-card" {% if loop.last %}id="last-comment"{% endif %}>
+            <div class="comment-header">
+                <span class="author">{{ comment.author.fullname }}</span>
+             <span class="timestamp"> {{ comment.local_timestamp.strftime('%b %d, %Y at %I:%M %p') }}</span>
+
+                {% if comment.author_id == session.get('user_id') %}
+               <form action="{{ url_for('main.delete_comment', comment_id=comment.id) }}" method="POST" class="delete-form">
+                    <button type="submit" class="delete-btn2" >Delete</button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="comment-content">{{ comment.content }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+           // Auto-hide flash messages after 5 seconds
+         setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000); 
+          // Smooth scroll to the last comment
+   window.onload = function () {
+        const lastComment = document.getElementById("last-comment");
+        if (lastComment) {
+            lastComment.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
+</script>
+
+</body>
+</html>

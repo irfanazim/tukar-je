@@ -112,3 +112,18 @@ class AdminActivity(db.Model):
     details = db.Column(db.Text)  
 
     admin = db.relationship('Admin', backref=db.backref('activities', lazy=True))
+
+class ProfileComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    profile_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Profile being commented on
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)   # User who wrote the comment
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)  # New field
+    deleted_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    
+
+    # Relationships
+    profile = db.relationship('User', foreign_keys=[profile_id], backref=db.backref('comments_received', lazy=True))
+    author = db.relationship('User', foreign_keys=[author_id], backref=db.backref('comments_written', lazy=True))
