@@ -28,6 +28,29 @@
                 </button></a>
             </nav>
         </header>
+        <div class="nav-wrapper">
+            <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span></div>
+            <nav class="sidebar" id="sidebar">
+                <ul>
+                    {% if is_admin_logged_in %}
+                    <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
+                    <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
+                    <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
+                    <li><a href="{{ url_for('main.admin_room_reports') }}">Room Reports</a></li>
+                    <li><a href="{{ url_for('main.registered_admins') }}">Admins</a></li>
+                    <li><a href="{{ url_for('main.admin_activitylog') }}">Activity Log</a></li>
+                    <li><a href="#">Settings</a></li>
+                    {% else %}
+                    <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
+                    <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
+                    <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
+                    <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
+                    <li><a href="{{ url_for('main.my_reports') }}">My Reports</a></li>
+                    <li><a href="#">Settings</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
 
         <div class="notifications-card">
             <div class="lines"><button></button></div>
@@ -149,5 +172,11 @@
     }
 });
         </script>
+        <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('sidebar-open');
+      }
+    </script>
     </body>
 </html>
