@@ -1,6 +1,7 @@
-from flask import Blueprint, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
+from flask import Blueprint, abort, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
+from flask_login import current_user
 from . import db, mail
-from .models import Notification, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity
+from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity
 from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
@@ -8,7 +9,7 @@ from .utils import (get_admin_notifications, create_notification, get_user_notif
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from math import ceil
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import func, or_
 
 main = Blueprint('main', __name__)
@@ -885,7 +886,9 @@ def delete_profile(profile_id):
         return redirect(url_for('main.login'))
 
     profile = RoommateProfile.query.get_or_404(profile_id)
-
+     # Delete all comments on this profile
+    ProfileComment.query.filter_by(profile_id=profile.user_id).delete()
+    
     db.session.delete(profile)
     db.session.commit()
     flash("Your profile has been deleted successfully.", "success")
@@ -1234,3 +1237,72 @@ def restore_student_admin():
     db.session.commit()
     flash('Student data is restored successfully!', 'success')
     return redirect(request.referrer or url_for('main.admin_students'))
+
+
+@main.route('/profile/<int:user_id>', methods=['GET', 'POST'])
+def view_profile(user_id):
+    profile_user = User.query.get_or_404(user_id)
+
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+
+    if request.method == 'POST':
+        content = request.form.get('comment')
+        if not content or len(content) > 500:
+            flash('Comment must be 1–500 characters', 'error')
+        else:
+            new_comment = ProfileComment(
+                profile_id=user_id,
+                author_id=session['user_id'],
+                content=content
+            )
+            db.session.add(new_comment)
+
+            if user_id != session['user_id']:  # Don't notify yourself
+                create_notification(
+                    user_id=user_id,
+                    message=f"You received a new comment on your profile",
+                    notification_type='new_comment'
+                )
+            
+            db.session.commit()
+            flash('Comment posted!', 'success')
+            
+
+        return redirect(url_for('main.view_profile', user_id=user_id))
+
+    comments = ProfileComment.query.filter_by(
+        profile_id=user_id,
+        is_deleted=False
+    ).order_by(ProfileComment.timestamp.asc()).all()
+
+    myt = timezone(timedelta(hours=8))
+    for comment in comments:
+        comment.local_timestamp = comment.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+    
+
+    return render_template(
+    'comment.html',
+    profile=profile_user,
+    comments=comments,
+    is_logged_in=is_logged_in
+)
+
+@main.route('/comment/delete/<int:comment_id>', methods=['POST'])
+def delete_comment(comment_id):
+    comment = ProfileComment.query.get_or_404(comment_id)
+
+    # Optional: Check if the current user is the author
+    if comment.author_id != session.get('user_id'):
+        flash('You are not authorized to delete this comment.', 'error')
+        return redirect(url_for('main.view_profile', user_id=comment.profile_id))
+
+    # Soft delete implementation
+    comment.is_deleted = True
+    comment.deleted_at = datetime.utcnow()
+    comment.deleted_by = session.get('user_id')
+    
+    db.session.commit()
+    flash('Comment deleted.', 'success')
+    return redirect(url_for('main.view_profile', user_id=comment.profile_id))
+

@@ -1698,6 +1698,7 @@ min-height: 700px; }
     margin-bottom: 15px;
     padding-bottom: 15px;
     border-bottom: 1px solid #eee;
+    position: relative; 
 }
 
 .profile-header h3 {
@@ -1711,7 +1712,8 @@ min-height: 700px; }
     border-radius: 12px;
     font-size: 0.8rem;
     font-weight: 500;
-    margin-left: 120px;
+    margin-left: auto; 
+    order: 2; 
 }
 
 .gender-badge.male {
@@ -1723,6 +1725,13 @@ min-height: 700px; }
     background: #fce4ec;
     color: #c2185b;
 }
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 
 /* Academic Info */
 .profile-academic {
@@ -1821,4 +1830,82 @@ min-height: 700px; }
     font-size: 0.95rem;
     color: #000000;
     text-decoration: none;
+}
+
+/* Forum Section */
+
+.profile-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+
+.comment-card {
+    background:#f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.comment-header .author {
+    font-weight: bold;
+}
+
+.comment-header .timestamp {
+    color: #666;
+}
+
+.delete-btn2{
+    margin-left: auto;
+    color: #ff4444;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.textarea-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem; 
+}
+
+
+.textarea-container button {
+  position: absolute;
+  bottom: 25px; 
+  right: 5px;   
+  padding: 0rem 0.5rem;
+  background-color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.textarea-container button:hover {
+  background-color: #d8d9da;
 }

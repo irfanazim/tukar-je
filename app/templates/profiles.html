@@ -85,9 +85,10 @@
      <!-- Profiles Grid -->
     <div class="profiles-grid">
         {% for profile in profiles %}
-        <div class="profile-card">
+         <div class="profile-card" data-url="{{ url_for('main.view_profile', user_id=profile.user_id) }}">
             <div class="profile-header">
                 <h3>{{ profile.user.fullname }}</h3>
+                <div class="header-actions">
                 <span class="gender-badge {{ profile.gender|lower }}">{{ profile.gender }}</span>
                 {% if profile.user_id == session['user_id'] %}
             <a href="{{ url_for('main.delete_profile', profile_id=profile.id) }}" class="action-btn delete-btn"
@@ -96,8 +97,8 @@
             </a>
             {% endif %}
         </div>
+    </div>
 
-            
             <div class="profile-academic">
                 <div class="academic-item">
                     <span class="label">Program:</span>
@@ -183,7 +184,21 @@
             fetchNotificationCount();
             setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
         });
-    </script>
+
+     // Click to comment
+      document.addEventListener('DOMContentLoaded', function () {
+        const cards = document.querySelectorAll('.profile-card');
+        cards.forEach(card => {
+            card.style.cursor = 'pointer'; // make it look clickable
+            card.addEventListener('click', () => {
+                const url = card.getAttribute('data-url');
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+</script>
 
 </body>
 </html>
