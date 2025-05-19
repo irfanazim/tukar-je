@@ -1306,3 +1306,33 @@ def delete_comment(comment_id):
     flash('Comment deleted.', 'success')
     return redirect(url_for('main.view_profile', user_id=comment.profile_id))
 
+@main.route('/settings', methods=['GET', 'POST'])
+def settings():
+    if not is_logged_in():
+        flash('Please log in to access settings', 'error')
+        return redirect(url_for('main.login'))
+
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        user = User.query.get(session['user_id'])
+
+        if not check_password_hash(user.password, current_password):
+            flash('Current password is incorrect', 'error')
+            return redirect(url_for('main.settings'))
+
+        if new_password != confirm_password:
+            flash('New passwords do not match', 'error')
+            return redirect(url_for('main.settings'))
+
+        # Update password
+        user.password = generate_password_hash(new_password)
+        db.session.commit()
+
+        flash('Password updated successfully', 'success')
+        return redirect(url_for('main.settings'))
+
+    return render_template('settings.html')
+
