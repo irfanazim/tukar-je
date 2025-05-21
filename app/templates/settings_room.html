@@ -8,7 +8,6 @@
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <title>Settings - tukar-je</title>
     </head>
-
     <body>
         <header class="header">
             <div class="logo">
@@ -24,7 +23,6 @@
                 </button></a>
             </nav>
         </header>
-
         <div class="title2">
             <h1>Settings</h1>
         </div>
@@ -41,7 +39,6 @@
                 </ul>
             </nav>
         </div>
-
         <div class="settings-outer">
             <div class="settings-layout">
                 <aside class="settings-sidebar">
@@ -53,44 +50,25 @@
                 </aside>
                 <main class="settings-main">
                     <div class="settings-card">
-                        <h2 class="settings-section-title">Change Password</h2>
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }}">
-                                        {{ message }}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                        <form class="reset-password-form" method="POST" action="{{ url_for('main.settings') }}">
-                            <div class="form-group">
-                                <label for="current_password">Current password</label>
-                                <div class="password-input-wrapper">
-                                    <input type="password" id="current_password" name="current_password" required>
-                                    <button type="button" class="show-password" onclick="togglePassword('current_password', this)">Show</button>
-                                </div>
+                        <h2 class="settings-section-title">Room Information</h2>
+                        <div class="info-section">
+                            <div class="info-group">
+                                <label>Hostel</label>
+                                <div class="info-value">{{ user.hostel }}</div>
                             </div>
-                            <div class="form-group">
-                                <label for="new_password">New password</label>
-                                <div class="password-input-wrapper">
-                                    <input type="password" id="new_password" name="new_password" required>
-                                    <button type="button" class="show-password" onclick="togglePassword('new_password', this)">Show</button>
-                                </div>
+                            <div class="info-group">
+                                <label>Block</label>
+                                <div class="info-value">{{ user.block }}</div>
                             </div>
-                            <div class="form-group">
-                                <label for="confirm_password">Confirm new password</label>
-                                <div class="password-input-wrapper">
-                                    <input type="password" id="confirm_password" name="confirm_password" required>
-                                </div>
+                            <div class="info-group">
+                                <label>Room Number</label>
+                                <div class="info-value">{{ user.room }}</div>
                             </div>
-                            <button type="submit" class="reset-btn">Save password</button>
-                        </form>
+                        </div>
                     </div>
                 </main>
             </div>
         </div>
-
         <footer>
             <div class="footer-col">
                 <ul>
@@ -115,55 +93,11 @@
                 </ul>
             </div>
         </footer>
-
-        <script>
-            function togglePassword(inputId, btn) {
-                const input = document.getElementById(inputId);
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    btn.textContent = 'Hide';
-                } else {
-                    input.type = 'password';
-                    btn.textContent = 'Show';
-                }
-            }
-        </script>
         <script>
             function toggleSidebar() {
                 const sidebar = document.getElementById('sidebar');
                 sidebar.classList.toggle('sidebar-open');
             }
-        </script>
-        <!-- Notification count -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                function fetchNotificationCount() {
-                    fetch('/notification-count')
-                        .then(response => response.json())
-                        .then(data => {
-                            const count = data.count;
-                            let badge = document.querySelector('.icon-button .notification-badge');
-                            
-                            if (!badge && count > 0) {
-                                badge = document.createElement('span');
-                                badge.classList.add('notification-badge');
-                                document.querySelector('.icon-button').appendChild(badge);
-                            }
-                            
-                            if (badge) {
-                                if (count > 0) {
-                                    badge.textContent = count;
-                                    badge.style.display = 'flex';
-                                } else {
-                                    badge.style.display = 'none';
-                                }
-                            }
-                        });
-                }
-
-                fetchNotificationCount();
-                setInterval(fetchNotificationCount, 30000);
-            });
         </script>
     </body>
 </html> 
