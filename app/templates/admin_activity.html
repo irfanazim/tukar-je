@@ -48,7 +48,7 @@
               <li><a href="{{ url_for('main.admin_room_reports') }}">Room Reports</a></li>
               <li><a href="{{ url_for('main.registered_admins') }}">Admins</a></li>
               <li><a href="{{ url_for('main.admin_activitylog') }}">Activity Log</a></li>
-              <li><a href="#">Settings</a></li>
+              <li><a href="{{ url_for('main.admin_settings_profile') }}"{% if request.path.startswith('/admin/settings') %} class="active"{% endif %}>Settings</a></li>
             </ul>
           </nav>
         </div>
