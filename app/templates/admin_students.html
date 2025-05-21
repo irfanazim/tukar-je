@@ -116,15 +116,21 @@
                     <td>{{ student.block }}</td>
                     <td>{{ student.room }}</td>
                     <td class="actions">
+                        <a href="{{ url_for('main.view_student_profile', student_id=student.id) }}" class="eyeview-btn" title="View Student">
+                            <span class="material-icons">visibility</span>
+                        </a>
+                        
+                        <a href="{{ url_for('main.edit_student', student_id=student.id) }}" class="edit-btn" title="Edit Student">
+                            <span class="material-icons">edit</span></a>
+
                         <form action="{{ url_for('main.delete_student_admin' , student_id=student.id) }}" method="POST"  
                                 onsubmit="return confirm('Are you sure you want to delete this student details?');">
                             <input type="hidden" name="id" value="{{ student.id }}">
-                            <button type="submit" class="delete-btn" >
+                            <button type="submit" class="delete-btn" title="Delete Student">
                                 <span class="material-icons">delete</span>
                             </button>
                         </form>
-                        <a href="{{ url_for('main.edit_student', student_id=student.id) }}" class="edit-btn">
-                            <span class="material-icons">edit</span>
+                        
                     </td>
                     
                 </tr>

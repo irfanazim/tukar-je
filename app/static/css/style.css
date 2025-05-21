@@ -1140,6 +1140,17 @@ min-height: 700px; }
   .edit-btn:hover {
     color: #3498db;
   }
+  .eyeview-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: ease-in-out 0.3s;
+    color:#000
+  }
+    .eyeview-btn:hover {
+        color: #1723a7;
+    }
 
   .cancel-btn {
     background-color: #4a6a85;
@@ -1236,6 +1247,201 @@ min-height: 700px; }
     color: red; 
 }
 /* End for total students page */
+/* Student Profile page */
+.student-profile-container {
+    width:90%;
+    max-width: 1200px;
+    margin: 120px auto; 
+    padding: 20px 60px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+}
+
+
+.student-profile-container h1 {
+    text-align: center;
+    color: #000000;
+    margin-bottom: 1.8rem;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+.info-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.info-card-group {
+  margin-top: 30px;
+}
+
+.info-card h2 {
+  margin-bottom: 10px;
+  color: royalblue;
+}
+
+.info-card p {
+  margin: 8px 0;
+  
+}
+
+
+
+
+.recent-request-content2 table {
+    width: 100%;
+    border-collapse: collapse;
+    
+  }
+.recent-request-content2 table tbody tr:hover {
+    background-color: #e3f2fd;
+  }
+  
+.recent-request-content2 th {
+    text-align: center;
+    white-space: nowrap; 
+    padding: 10px;
+    box-sizing: border-box;
+    width: auto; 
+}
+
+.recent-request-content2 th, .recent-request-content2 td  {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+  }
+.recent-request-content2 th {
+    background-color: #e0e7ff;
+    color: #1e3a8a;
+  }
+
+.recent-request-content2 td {
+    text-align: center;
+    white-space: nowrap; 
+    padding: 10px;
+    box-sizing: border-box;
+    width: auto; 
+}
+.recent-request-content2 .status-pending .status-cube {
+    background-color: #f8d15a; 
+}
+
+.recent-request-content2 .status-approved .status-cube{
+    background-color: #10b981; 
+}
+
+.recent-request-content2 .status-rejected .status-cube{
+    background-color: #ef4444; 
+}
+
+.admin-actions-card {
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  background-color: #fff;
+  margin-bottom: 2rem;
+}
+
+.admin-actions-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2a2a2a;
+  margin-bottom: 1rem;
+}
+
+.ban-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.ban-description {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.banform-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.banform-label {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.banform-textarea {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  resize: vertical;
+  width: 100%;
+  max-width: 600px;
+}
+
+.btn-ban-user {
+  margin-top: 1rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-ban-user:hover {
+  background-color: #c82333;
+}
+.btn-unban-user {
+   margin-top: 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease;
+}  
+.btn-unban-user:hover {
+  background-color: #218838;
+}
+
+.btn-warn-user {
+  margin-top: 1rem;
+  background-color: #ffc107;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-warn-user:hover {
+  background-color: #cda02e;
+}
+
+
+/*End for Student Profile page */
 
 /* Admin Activity Log page */
 .admin-activity-container{

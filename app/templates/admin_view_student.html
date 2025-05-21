@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/announcement.css') }}">
-        <title>Edit Student Details - tukar-je</title>
+        <title>Student Profile - tukar-je</title>
     </head>
 
     <body class="edit-student-body">
@@ -45,7 +45,7 @@
           </nav>
         </div>
 
-        <div class="form-container-request">
+        <div class="student-profile-container">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -55,44 +55,138 @@
             {% endwith %}
 
         
-            <button class="close-btn" id="close-btn">X</button>
+            
 
-            <h1>Edit Student Details</h1>
-        
-            <form method="POST" action="{{ url_for('main.edit_student', student_id=student.id) }}" class="edit-form-request">
-                <div class="form-grid-request">
-                    <div>
-                        <div>
-                            <label for="hostel">Current Location:</label>
-                        </div>
-                        <div class="locationn">
-                            <div class="room-group">
-                                <select name="hostel" required>
-                                    <option value="">Select Hostel</option>
-                                    <option value="HB1" {% if student.hostel == 'HB1' %}selected{% endif %}>HB1</option>
-                                    <option value="HB2" {% if student.hostel == 'HB2' %}selected{% endif %}>HB2</option>
-                                    <option value="HB3" {% if student.hostel == 'HB3' %}selected{% endif %}>HB3</option>
-                                    <option value="HB4" {% if student.hostel == 'HB4' %}selected{% endif %}>HB4</option>
-                                </select>
-                                <select name="block" required>
-                                    <option value="">Select Block</option>
-                                    <option value="A" {% if student.block == 'A' %}selected{% endif %}>Block A</option>
-                                    <option value="B" {% if student.block == 'B' %}selected{% endif %}>Block B</option>
-                                    <option value="C" {% if student.block == 'C' %}selected{% endif %}>Block C</option>
-                                </select>
+            <h1>Student Profile</h1>
+
+            <div class="info-card">
+            <h2>Student Information</h2>
+            <p><strong>Name:</strong> {{ student.fullname }}</p>
+            <p><strong>Student ID:</strong> {{ student.student_id }}</p>
+            <p><strong>Email:</strong> {{ student.email }}</p>
+            <p><strong>Current Location:</strong> {{ student.hostel }}-{{student.block}}-{{student.room}}</p> 
+            {% if student.is_banned %}
+            <p><strong>Status:</strong> Banned </p>
+            {% else %}
+            <p><strong>Status:</strong> Active </p>
+            {% endif %}
+            </div>
+
+            <div class="info-card">
+
+            <div class="recent-request-content2">
+          <h2>Recent Swap Requests</h2>
+          
+            <table>
+              <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Student ID</th>
+                    <th>Current Location</th>
+                    <th>Desired Location</th>
+                    <th>Status</th>
+                    <th>Submitted Date</th> 
+                </tr>
+              </thead>
+              <tbody>
+                {% for req in swap_requests %}
+                <tr>
+                    <td>{{ req.user.fullname }}</td>
+                    <td>{{ req.user.student_id }}</td>
+                    <td>{{ req.current_hostel }}-{{ req.current_block }}-{{ req.current_room }}</td>
+                    <td>{{ req.desired_hostel }}-{{ req.desired_block }}-{{ req.desired_room }}</td>
+                    <td class="status">
+                        {% if req.status == "pending" %}
+                            <div class="status-item status-pending">
+                                <span class="status-cube"></span>
+                                <span class="status-text">Pending</span>
                             </div>
-                        </div>
-                        <div class="locationn">
-                            <label for="room">Current Room:</label>
-                            <input type="text" id="room" name="room" value="{{ student.room }}" required>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="submit-btn">Save Changes</button>
-                <a href="{{ url_for('main.admin_students') }}" class="cancel-btn">Cancel</a>
-
-            </form>
+                        {% elif req.status == "approved" %}
+                            <div class="status-item status-approved">
+                                <span class="status-cube"></span>
+                                <span class="status-text">Approved</span>
+                             </div>
+                        {% else %}
+                            <div class="status-item status-rejected">
+                                <span class="status-cube"></span>
+                                <span class="status-text">Rejected</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>{{ req.date.strftime('%B %d, %Y, %I:%M %p') }}</td>
+                    
+                </tr>
+                {% else %}
+                <tr><td colspan="6" style="color: #999;">No recent requests found.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>    
+          </div>
         </div>
+
+        <div class="info-card-group">
+      <div class="info-card admin-actions-card">
+      <h2 class="admin-actions-title">Admin Actions</h2>
+      <hr>
+
+    <h5 class="ban-section-title">Ban User</h5>
+    
+
+    {% if student.is_banned %}
+    <p style="color: #777;" class="ban-description">
+      This student is currently banned. They cannot log in or make any requests.</p>
+  <form method="POST" action="{{ url_for('main.unban_student', student_id=student.id) }}">
+    <p><strong>Ban Reason:</strong> {{ student.ban_reason }}</p>
+    <button type="submit" class="btn-unban-user">
+      <span class="material-icons">lock_open</span>Unban Student
+    </button>
+  </form>
+{% else %}
+  <p style="color: #777;" class="ban-description">
+      Banning a student will prevent them from logging in or making any requests. Please provide a reason for the ban.
+    </p>
+  <form method="POST" action="{{ url_for('main.ban_student', student_id=student.id) }}">
+    <div class="banform-group">
+      <label for="ban_reason" class="banform-label">Ban Reason</label>
+      <textarea id="ban_reason" name="ban_reason" class="banform-textarea" placeholder="Enter reason for banning the user..." rows="5" required></textarea>
+    </div>
+
+    <button type="submit" class="btn-ban-user">
+      <span class="material-icons">block</span>Ban Student
+    </button>
+  </form>
+{% endif %}
+   <!--   <br>
+    <hr>
+    <br>
+
+    <h5 class="ban-section-title">Warn User</h5>
+    <p style="color: #777;" class="ban-description">
+      Please provide a reason for the warning.
+    </p>
+
+    <form method="POST" action="#">
+      <div class="banform-group">
+        <label for="ban_reason" class="banform-label">Warn Reason</label>
+        <textarea id="ban_reason" name="ban_reason" class="banform-textarea" placeholder="Enter reason for warning the user..." rows="5" required></textarea>
+      </div>
+
+      <button type="submit" class="btn-warn-user">
+        <span class="material-icons">warning</span>Warn Student
+      </button>
+    </form>-->
+  </div>
+</div>
+
+
+
+
+
+        
+
+
+
+             </div>
         
 
         
