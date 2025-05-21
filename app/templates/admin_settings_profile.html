@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Admin Settings - tukar-je</title>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+        </div>
+        <nav class="navbar">
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('main.admin_logout') }}">Logout</a>
+            <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                <span class="material-icons">notifications</span>
+            </button></a>
+        </nav>
+    </header>
+    <div class="title2">
+        <h1>Settings</h1>
+    </div>
+    <div class="nav-wrapper">
+        <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span></div>
+        <nav class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
+                <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
+                <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
+                <li><a href="{{ url_for('main.admin_room_reports') }}">Room Reports</a></li>
+                <li><a href="{{ url_for('main.registered_admins') }}">Admins</a></li>
+                <li><a href="{{ url_for('main.admin_activitylog') }}">Activity Log</a></li>
+                <li><a href="{{ url_for('main.admin_settings_profile') }}"{% if request.path.startswith('/admin/settings') %} class="active"{% endif %}>Settings</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="settings-outer">
+        <div class="settings-layout">
+            <aside class="settings-sidebar">
+                <ul>
+                    <li class="{% if active_tab == 'profile' %}active{% endif %}"><a href="{{ url_for('main.admin_settings_profile') }}"><span class="material-icons">person</span> Profile Information</a></li>
+                    <li class="{% if active_tab == 'account' %}active{% endif %}"><a href="{{ url_for('main.admin_settings_account') }}"><span class="material-icons">lock</span> Account Settings</a></li>
+                </ul>
+            </aside>
+            <main class="settings-main">
+                <div class="settings-card">
+                    <h2 class="settings-section-title">Profile Information</h2>
+                    <div class="info-section">
+                        <div class="info-group">
+                            <label>Full Name</label>
+                            <div class="info-value">{{ admin.admin_name }}</div>
+                        </div>
+                        <div class="info-group">
+                            <label>Username</label>
+                            <div class="info-value">{{ admin.username }}</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('sidebar-open');
+        }
+    </script>
+</body>
+</html> 

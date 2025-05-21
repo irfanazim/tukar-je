@@ -1312,12 +1312,16 @@ def settings():
         flash('Please log in to access settings', 'error')
         return redirect(url_for('main.login'))
 
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.login'))
+
     if request.method == 'POST':
         current_password = request.form.get('current_password')
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
-
-        user = User.query.get(session['user_id'])
 
         if not check_password_hash(user.password, current_password):
             flash('Current password is incorrect', 'error')
@@ -1334,5 +1338,67 @@ def settings():
         flash('Password updated successfully', 'success')
         return redirect(url_for('main.settings'))
 
-    return render_template('settings.html')
+    return render_template('settings.html', user=user)
+
+@main.route('/settings/profile')
+def settings_profile():
+    if not is_logged_in():
+        flash('Please log in to access settings', 'error')
+        return redirect(url_for('main.login'))
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.login'))
+    return render_template('settings_profile.html', user=user, active_tab='profile')
+
+@main.route('/settings/room')
+def settings_room():
+    if not is_logged_in():
+        flash('Please log in to access settings', 'error')
+        return redirect(url_for('main.login'))
+    user = User.query.get(session['user_id'])
+    if not user:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.login'))
+    return render_template('settings_room.html', user=user, active_tab='room')
+
+@main.route('/admin/settings/profile')
+def admin_settings_profile():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    admin = Admin.query.get(session['admin_id'])
+    if not admin:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.admin_login'))
+    return render_template('admin_settings_profile.html', admin=admin, active_tab='profile')
+
+@main.route('/admin/settings/account', methods=['GET', 'POST'])
+def admin_settings_account():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    admin = Admin.query.get(session['admin_id'])
+    if not admin:
+        session.clear()
+        flash('Your session has expired. Please login again.', 'error')
+        return redirect(url_for('main.admin_login'))
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        if not check_password_hash(admin.password, current_password):
+            flash('Current password is incorrect', 'error')
+            return redirect(url_for('main.admin_settings_account'))
+        if new_password != confirm_password:
+            flash('New passwords do not match', 'error')
+            return redirect(url_for('main.admin_settings_account'))
+        admin.password = generate_password_hash(new_password)
+        db.session.commit()
+        flash('Password updated successfully', 'success')
+        return redirect(url_for('main.admin_settings_account'))
+    return render_template('admin_settings_account.html', admin=admin, active_tab='account')
 
