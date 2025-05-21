@@ -111,6 +111,9 @@ def login():
         if user.is_deleted:
             flash('Your account has been deleted. Please contact support.', 'error')
             return redirect(url_for('main.login'))
+        if user.is_banned:
+            flash('Your account has been banned. Reason: {user.ban_reason}.  Please contact support.', 'error')
+            return redirect(url_for('main.login'))
 
         twofa_code = ''.join(secrets.choice('0123456789') for _ in range(6))
         session['temp_2fa'] = twofa_code
@@ -582,6 +585,52 @@ def edit_student(student_id):
         return redirect(url_for('main.edit_student', student_id=student.id)) 
 
     return render_template('edit_student.html', student=student) 
+
+@main.route('/admin/student_profile/<int:student_id>')
+def view_student_profile(student_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    student = User.query.get_or_404(student_id)
+    swap_requests = SwapRequest.query.filter_by(user_id=student.id).all()
+    
+    
+    return render_template('admin_view_student.html', student=student, swap_requests=swap_requests)
+
+@main.route('/admin/ban_student/<int:student_id>', methods=['POST'])
+def ban_student(student_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    student = User.query.get_or_404(student_id)
+    ban_reason = request.form.get('ban_reason')
+    
+    if not ban_reason:
+        flash('Ban reason is required', 'error')
+        return redirect(request.referrer or url_for('main.admin_students'))
+
+    student.is_banned = True
+    student.ban_reason = ban_reason
+    db.session.commit()
+    
+    flash('Student banned successfully!', 'success')
+    return redirect(request.referrer or url_for('main.admin_students'))
+
+@main.route('/admin/unban_student/<int:student_id>', methods=['POST'])
+def unban_student(student_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    student = User.query.get_or_404(student_id)
+    student.is_banned = False
+    student.ban_reason = None
+    db.session.commit()
+    
+    flash('Student unbanned successfully!', 'success')
+    return redirect(request.referrer or url_for('main.admin_students'))
 
 
 @main.route('/submit', methods=['GET', 'POST'])

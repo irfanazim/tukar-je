@@ -16,6 +16,9 @@ class User(db.Model):
     is_deleted = db.Column(db.Boolean, default=False)  # Soft delete flag
     deleted_at = db.Column(db.DateTime)
     deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
+    is_banned = db.Column(db.Boolean, default=False)
+    ban_reason = db.Column(db.Text, nullable=True)
+    
 
     deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_students', lazy=True))
     swap_requests = db.relationship('SwapRequest', backref='user', cascade="all, delete-orphan", passive_deletes=True)
