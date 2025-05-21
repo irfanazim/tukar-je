@@ -112,7 +112,7 @@ def login():
             flash('Your account has been deleted. Please contact support.', 'error')
             return redirect(url_for('main.login'))
         if user.is_banned:
-            flash('Your account has been banned. Reason: {user.ban_reason}.  Please contact support.', 'error')
+            flash(f'Your account has been banned. Reason: {user.ban_reason}.  Please contact support.', 'error')
             return redirect(url_for('main.login'))
 
         twofa_code = ''.join(secrets.choice('0123456789') for _ in range(6))
