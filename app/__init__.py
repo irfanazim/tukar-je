@@ -5,6 +5,7 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 import sqlite3
 from flask_migrate import Migrate
+from flask_login import LoginManager
 
 # Enable foreign key support in SQLite
 @event.listens_for(Engine, "connect")
@@ -29,6 +30,19 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
     migrate.init_app(app, db)
+
+    # Setup Login Manager
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    from .models import User  
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    login_manager.login_view = 'main.login'
+    login_manager.login_message_category = 'info'
     
     # Register blueprints
     from .routes import main
