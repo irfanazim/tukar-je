@@ -1,5 +1,5 @@
-from flask import Blueprint, abort, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app
-from flask_login import current_user
+from flask import Blueprint, abort, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app, g
+from flask_login import current_user, logout_user
 from . import db, mail
 from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity
 from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
@@ -597,6 +597,21 @@ def view_student_profile(student_id):
     
     
     return render_template('admin_view_student.html', student=student, swap_requests=swap_requests)
+
+@main.before_app_request
+def check_if_banned():
+    if 'user_id' in session:
+        # Define safe endpoints to skip ban checking
+        safe_endpoints = ['main.login', 'main.logout', 'main.register','main.index', 'static']
+
+        if request.endpoint in safe_endpoints:
+            return
+
+        user = User.query.get(session['user_id'])
+        if user and user.is_banned:
+            flash(f'Your account has been banned. Reason: {user.ban_reason}. Please contact support.', 'error')
+            logout_user()
+            return redirect(url_for('main.login'))
 
 @main.route('/admin/ban_student/<int:student_id>', methods=['POST'])
 def ban_student(student_id):
