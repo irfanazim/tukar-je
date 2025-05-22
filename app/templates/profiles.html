@@ -82,6 +82,14 @@
             </form>
         </div>
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
      <!-- Profiles Grid -->
     <div class="profiles-grid">
         {% for profile in profiles %}
