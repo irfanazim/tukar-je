@@ -132,6 +132,50 @@ Tukar-Je Support Team
 '''
     send_email('Swap Request Rejected', user.email, body)
 
+def send_account_banned_email(student):
+    body = f'''Dear {student.fullname},
+
+Your account has been banned due to violation of our terms of service. 
+Please note that you will not be able to log in or access your account.
+
+If you believe this is a mistake, please contact support.
+
+If you have any questions, please reply to this email.
+
+Best regards,
+Tukar-Je Support Team
+'''
+    send_email('Account Banned', student.email, body)
+
+def send_account_unbanned_email(student):
+    body = f'''Dear {student.fullname},
+
+Your account has been unbanned and you can now log in again.
+Please ensure you follow our terms of service to avoid future issues.
+Your account is now active and you can access all features.
+
+If you have any questions, please reply to this email.
+
+Best regards,
+Tukar-Je Support Team
+'''
+    send_email('Account Unbanned', student.email, body)
+
+def send_account_warned_email(student, warn_reason):
+    body = f'''Dear {student.fullname},
+    
+You have received a warning for violating our terms of service.
+Reason: {warn_reason}
+Your warning count is now {student.warning_count}.
+
+If you continue to violate our terms, further actions may be taken.
+If you have any questions, please reply to this email.
+
+Best regards,
+Tukar-Je Support Team
+'''
+    send_email('Account Warning', student.email, body)
+
 # Admin Sessions
 def is_admin_logged_in():
     return 'admin_id' in session

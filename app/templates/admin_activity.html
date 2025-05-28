@@ -116,6 +116,10 @@
                             <span class="act-deleted" style="color: #ca535d;" >Deleted</span>
                             {% elif act.action =="edited"  %}
                             <span class="act-updated" style="color: #486db9;" >Updated</span>
+                            {% elif act.action == "banned" %}
+                            <span class="act-banned" style="color: #f0ad4e;">Banned</span> 
+                            {% elif act.action == "unbanned" %}
+                            <span class="act-unbanned" style="color: #5cb85c;">Unbanned</span>
                             {% else %}
                             <span class="act-restored" style="color: #6ab58c;">Restored</span>
                             {% endif %}
