@@ -805,7 +805,10 @@ def delete_request(request_id):
 def hostel_map():
     if not is_logged_in():
         return redirect(url_for('main.login'))
-    return render_template('map.html', logged_in=is_logged_in())
+    hostel = request.args.get('hostel', 'HB1')
+    block = request.args.get('block', 'A')
+    floor = request.args.get('floor', 'Ground Floor')
+    return render_template('map.html', logged_in=is_logged_in(), hostel=hostel, block=block, floor=floor)
 
 @main.route('/admin/announcement/add', methods=['POST'])
 def add_announcement():

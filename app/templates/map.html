@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Hostel Map</title>
 </head>
@@ -34,64 +35,1601 @@
 
     <div class="title3">
         <h1>Hostel Map</h1>
-        </div>
-    
-        <div class="nav-wrapper">
-          <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span>
-          
-          </div>
-          <nav class="sidebar" id="sidebar">
-            <ul>
-              <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
-              <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
-              <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
-              <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
-              <li><a href="{{ url_for('main.my_reports') }}">My Reports</a></li>
-              <li><a href="{{ url_for('main.settings_profile') }}">Settings</a></li>
-            </ul>
-          </nav>
-        </div>
-
-    <div class="map-container">
-        <div class="map-row">
-            <div class="map-card">
-        <svg version="1.1" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <!-- Background Image -->
-            <image width="100%" height="100%" preserveAspectRatio="none"  xlink:href="{{ url_for('static', filename='images/TEST.png') }}"/>
-            
-
-            <a xlink:href="#" target="_blank">
-                <path class="clickable-region" d="m815.65 243.1h152.77l1.3284 200.59-158.08-2.6568z"  data-tooltip="Block B - Room 1" />
-            </a>
-            
-            <a xlink:href="#" target="_blank">
-                <path class="clickable-region" d="m812.99 454.32 154.1-1.3284 5.3136 201.92h-158.08z" data-tooltip="Block B - Room 2"/>
-            </a>
-            
-            <a xlink:href="#" target="_blank">
-                <path class="clickable-region" d="m810.33 658.89h155.42l2.6568 205.9-162.07-5.3137z" data-tooltip="Block B - Room 3"/>
-            </a>
-            
-            <a xlink:href="#" target="_blank">
-                <path class="clickable-region" d="m123.54 236.46h158.08l1.3284 201.92-163.39-1.3284z" data-tooltip="Block A - Room 1"/>
-            </a>
-            
-            <a xlink:href="#" target="_blank">
-                <path class="clickable-region" d="m122.21 446.35 159.41 3.9852 1.3284 204.58-159.41-2.6568z" data-tooltip="Block A - Room 2"/>
-            </a>
-            
-            <a xlink:href="#" target="_blank">
-                <path class="clickable-region" d="m126.2 664.21 158.08-2.6568v199.26l-159.41 2.6568z" data-tooltip="Block A - Room 3"/>
-            </a>
-        </svg>
     </div>
-</div>
-
-<div id="simple-tooltip"></div>
-            
+    <div class="map-filters">
+        <form method="get">
+            <label for="hostel">Hostel:</label>
+            <select id="hostel" name="hostel">
+                <option value="HB1" {% if hostel == 'HB1' %}selected{% endif %}>HB1</option>
+                <option value="HB2" {% if hostel == 'HB2' %}selected{% endif %}>HB2</option>
+                <option value="HB3" {% if hostel == 'HB3' %}selected{% endif %}>HB3</option>
+                <option value="HB4" {% if hostel == 'HB4' %}selected{% endif %}>HB4</option>
+            </select>
+            <label for="block">Block:</label>
+            <select id="block" name="block">
+                <option value="A" {% if block == 'A' %}selected{% endif %}>Block A</option>
+                <option value="B" {% if block == 'B' %}selected{% endif %}>Block B</option>
+                <option value="C" {% if block == 'C' %}selected{% endif %}>Block C</option>
+            </select>
+            <label for="floor">Floor:</label>
+            <select id="floor" name="floor">
+                <option value="Ground Floor" {% if floor == 'Ground Floor' %}selected{% endif %}>Ground Floor</option>
+                <option value="1" {% if floor == '1' %}selected{% endif %}>1</option>
+                <option value="2" {% if floor == '2' %}selected{% endif %}>2</option>
+                <option value="3" {% if floor == '3' %}selected{% endif %}>3</option>
+                <option value="4" {% if floor == '4' %}selected{% endif %}>4</option>
+            </select>
+            <button type="submit" class="filter-btn">Apply</button>
+        </form>
+    </div>
+    <div class="hostel-map-wrapper">
+        <div class="hostel-map-title">{{ floor }}<br>{{ hostel }}<br>BLOCK {{ block }}</div>
+        {# Block A Ground Floor #}
+        {% if hostel == 'HB1' and block == 'A' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-008">008</div>
+            <div class="hostel-map-box room-007">007</div>
+            <div class="hostel-map-box room-006">006</div>
+            <div class="hostel-map-box room-005">005</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-011">011</div>
+            <div class="hostel-map-box room-010">010</div>
+            <div class="hostel-map-box room-009">009</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-012">012</div>
+            <div class="hostel-map-box room-013">013</div>
+            <div class="hostel-map-box room-014">014</div>
+            <div class="hostel-map-box room-015">015</div>
+            <div class="hostel-map-box room-004">004</div>
+            <div class="hostel-map-box room-003">003</div>
+            <div class="hostel-map-box room-002">002</div>
+            <div class="hostel-map-box room-001">001</div>
+            <div class="hostel-map-box room-016">016</div>
+            <div class="hostel-map-box pantry">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
         </div>
+        {% elif hostel == 'HB2' and block == 'A' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-008">008</div>
+            <div class="hostel-map-box room-007">007</div>
+            <div class="hostel-map-box room-006">006</div>
+            <div class="hostel-map-box room-005">005</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-011">011</div>
+            <div class="hostel-map-box room-010">010</div>
+            <div class="hostel-map-box room-009">009</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-012">012</div>
+            <div class="hostel-map-box room-013">013</div>
+            <div class="hostel-map-box room-014">014</div>
+            <div class="hostel-map-box room-015">015</div>
+            <div class="hostel-map-box room-004">004</div>
+            <div class="hostel-map-box room-003">003</div>
+            <div class="hostel-map-box room-002">002</div>
+            <div class="hostel-map-box room-001">001</div>
+            <div class="hostel-map-box room-016">016</div>
+            <div class="hostel-map-box pantry">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'A' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-008">008</div>
+            <div class="hostel-map-box room-007">007</div>
+            <div class="hostel-map-box room-006">006</div>
+            <div class="hostel-map-box room-005">005</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-011">011</div>
+            <div class="hostel-map-box room-010">010</div>
+            <div class="hostel-map-box room-009">009</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-012">012</div>
+            <div class="hostel-map-box room-013">013</div>
+            <div class="hostel-map-box room-014">014</div>
+            <div class="hostel-map-box room-015">015</div>
+            <div class="hostel-map-box room-004">004</div>
+            <div class="hostel-map-box room-003">003</div>
+            <div class="hostel-map-box room-002">002</div>
+            <div class="hostel-map-box room-001">001</div>
+            <div class="hostel-map-box room-016">016</div>
+            <div class="hostel-map-box pantry">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'A' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-008">008</div>
+            <div class="hostel-map-box room-007">007</div>
+            <div class="hostel-map-box room-006">006</div>
+            <div class="hostel-map-box room-005">005</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-011">011</div>
+            <div class="hostel-map-box room-010">010</div>
+            <div class="hostel-map-box room-009">009</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-012">012</div>
+            <div class="hostel-map-box room-013">013</div>
+            <div class="hostel-map-box room-014">014</div>
+            <div class="hostel-map-box room-015">015</div>
+            <div class="hostel-map-box room-004">004</div>
+            <div class="hostel-map-box room-003">003</div>
+            <div class="hostel-map-box room-002">002</div>
+            <div class="hostel-map-box room-001">001</div>
+            <div class="hostel-map-box room-016">016</div>
+            <div class="hostel-map-box pantry">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {# Block A Floor 1 #}
+        {% elif hostel == 'HB1' and block == 'A' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room1-108">108</div>
+            <div class="hostel-map-box room1-107">107</div>
+            <div class="hostel-map-box room1-106">106</div>
+            <div class="hostel-map-box room1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room1-111">111</div>
+            <div class="hostel-map-box room1-110">110</div>
+            <div class="hostel-map-box room1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room1-112">112</div>
+            <div class="hostel-map-box room1-113">113</div>
+            <div class="hostel-map-box room1-114">114</div>
+            <div class="hostel-map-box room1-1115">1115</div>
+            <div class="hostel-map-box room1-104">104</div>
+            <div class="hostel-map-box room1-103">103</div>
+            <div class="hostel-map-box room1-102">102</div>
+            <div class="hostel-map-box room1-101">101</div>
+            <div class="hostel-map-box room1-116">116</div>
+            <div class="hostel-map-box room1-117">117</div>
+            <div class="hostel-map-box pantry-1">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'A' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room1-108">108</div>
+            <div class="hostel-map-box room1-107">107</div>
+            <div class="hostel-map-box room1-106">106</div>
+            <div class="hostel-map-box room1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room1-111">111</div>
+            <div class="hostel-map-box room1-110">110</div>
+            <div class="hostel-map-box room1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room1-112">112</div>
+            <div class="hostel-map-box room1-113">113</div>
+            <div class="hostel-map-box room1-114">114</div>
+            <div class="hostel-map-box room1-1115">1115</div>
+            <div class="hostel-map-box room1-104">104</div>
+            <div class="hostel-map-box room1-103">103</div>
+            <div class="hostel-map-box room1-102">102</div>
+            <div class="hostel-map-box room1-101">101</div>
+            <div class="hostel-map-box room1-116">116</div>
+            <div class="hostel-map-box room1-117">117</div>
+            <div class="hostel-map-box pantry-1">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'A' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room1-108">108</div>
+            <div class="hostel-map-box room1-107">107</div>
+            <div class="hostel-map-box room1-106">106</div>
+            <div class="hostel-map-box room1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room1-111">111</div>
+            <div class="hostel-map-box room1-110">110</div>
+            <div class="hostel-map-box room1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room1-112">112</div>
+            <div class="hostel-map-box room1-113">113</div>
+            <div class="hostel-map-box room1-114">114</div>
+            <div class="hostel-map-box room1-1115">1115</div>
+            <div class="hostel-map-box room1-104">104</div>
+            <div class="hostel-map-box room1-103">103</div>
+            <div class="hostel-map-box room1-102">102</div>
+            <div class="hostel-map-box room1-101">101</div>
+            <div class="hostel-map-box room1-116">116</div>
+            <div class="hostel-map-box room1-117">117</div>
+            <div class="hostel-map-box pantry-1">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'A' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room1-108">108</div>
+            <div class="hostel-map-box room1-107">107</div>
+            <div class="hostel-map-box room1-106">106</div>
+            <div class="hostel-map-box room1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room1-111">111</div>
+            <div class="hostel-map-box room1-110">110</div>
+            <div class="hostel-map-box room1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room1-112">112</div>
+            <div class="hostel-map-box room1-113">113</div>
+            <div class="hostel-map-box room1-114">114</div>
+            <div class="hostel-map-box room1-1115">1115</div>
+            <div class="hostel-map-box room1-104">104</div>
+            <div class="hostel-map-box room1-103">103</div>
+            <div class="hostel-map-box room1-102">102</div>
+            <div class="hostel-map-box room1-101">101</div>
+            <div class="hostel-map-box room1-116">116</div>
+            <div class="hostel-map-box room1-117">117</div>
+            <div class="hostel-map-box pantry-1">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-1">Entrance</div>
+        </div>
+        {# Block A Floor 2 #}
+        {% elif hostel == 'HB1' and block == 'A' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-2">Toilet</div>
+            <div class="hostel-map-box room2-208">208</div>
+            <div class="hostel-map-box room2-207">207</div>
+            <div class="hostel-map-box room2-206">206</div>
+            <div class="hostel-map-box room2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-2">Stairs</div>
+            <div class="hostel-map-box room2-211">211</div>
+            <div class="hostel-map-box room2-210">210</div>
+            <div class="hostel-map-box room2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-2">Stairs</div>
+            <div class="hostel-map-box room2-212">212</div>
+            <div class="hostel-map-box room2-213">213</div>
+            <div class="hostel-map-box room2-214">214</div>
+            <div class="hostel-map-box room2-215">215</div>
+            <div class="hostel-map-box room2-204">204</div>
+            <div class="hostel-map-box room2-203">203</div>
+            <div class="hostel-map-box room2-202">202</div>
+            <div class="hostel-map-box room2-201">201</div>
+            <div class="hostel-map-box room2-216">216</div>
+            <div class="hostel-map-box pantry-2">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'A' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-2">Toilet</div>
+            <div class="hostel-map-box room2-208">208</div>
+            <div class="hostel-map-box room2-207">207</div>
+            <div class="hostel-map-box room2-206">206</div>
+            <div class="hostel-map-box room2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-2">Stairs</div>
+            <div class="hostel-map-box room2-211">211</div>
+            <div class="hostel-map-box room2-210">210</div>
+            <div class="hostel-map-box room2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-2">Stairs</div>
+            <div class="hostel-map-box room2-212">212</div>
+            <div class="hostel-map-box room2-213">213</div>
+            <div class="hostel-map-box room2-214">214</div>
+            <div class="hostel-map-box room2-215">215</div>
+            <div class="hostel-map-box room2-204">204</div>
+            <div class="hostel-map-box room2-203">203</div>
+            <div class="hostel-map-box room2-202">202</div>
+            <div class="hostel-map-box room2-201">201</div>
+            <div class="hostel-map-box room2-216">216</div>
+            <div class="hostel-map-box pantry-2">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'A' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-2">Toilet</div>
+            <div class="hostel-map-box room2-208">208</div>
+            <div class="hostel-map-box room2-207">207</div>
+            <div class="hostel-map-box room2-206">206</div>
+            <div class="hostel-map-box room2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-2">Stairs</div>
+            <div class="hostel-map-box room2-211">211</div>
+            <div class="hostel-map-box room2-210">210</div>
+            <div class="hostel-map-box room2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-2">Stairs</div>
+            <div class="hostel-map-box room2-212">212</div>
+            <div class="hostel-map-box room2-213">213</div>
+            <div class="hostel-map-box room2-214">214</div>
+            <div class="hostel-map-box room2-215">215</div>
+            <div class="hostel-map-box room2-204">204</div>
+            <div class="hostel-map-box room2-203">203</div>
+            <div class="hostel-map-box room2-202">202</div>
+            <div class="hostel-map-box room2-201">201</div>
+            <div class="hostel-map-box room2-216">216</div>
+            <div class="hostel-map-box pantry-2">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'A' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-2">Toilet</div>
+            <div class="hostel-map-box room2-208">208</div>
+            <div class="hostel-map-box room2-207">207</div>
+            <div class="hostel-map-box room2-206">206</div>
+            <div class="hostel-map-box room2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-2">Stairs</div>
+            <div class="hostel-map-box room2-211">211</div>
+            <div class="hostel-map-box room2-210">210</div>
+            <div class="hostel-map-box room2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-2">Stairs</div>
+            <div class="hostel-map-box room2-212">212</div>
+            <div class="hostel-map-box room2-213">213</div>
+            <div class="hostel-map-box room2-214">214</div>
+            <div class="hostel-map-box room2-215">215</div>
+            <div class="hostel-map-box room2-204">204</div>
+            <div class="hostel-map-box room2-203">203</div>
+            <div class="hostel-map-box room2-202">202</div>
+            <div class="hostel-map-box room2-201">201</div>
+            <div class="hostel-map-box room2-216">216</div>
+            <div class="hostel-map-box room2-217">217</div>
+            <div class="hostel-map-box room2-218">218</div>
+            <div class="hostel-map-box hostel-map-label entrance-b2">Entrance</div>
+        </div>
+        {# Block A Floor 3 #}
+        {% elif hostel == 'HB1' and block == 'A' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-3">Toilet</div>
+            <div class="hostel-map-box room3-308">308</div>
+            <div class="hostel-map-box room3-307">307</div>
+            <div class="hostel-map-box room3-306">306</div>
+            <div class="hostel-map-box room3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-3">Stairs</div>
+            <div class="hostel-map-box room3-311">311</div>
+            <div class="hostel-map-box room3-310">310</div>
+            <div class="hostel-map-box room3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-3">Stairs</div>
+            <div class="hostel-map-box room3-312">312</div>
+            <div class="hostel-map-box room3-313">313</div>
+            <div class="hostel-map-box room3-314">314</div>
+            <div class="hostel-map-box room3-315">315</div>
+            <div class="hostel-map-box room3-304">304</div>
+            <div class="hostel-map-box room3-303">303</div>
+            <div class="hostel-map-box room3-302">302</div>
+            <div class="hostel-map-box room3-301">301</div>
+            <div class="hostel-map-box room3-316">316</div>
+            <div class="hostel-map-box pantry-3">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'A' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-3">Toilet</div>
+            <div class="hostel-map-box room3-308">308</div>
+            <div class="hostel-map-box room3-307">307</div>
+            <div class="hostel-map-box room3-306">306</div>
+            <div class="hostel-map-box room3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-3">Stairs</div>
+            <div class="hostel-map-box room3-311">311</div>
+            <div class="hostel-map-box room3-310">310</div>
+            <div class="hostel-map-box room3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-3">Stairs</div>
+            <div class="hostel-map-box room3-312">312</div>
+            <div class="hostel-map-box room3-313">313</div>
+            <div class="hostel-map-box room3-314">314</div>
+            <div class="hostel-map-box room3-315">315</div>
+            <div class="hostel-map-box room3-304">304</div>
+            <div class="hostel-map-box room3-303">303</div>
+            <div class="hostel-map-box room3-302">302</div>
+            <div class="hostel-map-box room3-301">301</div>
+            <div class="hostel-map-box room3-316">316</div>
+            <div class="hostel-map-box pantry-3">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'A' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-3">Toilet</div>
+            <div class="hostel-map-box room3-308">308</div>
+            <div class="hostel-map-box room3-307">307</div>
+            <div class="hostel-map-box room3-306">306</div>
+            <div class="hostel-map-box room3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-3">Stairs</div>
+            <div class="hostel-map-box room3-311">311</div>
+            <div class="hostel-map-box room3-310">310</div>
+            <div class="hostel-map-box room3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-3">Stairs</div>
+            <div class="hostel-map-box room3-312">312</div>
+            <div class="hostel-map-box room3-313">313</div>
+            <div class="hostel-map-box room3-314">314</div>
+            <div class="hostel-map-box room3-315">315</div>
+            <div class="hostel-map-box room3-304">304</div>
+            <div class="hostel-map-box room3-303">303</div>
+            <div class="hostel-map-box room3-302">302</div>
+            <div class="hostel-map-box room3-301">301</div>
+            <div class="hostel-map-box room3-316">316</div>
+            <div class="hostel-map-box pantry-3">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'A' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-3">Toilet</div>
+            <div class="hostel-map-box room3-308">308</div>
+            <div class="hostel-map-box room3-307">307</div>
+            <div class="hostel-map-box room3-306">306</div>
+            <div class="hostel-map-box room3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-3">Stairs</div>
+            <div class="hostel-map-box room3-311">311</div>
+            <div class="hostel-map-box room3-310">310</div>
+            <div class="hostel-map-box room3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-3">Stairs</div>
+            <div class="hostel-map-box room3-312">312</div>
+            <div class="hostel-map-box room3-313">313</div>
+            <div class="hostel-map-box room3-314">314</div>
+            <div class="hostel-map-box room3-315">315</div>
+            <div class="hostel-map-box room3-304">304</div>
+            <div class="hostel-map-box room3-303">303</div>
+            <div class="hostel-map-box room3-302">302</div>
+            <div class="hostel-map-box room3-301">301</div>
+            <div class="hostel-map-box room3-316">316</div>
+            <div class="hostel-map-box pantry-3">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-3">Entrance</div>
+        </div>
+        {# Block B Ground Floor #}
+        {% elif hostel == 'HB1' and block == 'B' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-008">008</div>
+            <div class="hostel-map-box room-007">007</div>
+            <div class="hostel-map-box room-006">006</div>
+            <div class="hostel-map-box room-005">005</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-011">011</div>
+            <div class="hostel-map-box room-010">010</div>
+            <div class="hostel-map-box room-009">009</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-012">012</div>
+            <div class="hostel-map-box room-013">013</div>
+            <div class="hostel-map-box room-014">014</div>
+            <div class="hostel-map-box room-015">015</div>
+            <div class="hostel-map-box room-004">004</div>
+            <div class="hostel-map-box room-003">003</div>
+            <div class="hostel-map-box room-002">002</div>
+            <div class="hostel-map-box room-001">001</div>
+            <div class="hostel-map-box hb2-office">HB2 Office</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'B' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-008">008</div>
+            <div class="hostel-map-box room-007">007</div>
+            <div class="hostel-map-box room-006">006</div>
+            <div class="hostel-map-box room-005">005</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-011">011</div>
+            <div class="hostel-map-box room-010">010</div>
+            <div class="hostel-map-box room-009">009</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-012">012</div>
+            <div class="hostel-map-box room-013">013</div>
+            <div class="hostel-map-box room-014">014</div>
+            <div class="hostel-map-box room-015">015</div>
+            <div class="hostel-map-box room-004">004</div>
+            <div class="hostel-map-box room-003">003</div>
+            <div class="hostel-map-box room-002">002</div>
+            <div class="hostel-map-box room-001">001</div>
+            <div class="hostel-map-box hb2-office">HB2 Office</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'B' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-008">008</div>
+            <div class="hostel-map-box room-007">007</div>
+            <div class="hostel-map-box room-006">006</div>
+            <div class="hostel-map-box room-005">005</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-011">011</div>
+            <div class="hostel-map-box room-010">010</div>
+            <div class="hostel-map-box room-009">009</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-012">012</div>
+            <div class="hostel-map-box room-013">013</div>
+            <div class="hostel-map-box room-014">014</div>
+            <div class="hostel-map-box room-015">015</div>
+            <div class="hostel-map-box room-004">004</div>
+            <div class="hostel-map-box room-003">003</div>
+            <div class="hostel-map-box room-002">002</div>
+            <div class="hostel-map-box room-001">001</div>
+            <div class="hostel-map-box hb2-office">HB2 Office</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'B' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-008">008</div>
+            <div class="hostel-map-box room-007">007</div>
+            <div class="hostel-map-box room-006">006</div>
+            <div class="hostel-map-box room-005">005</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-011">011</div>
+            <div class="hostel-map-box room-010">010</div>
+            <div class="hostel-map-box room-009">009</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-012">012</div>
+            <div class="hostel-map-box room-013">013</div>
+            <div class="hostel-map-box room-014">014</div>
+            <div class="hostel-map-box room-015">015</div>
+            <div class="hostel-map-box room-004">004</div>
+            <div class="hostel-map-box room-003">003</div>
+            <div class="hostel-map-box room-002">002</div>
+            <div class="hostel-map-box room-001">001</div>
+            <div class="hostel-map-box hb2-office">HB2 Office</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {# Block B Floor 1 #}
+        {% elif hostel == 'HB1' and block == 'B' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b1">Toilet</div>
+            <div class="hostel-map-box roomb1-108">108</div>
+            <div class="hostel-map-box roomb1-107">107</div>
+            <div class="hostel-map-box roomb1-106">106</div>
+            <div class="hostel-map-box roomb1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b1">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b1">Stairs</div>
+            <div class="hostel-map-box roomb1-111">111</div>
+            <div class="hostel-map-box roomb1-110">110</div>
+            <div class="hostel-map-box roomb1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b1">Stairs</div>
+            <div class="hostel-map-box roomb1-112">112</div>
+            <div class="hostel-map-box roomb1-113">113</div>
+            <div class="hostel-map-box roomb1-114">114</div>
+            <div class="hostel-map-box roomb1-115">115</div>
+            <div class="hostel-map-box roomb1-104">104</div>
+            <div class="hostel-map-box roomb1-103">103</div>
+            <div class="hostel-map-box roomb1-102">102</div>
+            <div class="hostel-map-box roomb1-101">101</div>
+            <div class="hostel-map-box roomb1-116">116</div>
+            <div class="hostel-map-box iron-room-1">Iron Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b1">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'B' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b1">Toilet</div>
+            <div class="hostel-map-box roomb1-108">108</div>
+            <div class="hostel-map-box roomb1-107">107</div>
+            <div class="hostel-map-box roomb1-106">106</div>
+            <div class="hostel-map-box roomb1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b1">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b1">Stairs</div>
+            <div class="hostel-map-box roomb1-111">111</div>
+            <div class="hostel-map-box roomb1-110">110</div>
+            <div class="hostel-map-box roomb1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b1">Stairs</div>
+            <div class="hostel-map-box roomb1-112">112</div>
+            <div class="hostel-map-box roomb1-113">113</div>
+            <div class="hostel-map-box roomb1-114">114</div>
+            <div class="hostel-map-box roomb1-115">115</div>
+            <div class="hostel-map-box roomb1-104">104</div>
+            <div class="hostel-map-box roomb1-103">103</div>
+            <div class="hostel-map-box roomb1-102">102</div>
+            <div class="hostel-map-box roomb1-101">101</div>
+            <div class="hostel-map-box roomb1-116">116</div>
+            <div class="hostel-map-box iron-room-1">Iron Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b1">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'B' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b1">Toilet</div>
+            <div class="hostel-map-box roomb1-108">108</div>
+            <div class="hostel-map-box roomb1-107">107</div>
+            <div class="hostel-map-box roomb1-106">106</div>
+            <div class="hostel-map-box roomb1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b1">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b1">Stairs</div>
+            <div class="hostel-map-box roomb1-111">111</div>
+            <div class="hostel-map-box roomb1-110">110</div>
+            <div class="hostel-map-box roomb1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b1">Stairs</div>
+            <div class="hostel-map-box roomb1-112">112</div>
+            <div class="hostel-map-box roomb1-113">113</div>
+            <div class="hostel-map-box roomb1-114">114</div>
+            <div class="hostel-map-box roomb1-115">115</div>
+            <div class="hostel-map-box roomb1-104">104</div>
+            <div class="hostel-map-box roomb1-103">103</div>
+            <div class="hostel-map-box roomb1-102">102</div>
+            <div class="hostel-map-box roomb1-101">101</div>
+            <div class="hostel-map-box roomb1-116">116</div>
+            <div class="hostel-map-box iron-room-1">Iron Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b1">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'B' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b1">Toilet</div>
+            <div class="hostel-map-box roomb1-108">108</div>
+            <div class="hostel-map-box roomb1-107">107</div>
+            <div class="hostel-map-box roomb1-106">106</div>
+            <div class="hostel-map-box roomb1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b1">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b1">Stairs</div>
+            <div class="hostel-map-box roomb1-111">111</div>
+            <div class="hostel-map-box roomb1-110">110</div>
+            <div class="hostel-map-box roomb1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b1">Stairs</div>
+            <div class="hostel-map-box roomb1-112">112</div>
+            <div class="hostel-map-box roomb1-113">113</div>
+            <div class="hostel-map-box roomb1-114">114</div>
+            <div class="hostel-map-box roomb1-115">115</div>
+            <div class="hostel-map-box roomb1-104">104</div>
+            <div class="hostel-map-box roomb1-103">103</div>
+            <div class="hostel-map-box roomb1-102">102</div>
+            <div class="hostel-map-box roomb1-101">101</div>
+            <div class="hostel-map-box roomb1-116">116</div>
+            <div class="hostel-map-box iron-room-1">Iron Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b1">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b1">Entrance</div>
+        </div>
+        {# Block B Floor 2 #}
+        {% elif hostel == 'HB1' and block == 'B' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b2">Toilet</div>
+            <div class="hostel-map-box roomb2-208">208</div>
+            <div class="hostel-map-box roomb2-207">207</div>
+            <div class="hostel-map-box roomb2-206">206</div>
+            <div class="hostel-map-box roomb2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b2">Stairs</div>
+            <div class="hostel-map-box roomb2-211">211</div>
+            <div class="hostel-map-box roomb2-210">210</div>
+            <div class="hostel-map-box roomb2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b2">Stairs</div>
+            <div class="hostel-map-box roomb2-212">212</div>
+            <div class="hostel-map-box roomb2-213">213</div>
+            <div class="hostel-map-box roomb2-214">214</div>
+            <div class="hostel-map-box roomb2-215">215</div>
+            <div class="hostel-map-box roomb2-204">204</div>
+            <div class="hostel-map-box roomb2-203">203</div>
+            <div class="hostel-map-box roomb2-202">202</div>
+            <div class="hostel-map-box roomb2-201">201</div>
+            <div class="hostel-map-box roomb2-216">216</div>
+            <div class="hostel-map-box recreation-room-2">Recreation Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b2">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'B' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b2">Toilet</div>
+            <div class="hostel-map-box roomb2-208">208</div>
+            <div class="hostel-map-box roomb2-207">207</div>
+            <div class="hostel-map-box roomb2-206">206</div>
+            <div class="hostel-map-box roomb2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b2">Stairs</div>
+            <div class="hostel-map-box roomb2-211">211</div>
+            <div class="hostel-map-box roomb2-210">210</div>
+            <div class="hostel-map-box roomb2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b2">Stairs</div>
+            <div class="hostel-map-box roomb2-212">212</div>
+            <div class="hostel-map-box roomb2-213">213</div>
+            <div class="hostel-map-box roomb2-214">214</div>
+            <div class="hostel-map-box roomb2-215">215</div>
+            <div class="hostel-map-box roomb2-204">204</div>
+            <div class="hostel-map-box roomb2-203">203</div>
+            <div class="hostel-map-box roomb2-202">202</div>
+            <div class="hostel-map-box roomb2-201">201</div>
+            <div class="hostel-map-box roomb2-216">216</div>
+            <div class="hostel-map-box recreation-room-2">Recreation Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b2">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'B' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b2">Toilet</div>
+            <div class="hostel-map-box roomb2-208">208</div>
+            <div class="hostel-map-box roomb2-207">207</div>
+            <div class="hostel-map-box roomb2-206">206</div>
+            <div class="hostel-map-box roomb2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b2">Stairs</div>
+            <div class="hostel-map-box roomb2-211">211</div>
+            <div class="hostel-map-box roomb2-210">210</div>
+            <div class="hostel-map-box roomb2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b2">Stairs</div>
+            <div class="hostel-map-box roomb2-212">212</div>
+            <div class="hostel-map-box roomb2-213">213</div>
+            <div class="hostel-map-box roomb2-214">214</div>
+            <div class="hostel-map-box roomb2-215">215</div>
+            <div class="hostel-map-box roomb2-204">204</div>
+            <div class="hostel-map-box roomb2-203">203</div>
+            <div class="hostel-map-box roomb2-202">202</div>
+            <div class="hostel-map-box roomb2-201">201</div>
+            <div class="hostel-map-box roomb2-216">216</div>
+            <div class="hostel-map-box roomb2-217">217</div>
+            <div class="hostel-map-box roomb2-218">218</div>
+            <div class="hostel-map-box hostel-map-label entrance-c2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'B' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b2">Toilet</div>
+            <div class="hostel-map-box roomb2-208">208</div>
+            <div class="hostel-map-box roomb2-207">207</div>
+            <div class="hostel-map-box roomb2-206">206</div>
+            <div class="hostel-map-box roomb2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b2">Stairs</div>
+            <div class="hostel-map-box roomb2-211">211</div>
+            <div class="hostel-map-box roomb2-210">210</div>
+            <div class="hostel-map-box roomb2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b2">Stairs</div>
+            <div class="hostel-map-box roomb2-212">212</div>
+            <div class="hostel-map-box roomb2-213">213</div>
+            <div class="hostel-map-box roomb2-214">214</div>
+            <div class="hostel-map-box roomb2-215">215</div>
+            <div class="hostel-map-box roomb2-204">204</div>
+            <div class="hostel-map-box roomb2-203">203</div>
+            <div class="hostel-map-box roomb2-202">202</div>
+            <div class="hostel-map-box roomb2-201">201</div>
+            <div class="hostel-map-box roomb2-216">216</div>
+            <div class="hostel-map-box roomb2-217">217</div>
+            <div class="hostel-map-box roomb2-218">218</div>
+            <div class="hostel-map-box hostel-map-label entrance-c2">Entrance</div>
+        </div>
+        {# Block B Floor 3 #}
+        {% elif hostel == 'HB1' and block == 'B' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b3">Toilet</div>
+            <div class="hostel-map-box roomb3-308">308</div>
+            <div class="hostel-map-box roomb3-307">307</div>
+            <div class="hostel-map-box roomb3-306">306</div>
+            <div class="hostel-map-box roomb3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b3">Stairs</div>
+            <div class="hostel-map-box roomb3-311">311</div>
+            <div class="hostel-map-box roomb3-310">310</div>
+            <div class="hostel-map-box roomb3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b3">Stairs</div>
+            <div class="hostel-map-box roomb3-312">312</div>
+            <div class="hostel-map-box roomb3-313">313</div>
+            <div class="hostel-map-box roomb3-314">314</div>
+            <div class="hostel-map-box roomb3-315">315</div>
+            <div class="hostel-map-box roomb3-304">304</div>
+            <div class="hostel-map-box roomb3-303">303</div>
+            <div class="hostel-map-box roomb3-302">302</div>
+            <div class="hostel-map-box roomb3-301">301</div>
+            <div class="hostel-map-box roomb3-316">316</div>
+            <div class="hostel-map-box pantry-3">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'B' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b3">Toilet</div>
+            <div class="hostel-map-box roomb3-308">308</div>
+            <div class="hostel-map-box roomb3-307">307</div>
+            <div class="hostel-map-box roomb3-306">306</div>
+            <div class="hostel-map-box roomb3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b3">Stairs</div>
+            <div class="hostel-map-box roomb3-311">311</div>
+            <div class="hostel-map-box roomb3-310">310</div>
+            <div class="hostel-map-box roomb3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b3">Stairs</div>
+            <div class="hostel-map-box roomb3-312">312</div>
+            <div class="hostel-map-box roomb3-313">313</div>
+            <div class="hostel-map-box roomb3-314">314</div>
+            <div class="hostel-map-box roomb3-315">315</div>
+            <div class="hostel-map-box roomb3-304">304</div>
+            <div class="hostel-map-box roomb3-303">303</div>
+            <div class="hostel-map-box roomb3-302">302</div>
+            <div class="hostel-map-box roomb3-301">301</div>
+            <div class="hostel-map-box roomb3-316">316</div>
+            <div class="hostel-map-box pantry-3">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'B' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b3">Toilet</div>
+            <div class="hostel-map-box roomb3-308">308</div>
+            <div class="hostel-map-box roomb3-307">307</div>
+            <div class="hostel-map-box roomb3-306">306</div>
+            <div class="hostel-map-box roomb3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b3">Stairs</div>
+            <div class="hostel-map-box roomb3-311">311</div>
+            <div class="hostel-map-box roomb3-310">310</div>
+            <div class="hostel-map-box roomb3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b3">Stairs</div>
+            <div class="hostel-map-box roomb3-312">312</div>
+            <div class="hostel-map-box roomb3-313">313</div>
+            <div class="hostel-map-box roomb3-314">314</div>
+            <div class="hostel-map-box roomb3-315">315</div>
+            <div class="hostel-map-box roomb3-304">304</div>
+            <div class="hostel-map-box roomb3-303">303</div>
+            <div class="hostel-map-box roomb3-302">302</div>
+            <div class="hostel-map-box roomb3-301">301</div>
+            <div class="hostel-map-box roomb3-316">316</div>
+            <div class="hostel-map-box pantry-3">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'B' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b3">Toilet</div>
+            <div class="hostel-map-box roomb3-308">308</div>
+            <div class="hostel-map-box roomb3-307">307</div>
+            <div class="hostel-map-box roomb3-306">306</div>
+            <div class="hostel-map-box roomb3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b3">Stairs</div>
+            <div class="hostel-map-box roomb3-311">311</div>
+            <div class="hostel-map-box roomb3-310">310</div>
+            <div class="hostel-map-box roomb3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b3">Stairs</div>
+            <div class="hostel-map-box roomb3-312">312</div>
+            <div class="hostel-map-box roomb3-313">313</div>
+            <div class="hostel-map-box roomb3-314">314</div>
+            <div class="hostel-map-box roomb3-315">315</div>
+            <div class="hostel-map-box roomb3-304">304</div>
+            <div class="hostel-map-box roomb3-303">303</div>
+            <div class="hostel-map-box roomb3-302">302</div>
+            <div class="hostel-map-box roomb3-301">301</div>
+            <div class="hostel-map-box roomb3-316">316</div>
+            <div class="hostel-map-box pantry-3">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-3">Entrance</div>
+        </div>
+        {# Block B Floor 4 #}
+        {% elif hostel == 'HB1' and block == 'B' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b4">Toilet</div>
+            <div class="hostel-map-box roomb4-408">408</div>
+            <div class="hostel-map-box roomb4-407">407</div>
+            <div class="hostel-map-box roomb4-406">406</div>
+            <div class="hostel-map-box roomb4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b4">Stairs</div>
+            <div class="hostel-map-box roomb4-411">411</div>
+            <div class="hostel-map-box roomb4-410">410</div>
+            <div class="hostel-map-box roomb4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b4">Stairs</div>
+            <div class="hostel-map-box roomb4-412">412</div>
+            <div class="hostel-map-box roomb4-413">413</div>
+            <div class="hostel-map-box roomb4-414">414</div>
+            <div class="hostel-map-box roomb4-415">415</div>
+            <div class="hostel-map-box roomb4-404">404</div>
+            <div class="hostel-map-box roomb4-403">403</div>
+            <div class="hostel-map-box roomb4-402">402</div>
+            <div class="hostel-map-box roomb4-401">401</div>
+            <div class="hostel-map-box roomb4-416">416</div>
+            <div class="hostel-map-box study-room-4">Study Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b4">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'B' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b4">Toilet</div>
+            <div class="hostel-map-box roomb4-408">408</div>
+            <div class="hostel-map-box roomb4-407">407</div>
+            <div class="hostel-map-box roomb4-406">406</div>
+            <div class="hostel-map-box roomb4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b4">Stairs</div>
+            <div class="hostel-map-box roomb4-411">411</div>
+            <div class="hostel-map-box roomb4-410">410</div>
+            <div class="hostel-map-box roomb4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b4">Stairs</div>
+            <div class="hostel-map-box roomb4-412">412</div>
+            <div class="hostel-map-box roomb4-413">413</div>
+            <div class="hostel-map-box roomb4-414">414</div>
+            <div class="hostel-map-box roomb4-415">415</div>
+            <div class="hostel-map-box roomb4-404">404</div>
+            <div class="hostel-map-box roomb4-403">403</div>
+            <div class="hostel-map-box roomb4-402">402</div>
+            <div class="hostel-map-box roomb4-401">401</div>
+            <div class="hostel-map-box roomb4-416">416</div>
+            <div class="hostel-map-box study-room-4">Study Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b4">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'B' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b4">Toilet</div>
+            <div class="hostel-map-box roomb4-408">408</div>
+            <div class="hostel-map-box roomb4-407">407</div>
+            <div class="hostel-map-box roomb4-406">406</div>
+            <div class="hostel-map-box roomb4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b4">Stairs</div>
+            <div class="hostel-map-box roomb4-411">411</div>
+            <div class="hostel-map-box roomb4-410">410</div>
+            <div class="hostel-map-box roomb4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b4">Stairs</div>
+            <div class="hostel-map-box roomb4-412">412</div>
+            <div class="hostel-map-box roomb4-413">413</div>
+            <div class="hostel-map-box roomb4-414">414</div>
+            <div class="hostel-map-box roomb4-415">415</div>
+            <div class="hostel-map-box roomb4-404">404</div>
+            <div class="hostel-map-box roomb4-403">403</div>
+            <div class="hostel-map-box roomb4-402">402</div>
+            <div class="hostel-map-box roomb4-401">401</div>
+            <div class="hostel-map-box roomb4-416">416</div>
+            <div class="hostel-map-box study-room-4">Study Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b4">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'B' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-b4">Toilet</div>
+            <div class="hostel-map-box roomb4-408">408</div>
+            <div class="hostel-map-box roomb4-407">407</div>
+            <div class="hostel-map-box roomb4-406">406</div>
+            <div class="hostel-map-box roomb4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-b4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b4">Stairs</div>
+            <div class="hostel-map-box roomb4-411">411</div>
+            <div class="hostel-map-box roomb4-410">410</div>
+            <div class="hostel-map-box roomb4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b4">Stairs</div>
+            <div class="hostel-map-box roomb4-412">412</div>
+            <div class="hostel-map-box roomb4-413">413</div>
+            <div class="hostel-map-box roomb4-414">414</div>
+            <div class="hostel-map-box roomb4-415">415</div>
+            <div class="hostel-map-box roomb4-404">404</div>
+            <div class="hostel-map-box roomb4-403">403</div>
+            <div class="hostel-map-box roomb4-402">402</div>
+            <div class="hostel-map-box roomb4-401">401</div>
+            <div class="hostel-map-box roomb4-416">416</div>
+            <div class="hostel-map-box study-room-4">Study Room</div>
+            <div class="hostel-map-box hostel-map-label entrance-left-b4">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right-b4">Entrance</div>
+        </div>
+        {# Block C Ground Floor #}
+        {% elif hostel == 'HB1' and block == 'C' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-c-011">011</div>
+            <div class="hostel-map-box room-c-010">010</div>
+            <div class="hostel-map-box room-c-009">009</div>
+            <div class="hostel-map-box room-c-008">008</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-c-014">014</div>
+            <div class="hostel-map-box room-c-013">013</div>
+            <div class="hostel-map-box room-c-012">012</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-c-007">007</div>
+            <div class="hostel-map-box room-c-006">006</div>
+            <div class="hostel-map-box room-c-005">005</div>
+            <div class="hostel-map-box room-c-015">015</div>
+            <div class="hostel-map-box room-c-001">001</div>
+            <div class="hostel-map-box room-c-002">002</div>
+            <div class="hostel-map-box room-c-003">003</div>
+            <div class="hostel-map-box room-c-004">004</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'C' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-c-011">011</div>
+            <div class="hostel-map-box room-c-010">010</div>
+            <div class="hostel-map-box room-c-009">009</div>
+            <div class="hostel-map-box room-c-008">008</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-c-014">014</div>
+            <div class="hostel-map-box room-c-013">013</div>
+            <div class="hostel-map-box room-c-012">012</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-c-007">007</div>
+            <div class="hostel-map-box room-c-006">006</div>
+            <div class="hostel-map-box room-c-005">005</div>
+            <div class="hostel-map-box room-c-015">015</div>
+            <div class="hostel-map-box room-c-001">001</div>
+            <div class="hostel-map-box room-c-002">002</div>
+            <div class="hostel-map-box room-c-003">003</div>
+            <div class="hostel-map-box room-c-004">004</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'C' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-c-011">011</div>
+            <div class="hostel-map-box room-c-010">010</div>
+            <div class="hostel-map-box room-c-009">009</div>
+            <div class="hostel-map-box room-c-008">008</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-c-014">014</div>
+            <div class="hostel-map-box room-c-013">013</div>
+            <div class="hostel-map-box room-c-012">012</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-c-007">007</div>
+            <div class="hostel-map-box room-c-006">006</div>
+            <div class="hostel-map-box room-c-005">005</div>
+            <div class="hostel-map-box room-c-015">015</div>
+            <div class="hostel-map-box room-c-001">001</div>
+            <div class="hostel-map-box room-c-002">002</div>
+            <div class="hostel-map-box room-c-003">003</div>
+            <div class="hostel-map-box room-c-004">004</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'C' and floor == 'Ground Floor' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left">Toilet</div>
+            <div class="hostel-map-box room-c-011">011</div>
+            <div class="hostel-map-box room-c-010">010</div>
+            <div class="hostel-map-box room-c-009">009</div>
+            <div class="hostel-map-box room-c-008">008</div>
+            <div class="hostel-map-box hostel-map-label toilet-right">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left">Stairs</div>
+            <div class="hostel-map-box room-c-014">014</div>
+            <div class="hostel-map-box room-c-013">013</div>
+            <div class="hostel-map-box room-c-012">012</div>
+            <div class="hostel-map-box hostel-map-label stairs-right">Stairs</div>
+            <div class="hostel-map-box room-c-007">007</div>
+            <div class="hostel-map-box room-c-006">006</div>
+            <div class="hostel-map-box room-c-005">005</div>
+            <div class="hostel-map-box room-c-015">015</div>
+            <div class="hostel-map-box room-c-001">001</div>
+            <div class="hostel-map-box room-c-002">002</div>
+            <div class="hostel-map-box room-c-003">003</div>
+            <div class="hostel-map-box room-c-004">004</div>
+            <div class="hostel-map-box hostel-map-label entrance-left">Entrance</div>
+            <div class="hostel-map-box hostel-map-label entrance-right">Entrance</div>
+        </div>
+        {% elif hostel == 'HB1' and block == 'C' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c1">Toilet</div>
+            <div class="hostel-map-box roomc1-108">108</div>
+            <div class="hostel-map-box roomc1-107">107</div>
+            <div class="hostel-map-box roomc1-106">106</div>
+            <div class="hostel-map-box roomc1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c1">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c1">Stairs</div>
+            <div class="hostel-map-box roomc1-111">111</div>
+            <div class="hostel-map-box roomc1-110">110</div>
+            <div class="hostel-map-box roomc1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c1">Stairs</div>
+            <div class="hostel-map-box roomc1-112">112</div>
+            <div class="hostel-map-box roomc1-113">113</div>
+            <div class="hostel-map-box roomc1-114">114</div>
+            <div class="hostel-map-box roomc1-115">115</div>
+            <div class="hostel-map-box roomc1-104">104</div>
+            <div class="hostel-map-box roomc1-103">103</div>
+            <div class="hostel-map-box roomc1-102">102</div>
+            <div class="hostel-map-box roomc1-101">101</div>
+            <div class="hostel-map-box roomc1-116">116</div>
+            <div class="hostel-map-box roomc1-117">117</div>
+            <div class="hostel-map-box roomc1-118">118</div>
+            <div class="hostel-map-box hostel-map-label entrance-c1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'C' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c1">Toilet</div>
+            <div class="hostel-map-box roomc1-108">108</div>
+            <div class="hostel-map-box roomc1-107">107</div>
+            <div class="hostel-map-box roomc1-106">106</div>
+            <div class="hostel-map-box roomc1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c1">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c1">Stairs</div>
+            <div class="hostel-map-box roomc1-111">111</div>
+            <div class="hostel-map-box roomc1-110">110</div>
+            <div class="hostel-map-box roomc1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c1">Stairs</div>
+            <div class="hostel-map-box roomc1-112">112</div>
+            <div class="hostel-map-box roomc1-113">113</div>
+            <div class="hostel-map-box roomc1-114">114</div>
+            <div class="hostel-map-box roomc1-115">115</div>
+            <div class="hostel-map-box roomc1-104">104</div>
+            <div class="hostel-map-box roomc1-103">103</div>
+            <div class="hostel-map-box roomc1-102">102</div>
+            <div class="hostel-map-box roomc1-101">101</div>
+            <div class="hostel-map-box roomc1-116">116</div>
+            <div class="hostel-map-box roomc1-117">117</div>
+            <div class="hostel-map-box roomc1-118">118</div>
+            <div class="hostel-map-box hostel-map-label entrance-c1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'C' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c1">Toilet</div>
+            <div class="hostel-map-box roomc1-108">108</div>
+            <div class="hostel-map-box roomc1-107">107</div>
+            <div class="hostel-map-box roomc1-106">106</div>
+            <div class="hostel-map-box roomc1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c1">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c1">Stairs</div>
+            <div class="hostel-map-box roomc1-111">111</div>
+            <div class="hostel-map-box roomc1-110">110</div>
+            <div class="hostel-map-box roomc1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c1">Stairs</div>
+            <div class="hostel-map-box roomc1-112">112</div>
+            <div class="hostel-map-box roomc1-113">113</div>
+            <div class="hostel-map-box roomc1-114">114</div>
+            <div class="hostel-map-box roomc1-115">115</div>
+            <div class="hostel-map-box roomc1-104">104</div>
+            <div class="hostel-map-box roomc1-103">103</div>
+            <div class="hostel-map-box roomc1-102">102</div>
+            <div class="hostel-map-box roomc1-101">101</div>
+            <div class="hostel-map-box roomc1-116">116</div>
+            <div class="hostel-map-box roomc1-117">117</div>
+            <div class="hostel-map-box roomc1-118">118</div>
+            <div class="hostel-map-box hostel-map-label entrance-c1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'C' and floor == '1' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c1">Toilet</div>
+            <div class="hostel-map-box roomc1-108">108</div>
+            <div class="hostel-map-box roomc1-107">107</div>
+            <div class="hostel-map-box roomc1-106">106</div>
+            <div class="hostel-map-box roomc1-105">105</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c1">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c1">Stairs</div>
+            <div class="hostel-map-box roomc1-111">111</div>
+            <div class="hostel-map-box roomc1-110">110</div>
+            <div class="hostel-map-box roomc1-109">109</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c1">Stairs</div>
+            <div class="hostel-map-box roomc1-112">112</div>
+            <div class="hostel-map-box roomc1-113">113</div>
+            <div class="hostel-map-box roomc1-114">114</div>
+            <div class="hostel-map-box roomc1-115">115</div>
+            <div class="hostel-map-box roomc1-104">104</div>
+            <div class="hostel-map-box roomc1-103">103</div>
+            <div class="hostel-map-box roomc1-102">102</div>
+            <div class="hostel-map-box roomc1-101">101</div>
+            <div class="hostel-map-box roomc1-116">116</div>
+            <div class="hostel-map-box roomc1-117">117</div>
+            <div class="hostel-map-box roomc1-118">118</div>
+            <div class="hostel-map-box hostel-map-label entrance-c1">Entrance</div>
+        </div>
+        {% elif hostel == 'HB1' and block == 'C' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c2">Toilet</div>
+            <div class="hostel-map-box roomc2-208">208</div>
+            <div class="hostel-map-box roomc2-207">207</div>
+            <div class="hostel-map-box roomc2-206">206</div>
+            <div class="hostel-map-box roomc2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c2">Stairs</div>
+            <div class="hostel-map-box roomc2-211">211</div>
+            <div class="hostel-map-box roomc2-210">210</div>
+            <div class="hostel-map-box roomc2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c2">Stairs</div>
+            <div class="hostel-map-box roomc2-212">212</div>
+            <div class="hostel-map-box roomc2-213">213</div>
+            <div class="hostel-map-box roomc2-214">214</div>
+            <div class="hostel-map-box roomc2-215">215</div>
+            <div class="hostel-map-box roomc2-204">204</div>
+            <div class="hostel-map-box roomc2-203">203</div>
+            <div class="hostel-map-box roomc2-202">202</div>
+            <div class="hostel-map-box roomc2-201">201</div>
+            <div class="hostel-map-box roomc2-216">216</div>
+            <div class="hostel-map-box roomc2-217">217</div>
+            <div class="hostel-map-box roomc2-218">218</div>
+            <div class="hostel-map-box hostel-map-label entrance-c2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'C' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c2">Toilet</div>
+            <div class="hostel-map-box roomc2-208">208</div>
+            <div class="hostel-map-box roomc2-207">207</div>
+            <div class="hostel-map-box roomc2-206">206</div>
+            <div class="hostel-map-box roomc2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c2">Stairs</div>
+            <div class="hostel-map-box roomc2-211">211</div>
+            <div class="hostel-map-box roomc2-210">210</div>
+            <div class="hostel-map-box roomc2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c2">Stairs</div>
+            <div class="hostel-map-box roomc2-212">212</div>
+            <div class="hostel-map-box roomc2-213">213</div>
+            <div class="hostel-map-box roomc2-214">214</div>
+            <div class="hostel-map-box roomc2-215">215</div>
+            <div class="hostel-map-box roomc2-204">204</div>
+            <div class="hostel-map-box roomc2-203">203</div>
+            <div class="hostel-map-box roomc2-202">202</div>
+            <div class="hostel-map-box roomc2-201">201</div>
+            <div class="hostel-map-box roomc2-216">216</div>
+            <div class="hostel-map-box roomc2-217">217</div>
+            <div class="hostel-map-box roomc2-218">218</div>
+            <div class="hostel-map-box hostel-map-label entrance-c2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'C' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c2">Toilet</div>
+            <div class="hostel-map-box roomc2-208">208</div>
+            <div class="hostel-map-box roomc2-207">207</div>
+            <div class="hostel-map-box roomc2-206">206</div>
+            <div class="hostel-map-box roomc2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-b2">Stairs</div>
+            <div class="hostel-map-box roomc2-211">211</div>
+            <div class="hostel-map-box roomc2-210">210</div>
+            <div class="hostel-map-box roomc2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-b2">Stairs</div>
+            <div class="hostel-map-box roomc2-212">212</div>
+            <div class="hostel-map-box roomc2-213">213</div>
+            <div class="hostel-map-box roomc2-214">214</div>
+            <div class="hostel-map-box roomc2-215">215</div>
+            <div class="hostel-map-box roomc2-204">204</div>
+            <div class="hostel-map-box roomc2-203">203</div>
+            <div class="hostel-map-box roomc2-202">202</div>
+            <div class="hostel-map-box roomc2-201">201</div>
+            <div class="hostel-map-box roomc2-216">216</div>
+            <div class="hostel-map-box roomc2-217">217</div>
+            <div class="hostel-map-box roomc2-218">218</div>
+            <div class="hostel-map-box hostel-map-label entrance-c2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'C' and floor == '2' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c2">Toilet</div>
+            <div class="hostel-map-box roomc2-208">208</div>
+            <div class="hostel-map-box roomc2-207">207</div>
+            <div class="hostel-map-box roomc2-206">206</div>
+            <div class="hostel-map-box roomc2-205">205</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c2">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c2">Stairs</div>
+            <div class="hostel-map-box roomc2-211">211</div>
+            <div class="hostel-map-box roomc2-210">210</div>
+            <div class="hostel-map-box roomc2-209">209</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c2">Stairs</div>
+            <div class="hostel-map-box roomc2-212">212</div>
+            <div class="hostel-map-box roomc2-213">213</div>
+            <div class="hostel-map-box roomc2-214">214</div>
+            <div class="hostel-map-box roomc2-215">215</div>
+            <div class="hostel-map-box roomc2-204">204</div>
+            <div class="hostel-map-box roomc2-203">203</div>
+            <div class="hostel-map-box roomc2-202">202</div>
+            <div class="hostel-map-box roomc2-201">201</div>
+            <div class="hostel-map-box roomc2-216">216</div>
+            <div class="hostel-map-box roomc2-217">217</div>
+            <div class="hostel-map-box roomc2-218">218</div>
+            <div class="hostel-map-box hostel-map-label entrance-c2">Entrance</div>
+        </div>
+        {% elif hostel == 'HB1' and block == 'C' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c3">Toilet</div>
+            <div class="hostel-map-box roomc3-308">308</div>
+            <div class="hostel-map-box roomc3-307">307</div>
+            <div class="hostel-map-box roomc3-306">306</div>
+            <div class="hostel-map-box roomc3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c3">Stairs</div>
+            <div class="hostel-map-box roomc3-311">311</div>
+            <div class="hostel-map-box roomc3-310">310</div>
+            <div class="hostel-map-box roomc3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c3">Stairs</div>
+            <div class="hostel-map-box roomc3-312">312</div>
+            <div class="hostel-map-box roomc3-313">313</div>
+            <div class="hostel-map-box roomc3-314">314</div>
+            <div class="hostel-map-box roomc3-315">315</div>
+            <div class="hostel-map-box roomc3-304">304</div>
+            <div class="hostel-map-box roomc3-303">303</div>
+            <div class="hostel-map-box roomc3-302">302</div>
+            <div class="hostel-map-box roomc3-301">301</div>
+            <div class="hostel-map-box roomc3-316">316</div>
+            <div class="hostel-map-box roomc3-317">317</div>
+            <div class="hostel-map-box roomc3-318">318</div>
+            <div class="hostel-map-box hostel-map-label entrance-c3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'C' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c3">Toilet</div>
+            <div class="hostel-map-box roomc3-308">308</div>
+            <div class="hostel-map-box roomc3-307">307</div>
+            <div class="hostel-map-box roomc3-306">306</div>
+            <div class="hostel-map-box roomc3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c3">Stairs</div>
+            <div class="hostel-map-box roomc3-311">311</div>
+            <div class="hostel-map-box roomc3-310">310</div>
+            <div class="hostel-map-box roomc3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c3">Stairs</div>
+            <div class="hostel-map-box roomc3-312">312</div>
+            <div class="hostel-map-box roomc3-313">313</div>
+            <div class="hostel-map-box roomc3-314">314</div>
+            <div class="hostel-map-box roomc3-315">315</div>
+            <div class="hostel-map-box roomc3-304">304</div>
+            <div class="hostel-map-box roomc3-303">303</div>
+            <div class="hostel-map-box roomc3-302">302</div>
+            <div class="hostel-map-box roomc3-301">301</div>
+            <div class="hostel-map-box roomc3-316">316</div>
+            <div class="hostel-map-box roomc3-317">317</div>
+            <div class="hostel-map-box roomc3-318">318</div>
+            <div class="hostel-map-box hostel-map-label entrance-c3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'C' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c3">Toilet</div>
+            <div class="hostel-map-box roomc3-308">308</div>
+            <div class="hostel-map-box roomc3-307">307</div>
+            <div class="hostel-map-box roomc3-306">306</div>
+            <div class="hostel-map-box roomc3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c3">Stairs</div>
+            <div class="hostel-map-box roomc3-311">311</div>
+            <div class="hostel-map-box roomc3-310">310</div>
+            <div class="hostel-map-box roomc3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c3">Stairs</div>
+            <div class="hostel-map-box roomc3-312">312</div>
+            <div class="hostel-map-box roomc3-313">313</div>
+            <div class="hostel-map-box roomc3-314">314</div>
+            <div class="hostel-map-box roomc3-315">315</div>
+            <div class="hostel-map-box roomc3-304">304</div>
+            <div class="hostel-map-box roomc3-303">303</div>
+            <div class="hostel-map-box roomc3-302">302</div>
+            <div class="hostel-map-box roomc3-301">301</div>
+            <div class="hostel-map-box roomc3-316">316</div>
+            <div class="hostel-map-box roomc3-317">317</div>
+            <div class="hostel-map-box roomc3-318">318</div>
+            <div class="hostel-map-box hostel-map-label entrance-c3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'C' and floor == '3' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c3">Toilet</div>
+            <div class="hostel-map-box roomc3-308">308</div>
+            <div class="hostel-map-box roomc3-307">307</div>
+            <div class="hostel-map-box roomc3-306">306</div>
+            <div class="hostel-map-box roomc3-305">305</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c3">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c3">Stairs</div>
+            <div class="hostel-map-box roomc3-311">311</div>
+            <div class="hostel-map-box roomc3-310">310</div>
+            <div class="hostel-map-box roomc3-309">309</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c3">Stairs</div>
+            <div class="hostel-map-box roomc3-312">312</div>
+            <div class="hostel-map-box roomc3-313">313</div>
+            <div class="hostel-map-box roomc3-314">314</div>
+            <div class="hostel-map-box roomc3-315">315</div>
+            <div class="hostel-map-box roomc3-304">304</div>
+            <div class="hostel-map-box roomc3-303">303</div>
+            <div class="hostel-map-box roomc3-302">302</div>
+            <div class="hostel-map-box roomc3-301">301</div>
+            <div class="hostel-map-box roomc3-316">316</div>
+            <div class="hostel-map-box roomc3-317">317</div>
+            <div class="hostel-map-box roomc3-318">318</div>
+            <div class="hostel-map-box hostel-map-label entrance-c3">Entrance</div>
+        </div>
+        {% elif hostel == 'HB1' and block == 'A' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-4">Toilet</div>
+            <div class="hostel-map-box room4-408">408</div>
+            <div class="hostel-map-box room4-407">407</div>
+            <div class="hostel-map-box room4-406">406</div>
+            <div class="hostel-map-box room4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-4">Stairs</div>
+            <div class="hostel-map-box room4-411">411</div>
+            <div class="hostel-map-box room4-410">410</div>
+            <div class="hostel-map-box room4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-4">Stairs</div>
+            <div class="hostel-map-box room4-412">412</div>
+            <div class="hostel-map-box room4-413">413</div>
+            <div class="hostel-map-box room4-414">414</div>
+            <div class="hostel-map-box room4-415">415</div>
+            <div class="hostel-map-box room4-404">404</div>
+            <div class="hostel-map-box room4-403">403</div>
+            <div class="hostel-map-box room4-402">402</div>
+            <div class="hostel-map-box room4-401">401</div>
+            <div class="hostel-map-box room4-416">416</div>
+            <div class="hostel-map-box pantry-4">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'A' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-4">Toilet</div>
+            <div class="hostel-map-box room4-408">408</div>
+            <div class="hostel-map-box room4-407">407</div>
+            <div class="hostel-map-box room4-406">406</div>
+            <div class="hostel-map-box room4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-4">Stairs</div>
+            <div class="hostel-map-box room4-411">411</div>
+            <div class="hostel-map-box room4-410">410</div>
+            <div class="hostel-map-box room4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-4">Stairs</div>
+            <div class="hostel-map-box room4-412">412</div>
+            <div class="hostel-map-box room4-413">413</div>
+            <div class="hostel-map-box room4-414">414</div>
+            <div class="hostel-map-box room4-415">415</div>
+            <div class="hostel-map-box room4-404">404</div>
+            <div class="hostel-map-box room4-403">403</div>
+            <div class="hostel-map-box room4-402">402</div>
+            <div class="hostel-map-box room4-401">401</div>
+            <div class="hostel-map-box room4-416">416</div>
+            <div class="hostel-map-box pantry-4">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'A' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-4">Toilet</div>
+            <div class="hostel-map-box room4-408">408</div>
+            <div class="hostel-map-box room4-407">407</div>
+            <div class="hostel-map-box room4-406">406</div>
+            <div class="hostel-map-box room4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-4">Stairs</div>
+            <div class="hostel-map-box room4-411">411</div>
+            <div class="hostel-map-box room4-410">410</div>
+            <div class="hostel-map-box room4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-4">Stairs</div>
+            <div class="hostel-map-box room4-412">412</div>
+            <div class="hostel-map-box room4-413">413</div>
+            <div class="hostel-map-box room4-414">414</div>
+            <div class="hostel-map-box room4-415">415</div>
+            <div class="hostel-map-box room4-404">404</div>
+            <div class="hostel-map-box room4-403">403</div>
+            <div class="hostel-map-box room4-402">402</div>
+            <div class="hostel-map-box room4-401">401</div>
+            <div class="hostel-map-box room4-416">416</div>
+            <div class="hostel-map-box pantry-4">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'A' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-4">Toilet</div>
+            <div class="hostel-map-box room4-408">408</div>
+            <div class="hostel-map-box room4-407">407</div>
+            <div class="hostel-map-box room4-406">406</div>
+            <div class="hostel-map-box room4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-4">Stairs</div>
+            <div class="hostel-map-box room4-411">411</div>
+            <div class="hostel-map-box room4-410">410</div>
+            <div class="hostel-map-box room4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-4">Stairs</div>
+            <div class="hostel-map-box room4-412">412</div>
+            <div class="hostel-map-box room4-413">413</div>
+            <div class="hostel-map-box room4-414">414</div>
+            <div class="hostel-map-box room4-415">415</div>
+            <div class="hostel-map-box room4-404">404</div>
+            <div class="hostel-map-box room4-403">403</div>
+            <div class="hostel-map-box room4-402">402</div>
+            <div class="hostel-map-box room4-401">401</div>
+            <div class="hostel-map-box room4-416">416</div>
+            <div class="hostel-map-box pantry-4">Pantry</div>
+            <div class="hostel-map-box hostel-map-label entrance-4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB1' and block == 'C' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c4">Toilet</div>
+            <div class="hostel-map-box roomc4-408">408</div>
+            <div class="hostel-map-box roomc4-407">407</div>
+            <div class="hostel-map-box roomc4-406">406</div>
+            <div class="hostel-map-box roomc4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c4">Stairs</div>
+            <div class="hostel-map-box roomc4-411">411</div>
+            <div class="hostel-map-box roomc4-410">410</div>
+            <div class="hostel-map-box roomc4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c4">Stairs</div>
+            <div class="hostel-map-box roomc4-412">412</div>
+            <div class="hostel-map-box roomc4-413">413</div>
+            <div class="hostel-map-box roomc4-414">414</div>
+            <div class="hostel-map-box roomc4-415">415</div>
+            <div class="hostel-map-box roomc4-404">404</div>
+            <div class="hostel-map-box roomc4-403">403</div>
+            <div class="hostel-map-box roomc4-402">402</div>
+            <div class="hostel-map-box roomc4-401">401</div>
+            <div class="hostel-map-box roomc4-416">416</div>
+            <div class="hostel-map-box roomc4-417">417</div>
+            <div class="hostel-map-box roomc4-418">418</div>
+            <div class="hostel-map-box hostel-map-label entrance-c4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB2' and block == 'C' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c4">Toilet</div>
+            <div class="hostel-map-box roomc4-408">408</div>
+            <div class="hostel-map-box roomc4-407">407</div>
+            <div class="hostel-map-box roomc4-406">406</div>
+            <div class="hostel-map-box roomc4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c4">Stairs</div>
+            <div class="hostel-map-box roomc4-411">411</div>
+            <div class="hostel-map-box roomc4-410">410</div>
+            <div class="hostel-map-box roomc4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c4">Stairs</div>
+            <div class="hostel-map-box roomc4-412">412</div>
+            <div class="hostel-map-box roomc4-413">413</div>
+            <div class="hostel-map-box roomc4-414">414</div>
+            <div class="hostel-map-box roomc4-415">415</div>
+            <div class="hostel-map-box roomc4-404">404</div>
+            <div class="hostel-map-box roomc4-403">403</div>
+            <div class="hostel-map-box roomc4-402">402</div>
+            <div class="hostel-map-box roomc4-401">401</div>
+            <div class="hostel-map-box roomc4-416">416</div>
+            <div class="hostel-map-box roomc4-417">417</div>
+            <div class="hostel-map-box roomc4-418">418</div>
+            <div class="hostel-map-box hostel-map-label entrance-c4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB3' and block == 'C' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c4">Toilet</div>
+            <div class="hostel-map-box roomc4-408">408</div>
+            <div class="hostel-map-box roomc4-407">407</div>
+            <div class="hostel-map-box roomc4-406">406</div>
+            <div class="hostel-map-box roomc4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c4">Stairs</div>
+            <div class="hostel-map-box roomc4-411">411</div>
+            <div class="hostel-map-box roomc4-410">410</div>
+            <div class="hostel-map-box roomc4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c4">Stairs</div>
+            <div class="hostel-map-box roomc4-412">412</div>
+            <div class="hostel-map-box roomc4-413">413</div>
+            <div class="hostel-map-box roomc4-414">414</div>
+            <div class="hostel-map-box roomc4-415">415</div>
+            <div class="hostel-map-box roomc4-404">404</div>
+            <div class="hostel-map-box roomc4-403">403</div>
+            <div class="hostel-map-box roomc4-402">402</div>
+            <div class="hostel-map-box roomc4-401">401</div>
+            <div class="hostel-map-box roomc4-416">416</div>
+            <div class="hostel-map-box roomc4-417">417</div>
+            <div class="hostel-map-box roomc4-418">418</div>
+            <div class="hostel-map-box hostel-map-label entrance-c4">Entrance</div>
+        </div>
+        {% elif hostel == 'HB4' and block == 'C' and floor == '4' %}
+        <div class="hostel-map hostel-map-grid">
+            <div class="hostel-map-box hostel-map-label toilet-left-c4">Toilet</div>
+            <div class="hostel-map-box roomc4-408">408</div>
+            <div class="hostel-map-box roomc4-407">407</div>
+            <div class="hostel-map-box roomc4-406">406</div>
+            <div class="hostel-map-box roomc4-405">405</div>
+            <div class="hostel-map-box hostel-map-label toilet-right-c4">Toilet</div>
+            <div class="hostel-map-box hostel-map-label stairs-left-c4">Stairs</div>
+            <div class="hostel-map-box roomc4-411">411</div>
+            <div class="hostel-map-box roomc4-410">410</div>
+            <div class="hostel-map-box roomc4-409">409</div>
+            <div class="hostel-map-box hostel-map-label stairs-right-c4">Stairs</div>
+            <div class="hostel-map-box roomc4-412">412</div>
+            <div class="hostel-map-box roomc4-413">413</div>
+            <div class="hostel-map-box roomc4-414">414</div>
+            <div class="hostel-map-box roomc4-415">415</div>
+            <div class="hostel-map-box roomc4-404">404</div>
+            <div class="hostel-map-box roomc4-403">403</div>
+            <div class="hostel-map-box roomc4-402">402</div>
+            <div class="hostel-map-box roomc4-401">401</div>
+            <div class="hostel-map-box roomc4-416">416</div>
+            <div class="hostel-map-box roomc4-417">417</div>
+            <div class="hostel-map-box roomc4-418">418</div>
+            <div class="hostel-map-box hostel-map-label entrance-c4">Entrance</div>
+        </div>
+        {% else %}
+        <div class="hostel-map">
+            <div style="padding: 40px; text-align: center; color: #888; font-size: 1.2rem;">No map available for this selection.</div>
+        </div>
+        {% endif %}
     </div>
     
+    <div class="nav-wrapper">
+      <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span>
+      
+      </div>
+      <nav class="sidebar" id="sidebar">
+        <ul>
+          <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
+          <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
+          <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
+          <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
+          <li><a href="{{ url_for('main.my_reports') }}">My Reports</a></li>
+          <li><a href="{{ url_for('main.settings_profile') }}">Settings</a></li>
+        </ul>
+      </nav>
+    </div>
+
     <script>
       function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
