@@ -93,7 +93,7 @@
      <!-- Profiles Grid -->
     <div class="profiles-grid">
         {% for profile in profiles %}
-         <div class="profile-card" data-url="{{ url_for('main.view_profile', user_id=profile.user_id) }}">
+         <div class="profile-card" data-user-id="{{ profile.user_id }}">
             <div class="profile-header">
                 <h3>{{ profile.user.fullname }}</h3>
                 <div class="header-actions">
@@ -120,8 +120,12 @@
                     <span class="label">Year:</span>
                     <span>{{ profile.year }}</span>
                 </div>
-                
+                <div class="location-item">
+                <span class="label">Current Location:</span>
+                <span>{{ profile.user.hostel }}-{{ profile.user.block }}-{{ profile.user.room }}</span>
             </div>
+        </div>
+        
 
             {% if profile.about %}
             <div class="about-box">
@@ -153,6 +157,32 @@
         {% endfor %}
     </div>
 </div>
+</div>
+
+<div id="commentModal" class="modal">
+  <div class="modal-content profile-modal">
+    <span class="close-button" onclick="closeModal()">&times;</span>
+    <div class="modal-container">
+
+      <!-- Profile section will be loaded here -->
+      <div class="modal-profile" id="modal-profile">
+        <div class="modal-loading">
+          <span class="material-icons">hourglass_top</span>
+          <p>Loading profile...</p>
+        </div>
+      </div>
+      <!-- Comment section will be loaded here -->
+      <div class="modal-comments" id="modal-comments">
+        <div class="modal-loading">
+          <span class="material-icons">hourglass_top</span>
+          <p>Loading comments...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Sidebar -->
     <script>
       function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
@@ -193,20 +223,159 @@
             setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
         });
 
-     // Click to comment
-      document.addEventListener('DOMContentLoaded', function () {
-        const cards = document.querySelectorAll('.profile-card');
-        cards.forEach(card => {
-            card.style.cursor = 'pointer'; // make it look clickable
-            card.addEventListener('click', () => {
-                const url = card.getAttribute('data-url');
-                if (url) {
-                    window.location.href = url;
-                }
-            });
-        });
-    });
 </script>
 
+
+<!-- Modal for profile and comments -->
+<script>
+// Click to comment
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.profile-card').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+            const userId = card.getAttribute('data-user-id');
+            if (userId) {
+                openForum(userId);
+            }
+        });
+    });
+});
+
+let currentModalUserId = null;
+
+function openForum(userId) {
+    currentModalUserId = userId;
+    const modal = document.getElementById('commentModal');
+    modal.style.display = 'block';
+    
+    // Load profile and comments in parallel
+    Promise.all([
+        loadProfileContent(userId),
+        loadCommentContent(userId)
+    ]).catch(error => {
+        console.error('Error loading modal content:', error);
+        showModalError('Failed to load content. Please try again.');
+    });
+}
+
+function loadProfileContent(userId) {
+    return fetch(`/profile/${userId}/modal`)
+        .then(response => {
+            if (!response.ok) throw new Error('Profile load failed');
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('modal-profile').innerHTML = html;
+        });
+}
+
+function attachCommentEventListeners() {
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.onclick = function() {
+            const commentId = this.dataset.commentId;
+            toggleReplyForm(commentId);
+        };
+    });
+}
+
+function toggleReplyForm(commentId) {
+    if (!commentId) {
+        console.error('No comment ID provided');
+        return;
+    }
+    const form = document.getElementById(`replyForm${commentId}`);
+    if (!form) {
+        console.error(`Reply form not found for comment ${commentId}`);
+        return;
+    }
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    if (form.style.display === 'block') {
+        form.querySelector('textarea')?.focus();
+    }
+}
+
+function loadCommentContent(userId) {
+    return fetch(`/profile/comments/${userId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Comments load failed');
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('modal-comments').innerHTML = html;
+            initCommentForm();
+            attachCommentEventListeners();
+        });
+}
+
+function initCommentForm() {
+    // Attach to ALL comment forms (main and reply) in the modal
+    document.querySelectorAll('#modal-comments .comment-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await handleCommentSubmission(this);
+        });
+    });
+}
+
+async function handleCommentSubmission(form) {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    try {
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="material-icons spin">hourglass_top</span> Posting...';
+        
+        const formData = new FormData(form);
+        
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to post comment');
+        }
+        
+        // Refresh comments after successful post
+        await loadCommentContent(currentModalUserId);
+        form.reset();
+        
+    } catch (error) {
+        console.error('Comment submission error:', error);
+        showModalError(error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
+
+    // Hide flash messages after 5 seconds
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 2000); 
+
+function closeModal() {
+    document.getElementById('commentModal').style.display = 'none';
+    currentModalUserId = null;
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('commentModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+};
+
+</script>
 </body>
 </html>
