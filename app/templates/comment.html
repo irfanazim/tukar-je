@@ -64,6 +64,12 @@
                     <button type="submit" class="delete-btn2" >Delete</button>
                 </form>
                 {% endif %}
+                {% if comment.author_id != session.get('user_id') %}
+                <a href="{{ url_for('main.report_comment', reported_student_id=comment.author.id, profile_id=profile.id) }}" class="report-link">
+                    <span class="report-btn">Report</span>
+                </a>
+                {% endif %}
+
             </div>
             <div class="comment-content">{{ comment.content }}</div>
         </div>
