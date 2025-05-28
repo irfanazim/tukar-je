@@ -1,0 +1,47 @@
+
+    <div class="profile-header">
+        <h3>{{ profile.user.fullname }}</h3>
+        <span class="gender-badge {{ profile.gender|lower }}">{{ profile.gender }}</span>
+    </div>
+
+    <div class="profile-academic">
+        <div class="academic-item">
+            <span class="label">Program:</span>
+            <span>{{ profile.course_level }}</span>
+        </div>
+        <div class="academic-item">
+            <span class="label">Faculty:</span>
+            <span>{{ profile.faculty }}</span>
+        </div>
+        <div class="academic-item">
+            <span class="label">Year:</span>
+            <span>{{ profile.year }}</span>
+        </div>
+        <div class="location-item">
+                <span class="label">Current Location:</span>
+                <span>{{ profile.user.hostel }}-{{ profile.user.block }}-{{ profile.user.room }}</span>
+            </div>
+        </div>
+        
+    {% if profile.about %}
+    <div class="about-box">
+        <div class="about-title">About</div>
+        <div class="about-content">{{ profile.about }}</div>
+    </div>
+    {% endif %}
+    
+    <div class="profile-contact">
+        <div class="contact-method">
+            <span class="label">Contact via {{ profile.contact_method }}:</span>
+            {% if profile.contact_method == 'Email' %}
+                <a href="mailto:{{ profile.contact_info }}" class="contact-link">{{ profile.contact_info }}</a>
+            {% elif profile.contact_method == 'Telegram' %}
+                <a href="https://t.me/{{ profile.contact_info }}" class="contact-link">@{{ profile.contact_info }}</a>
+            {% elif profile.contact_method == 'WhatsApp' %}
+                <a href="https://wa.me/{{ profile.contact_info }}" class="contact-link">{{ profile.contact_info }}</a>
+            {% else %}
+                <span class="contact-info">{{ profile.contact_info }}</span>
+            {% endif %}
+        </div>
+    </div>
+</div>

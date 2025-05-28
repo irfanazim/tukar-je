@@ -128,11 +128,13 @@ class ProfileComment(db.Model):
     is_deleted = db.Column(db.Boolean, default=False)
     deleted_at = db.Column(db.DateTime)  # New field
     deleted_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    parent_id = db.Column(db.Integer, db.ForeignKey('profile_comment.id')) 
     
 
     # Relationships
     profile = db.relationship('User', foreign_keys=[profile_id], backref=db.backref('comments_received', lazy=True))
     author = db.relationship('User', foreign_keys=[author_id], backref=db.backref('comments_written', lazy=True))
+    parent = db.relationship('ProfileComment', remote_side=[id], backref=db.backref('replies', lazy=True))
 
 class Warning(db.Model):
     id = db.Column(db.Integer, primary_key=True)
