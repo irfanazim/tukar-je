@@ -201,7 +201,7 @@
 .roomb1-102     { grid-column: 6 / 7; grid-row: 5 / 6; }
 .roomb1-101     { grid-column: 6 / 7; grid-row: 6 / 7; }
 
-.roomb1-116     { grid-column: 2 / 3; grid-row: 6 / 7; }
+.roomb1-116     { grid-column: 2 / 3; grid-row: 6 / 7; transform: translateX(49px);}
 .iron-room-1    { grid-column: 3 / 5; grid-row: 7 / 8; min-width: 120px; }
 
 .entrance-left-b1  { grid-column: 1 / 2; grid-row: 7 / 8; }
