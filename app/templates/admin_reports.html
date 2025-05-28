@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/announcement.css') }}">
+        <title>Dispute Reports - tukar-je</title>
+    </head>
+    <body class="admin-reports-body">
+        <header class="header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+            </div>
+            <nav class="navbar">
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a> 
+                <a href="{{ url_for('main.admin_logout') }}">Logout</a> 
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                    <span class="material-icons">notifications</span>
+                </button></a>
+            </nav>
+        </header>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{category}}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        
+        <div class="dispute-reports-container">
+        
+        <div class="title2">
+            <h1>Dispute Reports</h1>
+        </div>
+
+        <div class="nav-wrapper">
+          <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span></div>
+          <nav class="sidebar" id="sidebar">
+            <ul>
+              <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+              <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
+              <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
+              <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
+              <li><a href="{{ url_for('main.admin_room_reports') }}">Room Reports</a></li>
+              <li><a href="{{ url_for('main.registered_admins') }}">Admins</a></li>
+              <li><a href="{{ url_for('main.admin_activitylog') }}">Activity Log</a></li>
+              <li><a href="{{ url_for('main.admin_settings_profile') }}"{% if request.path.startswith('/admin/settings') %} class="active"{% endif %}>Settings</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="reports">
+            <table class="table" border="1">
+                <thead>
+                    <tr>
+                        <th>Report ID</th>
+                        <th>Reported Student</th>
+                        <th>Reported By</th>
+                        <th>Reason</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>{{ report.id }}</td>
+                        <td>{{ report.reported_student }}</td>
+                        <td>{{ report.reported_by }}</td>
+                        <td>{{ report.reason }}</td>
+                        <td>{{ report.date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ report.status }}</td>
+                        <td class="actions">
+                            <button class="view-btn" onclick="toggleDetails('{{ report.id }}', this)">View</button>  
+                        </td>
+                    </tr>
+                    <tr id="details--{{ report.id }}" class="details" style="display: none;">
+                        <td colspan="7" class="details-content">
+                            <div class="details-header">
+                                    <h3>Details</h3>
+                            </div>
+                            <div class="details-body">
+                                <p><strong>Report ID:</strong> {{ report.id }}</p>
+                                <p><strong>Reported By:</strong> {{ report.reported_by }}</p>
+                                <p><strong>Reported Student:</strong> {{ report.reported_student }}</p>
+                                <p><strong>Reason:</strong> {{ report.reason }}</p>
+                                <p><strong>Description:</strong> {{ report.description }}</p>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" style="color: #999;">No Reports Found.</td></tr>
+                    
+                    {% endfor %}
+            </table>
+        </div>
+
+
+
+        </div>
+
+        <footer>
+            <div class="footer-col">
+                <ul>
+                <div class="logo">
+                <img src="{{url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
+                    <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="">About</a></li>
+                    <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
+                    <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="#">tukarje@gmail.com</a></li>
+                </ul>
+            </div> 
+        
+  
+        </footer>
+        <script>
+          function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('sidebar-open');
+          }
+        </script>
+        <!-- Notification count -->
+       <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch notification count every time a page is loaded
+            function fetchNotificationCount() {
+                fetch('/notification-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        const count = data.count;
+                        let badge = document.querySelector('.icon-button .notification-badge');
+                        
+                        if (!badge && count > 0) {
+                            // Create badge if not exist
+                            badge = document.createElement('span');
+                            badge.classList.add('notification-badge');
+                            document.querySelector('.icon-button').appendChild(badge);
+                        }
+                        
+                        if (badge) {
+                            if (count > 0) {
+                                badge.textContent = count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    });
+            }
+  
+            fetchNotificationCount();
+            setInterval(fetchNotificationCount, 30000); // Optional auto-refresh
+        });
+    </script>
+    <script>
+        // Auto-hide flash messages 
+        setTimeout(function () {
+          const flashes = document.querySelectorAll('.flash');
+          flashes.forEach(flash => {
+            flash.style.transition = "opacity 0.5s ease";
+            flash.style.opacity = 0;
+            setTimeout(() => flash.remove(), 500); // Remove after fade out
+          });
+        }, 4000);
+      </script>   
+      <script>
+        function toggleDetails(id, clickedButton) {
+            const allRows = document.querySelectorAll('.details');
+            const allButtons = document.querySelectorAll('.view-btn');
+            const selectedRow = document.getElementById(`details--${id}`);
+            const isCurrentlyVisible = selectedRow.style.display === "table-row";
+
+             // Hide all rows and reset all buttons
+            allRows.forEach(row => row.style.display = 'none');
+            allButtons.forEach(btn => btn.textContent = 'View');
+
+            // If not already visible, show the clicked one and update its button
+            if (!isCurrentlyVisible) {
+                selectedRow.style.display = 'table-row';
+                clickedButton.textContent = 'Hide';
+                }
+            }
+        </script>
+        <script>
+        function clearFilters() {
+            // Reset all filter inputs
+            document.getElementById('action-filter').value = 'all';
+            document.getElementById('entity-filter').value = 'all';
+            document.getElementById('from-date').value = '';
+            document.getElementById('to-date').value = '';
+            document.querySelector('.search-input').value = '';
+
+            // Submit the form
+            document.getElementById('filter-form').submit();
+        }
+        </script>
+        <script>
+        function toggleDetails(id, clickedButton) {
+            const allRows = document.querySelectorAll('.details');
+            const allButtons = document.querySelectorAll('.view-btn');
+            const selectedRow = document.getElementById(`details--${id}`);
+            const isCurrentlyVisible = selectedRow.style.display === "table-row";
+
+             // Hide all rows and reset all buttons
+            allRows.forEach(row => row.style.display = 'none');
+            allButtons.forEach(btn => btn.textContent = 'View');
+
+            // If not already visible, show the clicked one and update its button
+            if (!isCurrentlyVisible) {
+                selectedRow.style.display = 'table-row';
+                clickedButton.textContent = 'Hide';
+                }
+            }
+        </script>
+            
+    </body>
+
+    </body>
+
+</html>

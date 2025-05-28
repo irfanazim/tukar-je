@@ -1,8 +1,8 @@
 from flask import Blueprint, abort, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app, g
 from flask_login import current_user, logout_user
 from . import db, mail
-from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity
-from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, 
+from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity, Warning, DisputeReports, CommentReport
+from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, send_account_banned_email, send_account_warned_email, send_account_unbanned_email,
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
                    send_verification_email)
@@ -594,9 +594,10 @@ def view_student_profile(student_id):
     
     student = User.query.get_or_404(student_id)
     swap_requests = SwapRequest.query.filter_by(user_id=student.id).all()
+    warnings = Warning.query.filter_by(user_id=student.id).order_by(Warning.date_issued.desc()).all()
     
     
-    return render_template('admin_view_student.html', student=student, swap_requests=swap_requests)
+    return render_template('admin_view_student.html', student=student, swap_requests=swap_requests, warnings=warnings )
 
 @main.before_app_request
 def check_if_banned():
@@ -628,7 +629,31 @@ def ban_student(student_id):
 
     student.is_banned = True
     student.ban_reason = ban_reason
+
+    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    admin_id = session.get('admin_id')
+    admin = Admin.query.get_or_404(admin_id)
+    activity = AdminActivity(
+        admin_id=admin_id,
+        action='banned',
+        entity_type='Student',
+        entity_id=student.id,
+        details=(f"Student was banned by { admin.username } for {student.fullname} (ID: {student.student_id}) on {timestamp}\n\n"
+                 f"Ban Reason: {ban_reason}\n"
+                 f"Hostel: {student.hostel}  | Block: {student.block} | Room: {student.room}\n"
+                 )
+    )
+    db.session.add(activity)
     db.session.commit()
+
+    #send simple text email to student
+    try:
+        send_account_banned_email(student)
+            
+    except Exception as e:
+        app.logger.error(f"Failed to send ban email: {str(e)}")
+        flash('Student banned but failed to send email notification', 'warning')
+    
     
     flash('Student banned successfully!', 'success')
     return redirect(request.referrer or url_for('main.admin_students'))
@@ -642,10 +667,152 @@ def unban_student(student_id):
     student = User.query.get_or_404(student_id)
     student.is_banned = False
     student.ban_reason = None
+
+    timestamp = datetime.utcnow().strftime('%B  %d, %Y, %I:%M %p')
+    admin_id = session.get('admin_id')
+    admin = Admin.query.get_or_404(admin_id)
+    activity = AdminActivity(
+        admin_id=admin_id,
+        action='unbanned',
+        entity_type='Student',
+        entity_id=student.id,
+        details=(f"Student was unbanned by { admin.username } for {student.fullname} (ID: {student.student_id}) on {timestamp}\n\n"
+                 f"Hostel: {student.hostel}  | Block: {student.block} | Room: {student.room}\n"
+                 )
+    )
+    db.session.add(activity)
+
     db.session.commit()
+
+    #send simple text email to student
+    try:
+        send_account_unbanned_email(student)
+
+    except Exception as e:
+        app.logger.error(f"Failed to send unban email: {str(e)}")
+        flash('Student unbanned but failed to send email notification', 'warning')
     
     flash('Student unbanned successfully!', 'success')
     return redirect(request.referrer or url_for('main.admin_students'))
+
+@main.route('/admin/warning_student/<int:student_id>', methods=['POST'])
+def warn_student(student_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    student = User.query.get_or_404(student_id)
+
+    if student.is_banned:
+        flash('Cannot warn a banned student.', 'error')
+        return redirect(request.referrer or url_for('main.admin_students'))
+    
+    
+
+    warn_reason = request.form.get('warn_reason')
+    if not warn_reason:
+        flash('Warning reason is required.', 'error')
+        return redirect(request.referrer or url_for('main.admin_students'))
+
+    try:
+        student.warning_count = (student.warning_count or 0) + 1
+        db.session.commit()
+
+        # Save warning reason to Warning table
+        admin_id = session.get('admin_id')
+        warning = Warning(user_id=student.id, reason=warn_reason, admin_id=admin_id)
+        db.session.add(warning)
+        db.session.commit()
+
+        send_account_warned_email(student, warn_reason)
+        # Create notification for the student
+        create_notification(
+            user_id=student.id,
+            message=f"You have been warned by an admin. Reason: {warn_reason}",
+            notification_type='warning'
+        )
+        flash(f'{student.fullname} has been warned successfully!', 'success')
+
+    except Exception as e:
+            current_app.logger.error(f"Failed to warn student: {str(e)}")
+            flash('An error occurred while warning the student.', 'error')
+    
+    
+
+    return redirect(request.referrer or url_for('main.admin_students'))
+
+@main.route('/admin/dispute_reports')
+def dispute_reports():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    reports = DisputeReports.query.order_by(DisputeReports.date.desc()).all()
+    
+    return render_template('admin_reports.html',reports=reports,logged_in=is_admin_logged_in())
+
+@main.route('/report-comment/<int:reported_student_id>/<int:profile_id>', methods=['GET', 'POST'])
+def report_comment(reported_student_id, profile_id):
+    if not is_logged_in():
+        flash('Please login to report a comment', 'error')
+        return redirect(url_for('main.login'))
+
+    if request.method == 'POST':
+        reason = request.form.get('reason')
+        description = request.form.get('description')
+
+        if not reason or not description:
+            flash('Reason and description are required', 'error')
+            return redirect(request.referrer or url_for('main.report_comment', reported_student_id=reported_student_id, profile_id=profile_id))
+
+        reporter_id = session.get('user_id')
+        reported_student = User.query.get_or_404(reported_student_id)
+        reporter = User.query.get_or_404(reporter_id)
+
+        report = CommentReport(
+            reporter_id=reporter_id,
+            reported_student_id=reported_student.id,
+            reason=reason,
+            description=description
+        )
+        db.session.add(report)
+
+        # Create a dispute report entry
+        send_report = DisputeReports(
+            user_id=reporter_id,
+            reported_student=reported_student.fullname,
+            reported_by=reporter.fullname,
+            reason=reason,
+            description=description,
+            status='Pending'
+        )
+        db.session.add(send_report)
+
+        
+        db.session.commit()
+        
+
+        # Create notification for the admins
+        admins = Admin.query.all()
+        for admin in admins:
+            create_notification(
+                admin_id=admin.id,
+                message=f"New comment report from {reporter.fullname} (ID: {reporter.student_id}) against {reported_student.fullname} (ID: {reported_student.student_id}).",
+                notification_type='comment_report'
+            )
+            
+        flash('Comment reported successfully!', 'success')
+        
+
+        return redirect(url_for('main.view_profile', user_id=profile_id))
+
+    return render_template('comment_report.html', reported_student_id=reported_student_id)
+
+    
+    
+    
+
+
 
 
 @main.route('/submit', methods=['GET', 'POST'])

@@ -1415,7 +1415,7 @@ min-height: 700px; }
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease-in-out;
 }  
 .btn-unban-user:hover {
   background-color: #218838;
@@ -1433,15 +1433,117 @@ min-height: 700px; }
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .btn-warn-user:hover {
   background-color: #cda02e;
 }
+.active-status {
+    background-color: #d1e7dd; 
+    color: #0f5132; 
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+}
+.banned-status {
+    background-color: #f8d7da; 
+    color: #842029; 
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+}
+.ban-reason {
+    background-color: #f8d7da; 
+    color: #842029; 
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+.warning-history {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+.warning-history h6 {
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.warning-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.warning-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.warning-item:last-child {
+  border-bottom: none;
+}
+
+.warning-date {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.warning-reason {
+  font-size: 0.95rem;
+  background-color: #fff3cd; 
+    color: #a37c10; 
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    margin-top: 10px;
+
+}
+
 
 
 /*End for Student Profile page */
+
+/* Comment Report page */
+.comment-report-header h3{
+    text-align: left;
+    color: #000000;
+    margin-bottom: 5px;
+    font-size: 20px;
+    font-weight: 700;
+}
+.comment-report-header p{
+    font-size: 15px;
+    color: #555;
+}
+.comment-report-header{
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+.report-btn{
+    margin-left: auto;
+    color: #ff4444;
+    background: none;
+    border: none;
+    cursor: pointer;  
+}
+.report-link {
+    text-decoration: none;
+    font-weight: 500;
+}
+
+
+/* Dispute Report page */
+.dispute-reports-container {
+    flex: 1;
+    min-height: 700px; 
+}
 
 /* Admin Activity Log page */
 .admin-activity-container{
@@ -1560,6 +1662,18 @@ min-height: 700px; }
     border-color: #bbf7d0;
 }
 .act-restored{
+    background: #d9fce8;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border-color: #bbf7d0;
+}
+.act-banned{
+    background: #fce9d9;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border-color: #fecaca;
+}
+.act-unbanned{
     background: #d9fce8;
     padding: 5px 10px;
     border-radius: 15px;

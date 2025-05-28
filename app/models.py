@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
     is_banned = db.Column(db.Boolean, default=False)
     ban_reason = db.Column(db.Text, nullable=True)
+    warning_count = db.Column(db.Integer, default=0)
     
 
     deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_students', lazy=True))
@@ -132,3 +133,36 @@ class ProfileComment(db.Model):
     # Relationships
     profile = db.relationship('User', foreign_keys=[profile_id], backref=db.backref('comments_received', lazy=True))
     author = db.relationship('User', foreign_keys=[author_id], backref=db.backref('comments_written', lazy=True))
+
+class Warning(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+    date_issued = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('warnings', lazy=True))
+    admin = db.relationship('Admin', backref=db.backref('issued_warnings', lazy=True))
+
+class DisputeReports(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reported_student = db.Column(db.String(100), nullable=False)
+    reported_by = db.Column(db.String(100), nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), nullable=False, default='Pending')
+
+    user= db.relationship('User', backref=db.backref('made_reports', lazy=True))
+    
+
+class CommentReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    reporter_id = db.Column(db.Integer, nullable=False)  
+    reported_student_id = db.Column(db.Integer, nullable=False)  
+    reason = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
