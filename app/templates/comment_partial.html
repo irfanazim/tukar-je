@@ -1,0 +1,192 @@
+<h2>{{ profile.fullname }}'s Comments</h2>
+
+{% if is_logged_in %}
+<!-- Main comment form -->
+<form method="POST" 
+      class="comment-form" 
+      id="mainCommentForm"
+      action="{{ url_for('main.handle_comment') }}">
+    <input type="hidden" name="user_id" value="{{ profile.id }}">
+    <div class="textarea-container">
+        <textarea name="comment" placeholder="Write a comment (max 1000 characters)..." maxlength="1000" required></textarea>
+        <button type="submit">
+            <span class="material-icons">send</span>
+        </button>
+    </div>
+</form>
+{% else %}
+<div class="login-prompt">
+    <a href="{{ url_for('main.login') }}">Log in</a> to post comments
+</div>
+{% endif %}
+
+<div class="comments-list">
+    {% if not comments %}
+    <p class="no-comments">No comments yet. Be the first to comment!</p>
+    {% endif %}
+
+    {% for comment in comments %}
+    <div class="comment-card" data-comment-id="{{ comment.id }}">
+        <div class="comment-header">
+            <span class="author">{{ comment.author.fullname }}</span>
+            <span class="timestamp">{{ comment.local_timestamp.strftime('%b %d, %Y at %I:%M %p') }}</span>
+            {% if comment.author_id == session.get('user_id') %}
+            <form action="{{ url_for('main.delete_comment', comment_id=comment.id) }}" 
+                  method="POST" 
+                  class="delete-form" 
+                  onsubmit="return handleDeleteComment(event, this)">
+                <button type="submit" class="delete-btn2">Delete</button>
+            </form>
+            {% endif %}
+        </div>
+        <div class="comment-content">{{ comment.content }}</div>
+
+        {% if is_logged_in %}
+        <button class="reply-btn" data-comment-id="{{ comment.id }}">Reply</button>
+
+        <!-- Reply form (hidden by default) -->
+        <form method="POST" class="comment-form reply-form" id="replyForm{{ comment.id }}" 
+              style="display: none;" 
+              action="{{ url_for('main.handle_comment') }}">
+            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+            <input type="hidden" name="user_id" value="{{ profile.id }}">
+            <div class="textarea-container">
+                <textarea name="comment" placeholder="Write a reply..." required></textarea>
+                <button type="submit">
+                    <span class="material-icons">send</span>
+                </button>
+            </div>
+        </form>
+        {% endif %}
+
+        <!-- Replies -->
+        <div class="replies-container">
+            {% for reply in comment.replies if not reply.is_deleted %}
+            <div class="reply-card">
+                <div class="comment-header">
+                    <span class="author">{{ reply.author.fullname }}</span>
+                    <span class="timestamp">{{ reply.local_timestamp.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                    {% if reply.author_id == session.get('user_id') %}
+                    <form action="{{ url_for('main.delete_comment', comment_id=reply.id) }}" 
+                          method="POST" 
+                          class="delete-form" 
+                          onsubmit="return handleDeleteComment(event, this)">
+                        <button type="submit" class="delete-btn2">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="reply-content">{{ reply.content }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    attachCommentEventListeners();
+});
+
+function attachCommentEventListeners() {
+    // Attach event listeners to all reply buttons
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.onclick = function() {
+            const commentId = this.dataset.commentId;
+            toggleReplyForm(commentId);
+        };
+    });
+}
+
+function toggleReplyForm(commentId) {
+    if (!commentId) {
+        console.error('No comment ID provided');
+        return;
+    }
+    
+    const form = document.getElementById(`replyForm${commentId}`);
+    if (!form) {
+        console.error(`Reply form not found for comment ${commentId}`);
+        return;
+    }
+    
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    if (form.style.display === 'block') {
+        form.querySelector('textarea')?.focus();
+    }
+}
+
+async function submitComment(form, event) {
+    event.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    
+    try {
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(error);
+        }
+        
+        // Replace the entire comments section
+        const commentsContainer = document.querySelector('.comments-list');
+        if (commentsContainer) {
+            commentsContainer.innerHTML = await response.text();
+            // Reattach event listeners to new elements
+            attachCommentEventListeners();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+    }
+}
+
+async function handleDeleteComment(event, form) {
+    event.preventDefault();
+    
+    if (!confirm('Are you sure you want to delete this comment?')) {
+        return;
+    }
+    
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(error);
+        }
+        
+        // Replace the entire comments section
+        const commentsContainer = document.querySelector('.comments-list');
+        if (commentsContainer) {
+            commentsContainer.innerHTML = await response.text();
+            // Reattach event listeners to new elements
+            attachCommentEventListeners();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+    }
+}
+</script>

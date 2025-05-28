@@ -787,7 +787,6 @@ def edit_request(request_id):
         swap_request.desired_room = request.form.get('desired_room')
         
         db.session.commit()
-        flash("Request updated successfully!", "success")
         return redirect(url_for('main.dashboard'))
 
     return render_template('edit_request.html', swap_request=swap_request)
@@ -957,6 +956,237 @@ def delete_profile(profile_id):
     db.session.commit()
     flash("Your profile has been deleted successfully.", "success")
     return redirect(url_for('main.view_profiles'))
+
+
+@main.route('/profile/<int:user_id>', methods=['GET', 'POST'])
+def view_profile(user_id):
+    profile_user = User.query.get_or_404(user_id)
+
+    if not is_logged_in():
+        return redirect(url_for('main.login'))
+
+    comments = ProfileComment.query.filter_by(
+        profile_id=user_id,
+        is_deleted=False
+    ).order_by(ProfileComment.timestamp.asc()).all()
+
+    myt = timezone(timedelta(hours=8))
+    for comment in comments:
+        comment.local_timestamp = comment.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+    
+    return render_template(
+        'profiles.html',
+        profile=profile_user,
+        comments=comments,
+        is_logged_in=is_logged_in
+    )
+
+
+
+@main.route('/profile/<int:user_id>/modal')
+def profile_modal(user_id):
+    profile = RoommateProfile.query.filter_by(user_id=user_id).first_or_404()
+    return render_template('profile_partial.html', profile=profile)
+
+@main.route('/profile/comments/<int:user_id>')
+def profile_comments(user_id):
+    comments = ProfileComment.query.filter_by(
+        profile_id=user_id,
+        is_deleted=False,
+        parent_id=None  # Only fetch top-level comments
+    ).order_by(ProfileComment.timestamp.desc()).all()
+
+    myt = timezone(timedelta(hours=8))
+    for comment in comments:
+        comment.local_timestamp = comment.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+        # Set local_timestamp for replies too
+        comment.replies = [r for r in comment.replies if not r.is_deleted]
+        for reply in comment.replies:
+            reply.local_timestamp = reply.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+
+    profile = User.query.get_or_404(user_id)
+
+    return render_template('comment_partial.html', profile=profile, comments=comments, is_logged_in=is_logged_in())
+
+@main.route('/add_comment_modal/<int:user_id>', methods=['POST'])
+def add_comment_modal(user_id):
+    # Check if request is AJAX
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or \
+              request.accept_mimetypes.accept_json
+    
+    if not is_ajax:
+        if request.form:  # If form data was submitted
+            return "This endpoint requires AJAX", 400
+        abort(400, description="This endpoint only accepts AJAX requests")
+    
+    # Check authentication
+    if 'user_id' not in session:
+        return "Please log in to comment", 401
+    
+    try:
+        # Create new comment
+        new_comment = ProfileComment(
+            profile_id=user_id,
+            author_id=session['user_id'],
+            content=content
+        )
+        db.session.add(new_comment)
+        
+        # Create notification if commenting on someone else's profile
+        if user_id != session['user_id']:
+            create_notification(
+                user_id=user_id,
+                message=f"You received a new comment from {current_user.fullname}",
+                notification_type='new_comment'
+            )
+            
+        db.session.commit()
+        
+        # Return updated comments section
+        comments = ProfileComment.query.filter_by(
+            profile_id=user_id,
+            is_deleted=False
+        ).order_by(ProfileComment.timestamp.desc()).all()
+        
+        # Apply timezone conversion
+        myt = timezone(timedelta(hours=8))
+        for comment in comments:
+            comment.local_timestamp = comment.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+            # Set local_timestamp for replies too
+            comment.replies = [r for r in comment.replies if not r.is_deleted]
+            for reply in comment.replies:
+                reply.local_timestamp = reply.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+
+        content = request.form.get('comment', '').strip()
+        
+        return render_template('comment_partial.html', 
+            profile=User.query.get(user_id),
+            comments=comments,
+            is_logged_in=True
+        )
+        
+    except Exception as e:
+        db.session.rollback()
+        return f"Error posting comment: {str(e)}", 500
+    
+@main.route('/handle_comment', methods=['POST'])
+def handle_comment():
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return jsonify({'success': False, 'error': 'Invalid request'}), 400
+
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Please log in to comment'}), 401
+
+    try:
+        user_id = request.form.get('user_id')
+        content = request.form.get('comment', '').strip()
+        parent_id = request.form.get('parent_id')
+
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Missing user ID'}), 400
+        if not content:
+            return jsonify({'success': False, 'error': 'Comment cannot be empty'}), 400
+        if len(content) > 1000:
+            return jsonify({'success': False, 'error': 'Comment too long (max 1000 characters)'}), 400
+
+        parent_comment = None
+        if parent_id:
+            parent_id = int(parent_id)
+            parent_comment = ProfileComment.query.get(parent_id)
+            if not parent_comment or parent_comment.is_deleted:
+                return jsonify({'success': False, 'error': 'Invalid parent comment'}), 400
+        else:
+            parent_id = None
+
+        # Get the current user from the session
+        author = User.query.get(session['user_id'])
+        if not author:
+            return jsonify({'success': False, 'error': 'User not found'}), 400
+
+        new_comment = ProfileComment(
+            profile_id=int(user_id),
+            author_id=session['user_id'],
+            content=content,
+            parent_id=parent_id
+        )
+        db.session.add(new_comment)
+
+        # Create notification if commenting on someone else's profile
+        if int(user_id) != session['user_id']:
+            notification_msg = f"You received a new {'reply' if parent_id else 'comment'} from {author.fullname}"
+            create_notification(
+                user_id=int(user_id),
+                message=notification_msg,
+                notification_type='new_comment'
+            )
+
+        db.session.commit()
+
+        comments = ProfileComment.query.filter_by(
+            profile_id=int(user_id),
+            is_deleted=False,
+            parent_id=None
+        ).order_by(ProfileComment.timestamp.desc()).all()
+
+        myt = timezone(timedelta(hours=8))
+        for comment in comments:
+            comment.local_timestamp = comment.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+            # Set local_timestamp for replies too
+            comment.replies = [r for r in comment.replies if not r.is_deleted]
+            for reply in comment.replies:
+                reply.local_timestamp = reply.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+
+        return render_template('comment_partial.html',
+                               profile=User.query.get(int(user_id)),
+                               comments=comments,
+                               is_logged_in=True)
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error handling comment: {str(e)}")
+        return jsonify({'success': False, 'error': 'Server error'}), 500
+
+@main.route('/comment/delete/<int:comment_id>', methods=['POST'])
+def delete_comment(comment_id):
+    comment = ProfileComment.query.get_or_404(comment_id)
+
+    # Check if the current user is the author
+    if comment.author_id != session.get('user_id'):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': 'You are not authorized to delete this comment.'}), 401
+        flash('You are not authorized to delete this comment.', 'error')
+        return redirect(url_for('main.view_profiles'))
+
+    # Soft delete implementation
+    comment.is_deleted = True
+    comment.deleted_at = datetime.utcnow()
+    comment.deleted_by = session.get('user_id')
+    
+    db.session.commit()
+    
+    # Return updated comments section for both AJAX and non-AJAX requests
+    comments = ProfileComment.query.filter_by(
+        profile_id=comment.profile_id,
+        is_deleted=False
+    ).order_by(ProfileComment.timestamp.asc()).all()
+    
+    # Apply timezone conversion
+    myt = timezone(timedelta(hours=8))
+    for c in comments:
+        c.local_timestamp = c.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('comment_partial.html', 
+            profile=User.query.get(comment.profile_id),
+            comments=comments,
+            is_logged_in=True
+        )
+    
+    # For non-AJAX requests, redirect back to profiles page
+    flash('Comment deleted.', 'success')
+    return redirect(url_for('main.view_profiles'))
+
+
     
 # Report Room Issues
 @main.route('/room-report', methods=['GET', 'POST'])
@@ -1302,73 +1532,6 @@ def restore_student_admin():
     flash('Student data is restored successfully!', 'success')
     return redirect(request.referrer or url_for('main.admin_students'))
 
-
-@main.route('/profile/<int:user_id>', methods=['GET', 'POST'])
-def view_profile(user_id):
-    profile_user = User.query.get_or_404(user_id)
-
-    if not is_logged_in():
-        return redirect(url_for('main.login'))
-
-    if request.method == 'POST':
-        content = request.form.get('comment')
-        if not content or len(content) > 500:
-            flash('Comment must be 1–500 characters', 'error')
-        else:
-            new_comment = ProfileComment(
-                profile_id=user_id,
-                author_id=session['user_id'],
-                content=content
-            )
-            db.session.add(new_comment)
-
-            if user_id != session['user_id']:  # Don't notify yourself
-                create_notification(
-                    user_id=user_id,
-                    message=f"You received a new comment on your profile",
-                    notification_type='new_comment'
-                )
-            
-            db.session.commit()
-            flash('Comment posted!', 'success')
-            
-
-        return redirect(url_for('main.view_profile', user_id=user_id))
-
-    comments = ProfileComment.query.filter_by(
-        profile_id=user_id,
-        is_deleted=False
-    ).order_by(ProfileComment.timestamp.asc()).all()
-
-    myt = timezone(timedelta(hours=8))
-    for comment in comments:
-        comment.local_timestamp = comment.timestamp.replace(tzinfo=timezone.utc).astimezone(myt)
-    
-
-    return render_template(
-    'comment.html',
-    profile=profile_user,
-    comments=comments,
-    is_logged_in=is_logged_in
-)
-
-@main.route('/comment/delete/<int:comment_id>', methods=['POST'])
-def delete_comment(comment_id):
-    comment = ProfileComment.query.get_or_404(comment_id)
-
-    # Optional: Check if the current user is the author
-    if comment.author_id != session.get('user_id'):
-        flash('You are not authorized to delete this comment.', 'error')
-        return redirect(url_for('main.view_profile', user_id=comment.profile_id))
-
-    # Soft delete implementation
-    comment.is_deleted = True
-    comment.deleted_at = datetime.utcnow()
-    comment.deleted_by = session.get('user_id')
-    
-    db.session.commit()
-    flash('Comment deleted.', 'success')
-    return redirect(url_for('main.view_profile', user_id=comment.profile_id))
 
 @main.route('/settings', methods=['GET', 'POST'])
 def settings():
