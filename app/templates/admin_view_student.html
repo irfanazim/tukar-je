@@ -66,9 +66,9 @@
             <p><strong>Email:</strong> {{ student.email }}</p>
             <p><strong>Current Location:</strong> {{ student.hostel }}-{{student.block}}-{{student.room}}</p> 
             {% if student.is_banned %}
-            <p><strong>Status:</strong> Banned </p>
+            <p><strong>Status:</strong> <span class="banned-status"> Banned </span></p>
             {% else %}
-            <p><strong>Status:</strong> Active </p>
+            <p><strong>Status:</strong> <span class="active-status">Active </span></p>
             {% endif %}
             </div>
 
@@ -134,17 +134,16 @@
 
     {% if student.is_banned %}
     <p style="color: #777;" class="ban-description">
-      This student is currently banned. They cannot log in or make any requests.</p>
+      <em>This student is currently banned. They cannot log in or make any requests.</em></p>
   <form method="POST" action="{{ url_for('main.unban_student', student_id=student.id) }}">
-    <p><strong>Ban Reason:</strong> {{ student.ban_reason }}</p>
+    <p><strong>Ban Reason:</strong> <span class="ban-reason">{{ student.ban_reason }}</span></p>
     <button type="submit" class="btn-unban-user">
       <span class="material-icons">lock_open</span>Unban Student
     </button>
   </form>
 {% else %}
   <p style="color: #777;" class="ban-description">
-      Banning a student will prevent them from logging in or making any requests. Please provide a reason for the ban.
-    </p>
+      <em>Banning a student will prevent them from logging in or making any requests. Please provide a reason for the ban.</em></p>
   <form method="POST" action="{{ url_for('main.ban_student', student_id=student.id) }}">
     <div class="banform-group">
       <label for="ban_reason" class="banform-label">Ban Reason</label>
@@ -156,25 +155,48 @@
     </button>
   </form>
 {% endif %}
-   <!--   <br>
+    <br>
     <hr>
     <br>
 
     <h5 class="ban-section-title">Warn User</h5>
+
+  {% if student.warning_count > 0 %}
     <p style="color: #777;" class="ban-description">
-      Please provide a reason for the warning.
+      <em>This student has been warned before. They can still log in and make requests.</em>
     </p>
+    <p><strong>Number of Warnings: {{ student.warning_count }}</strong></p>
 
-    <form method="POST" action="#">
-      <div class="banform-group">
-        <label for="ban_reason" class="banform-label">Warn Reason</label>
-        <textarea id="ban_reason" name="ban_reason" class="banform-textarea" placeholder="Enter reason for warning the user..." rows="5" required></textarea>
-      </div>
+    <div class="warning-history">
+  <h6>Previous Warning Reasons</h6>
+  <ul class="warning-list">
+    {% for warning in warnings %}
+    <li class="warning-item">
+      <div class="warning-date">{{ warning.date_issued.strftime('%B %d, %Y, %I:%M %p') }}</div>
+      <div class="warning-reason">{{ warning.reason }}</div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
 
-      <button type="submit" class="btn-warn-user">
-        <span class="material-icons">warning</span>Warn Student
-      </button>
-    </form>-->
+
+    
+  {% else %}
+    <p style="color: #777;" class="ban-description">
+      <em>Please provide a reason for the warning.</em>
+    </p>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('main.warn_student', student_id=student.id) }}">
+    <div class="banform-group">
+      <label for="ban_reason" class="banform-label">Warn Reason</label>
+      <textarea id="ban_reason" name="warn_reason" class="banform-textarea" placeholder="Enter reason for warning the user..." rows="5" required></textarea>
+    </div>
+
+    <button type="submit" class="btn-warn-user">
+      <span class="material-icons">warning</span>Warn Student
+    </button>
+  </form>
   </div>
 </div>
 

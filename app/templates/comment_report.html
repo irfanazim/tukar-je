@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/room_reports.css') }}">
+        <title>Report Comment - tukar-je</title>
+    </head>
+
+    <body class="report-comment-body">
+        <header class="header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
+                <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+            </div>
+            <nav class="navbar">
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a> 
+                <a href="{{ url_for('main.admin_logout') }}">Logout</a> 
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                    <span class="material-icons">notifications</span>
+                </button></a>
+            </nav>
+        </header>
+            
+
+        <div class="report-comment-container">
+            
+
+            <div class="nav-wrapper">
+                <div class="nav-icon" onclick="toggleSidebar()"><span class="material-icons">menu</span></div>
+                <nav class="sidebar" id="sidebar">
+                    <ul>
+                        <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
+                        <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
+                        <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
+                        <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
+                        <li><a href="{{ url_for('main.my_reports') }}">My Reports</a></li>
+                        <li><a href="{{ url_for('main.settings_profile') }}">Settings</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="form-container">
+                
+                <form method="POST" class="form-box">
+                <div class="comment-report-header">
+                    <h3>Report a Comment</h3>
+                    <p>Report if you believe this comment violates our policies.</p>
+                    <br>
+                    <hr>
+                </div>
+                
+               
+                    <input type="hidden" name="student_id" value="{{ reported_student_id }}">
+                    <div class="input-box">
+                    <label for="reason">Reason for Report*</label>
+                        <select name="reason" id="reason" required>
+                            <option value="" disabled selected>Select a reason</option>
+                            <option value="False Information">False Information</option>
+                            <option value="Hate speech or symbols">Hate speech or symbols</option>
+                            <option value="Violence or Threats">Violence or Threats</option>
+                            <option value="Sexual Content">Sexual Content</option>
+                            <option value="Privacy Violation">Privacy Violation</option>
+                            <option value="Bullying or Harassment">Bullying or Harassment</option>
+                            <option value="Spam or Irrelevant Content">Spam or Irrelevant Content</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+
+                    <div class="input-box">
+                    <label for="description">Description*</label>
+                    <textarea name="description" id="description" rows="4" placeholder="Please provide a detailed description..." class="fixed-textarea" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Submit Report</button>
+                </form>
+            </div>
+
+
+
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('sidebar-open');
+      }
+    </script>
+    </body>
+
+
+
+</html>

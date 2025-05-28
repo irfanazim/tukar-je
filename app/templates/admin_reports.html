@@ -6,9 +6,9 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/announcement.css') }}">
-        <title>Admin Activity Log - tukar-je</title>
+        <title>Dispute Reports - tukar-je</title>
     </head>
-    <body class="admin-activity-body">
+    <body class="admin-reports-body">
         <header class="header">
             <div class="logo">
                 <img src="{{ url_for('static', filename='images/Multimedia_University_logo.png') }}" alt="MMU Logo">
@@ -30,11 +30,11 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-
-        <div class="admin-activity-container">
-
+        
+        <div class="dispute-reports-container">
+        
         <div class="title2">
-            <h1>Activity Log</h1>
+            <h1>Dispute Reports</h1>
         </div>
 
         <div class="nav-wrapper">
@@ -53,137 +53,59 @@
           </nav>
         </div>
 
-        
-        <form id="filter-form" method="GET" action="/admin/activitylog">
-            <div class="table-controls-container">
-                <div class="clear-button-row">
-                <a href="/admin/activitylog" class="clear-filters-link">Clear Filters</a>
-                </div>
-                <!--Search Bar-->
-                <div class="search-input-container">
-                    <span class="material-icons" id="search-icon">search</span>
-                    <input type="text" class="search-input" placeholder="Search by name..." name="search" value="{{ search }}">
-                </div>
-                <!--Action Filter-->
-                <div class="filter-container">
-                <span class="material-icons" id="filter-icon">filter_list</span>
-                <label for="action-filter">Action Type:</label>
-                <select id="action-filter" class="filter-select" name="action" onchange="document.getElementById('filter-form').submit()">
-                    <option value="all" {% if action == 'all' %}selected{% endif %}>All</option>
-                    <option value="deleted" {% if action == 'deleted' %}selected{% endif %}>Deleted</option>
-                    <option value="edited" {% if action == 'edited' %}selected{% endif %}>Updated</option>
-                    <option value="restored" {% if action == 'restored' %}selected{% endif %}>Restored</option>
-                </select>
-                </div>
-                <!--Entity Type Filter-->
-                <div class="filter-container">
-                <span class="material-icons" id="filter-icon">filter_list</span>
-                <label for="entity-filter">Entity Type:</label>
-                <select id="entity-filter" class="filter-select" name="entity" onchange="document.getElementById('filter-form').submit()">
-                    <option value="all" {% if entity == 'all' %}selected{% endif %}>All</option>
-                    <option value="Swap Request" {% if entity == 'Swap Request' %}selected{% endif %}>Swap Request</option>
-                    <option value="Student" {% if entity == 'Student' %}selected{% endif %}>Student</option>
-                </select>
-                </div>
-                <!--Date Range-->
-                <div class="filter-container date-range-container">
-                <label for="from-date">From:</label>
-                <input type="date" id="from-date" name="from_date" value="{{ from_date }}" onchange="document.getElementById('filter-form').submit()">
-                </div>
-                <div class="filter-container date-range-container">
-                <label for="to-date">To:</label>
-                <input type="date" id="to-date" name="to_date" value="{{ to_date }}" onchange="document.getElementById('filter-form').submit()">
-                </div>
-            </div>
-        </form>
-
-        <div class="activity-log">
+        <div class="reports">
             <table class="table" border="1">
                 <thead>
                     <tr>
-                        <th>Action</th>
-                        <th>Entity</th>
-                        <th>Admin</th>
-                        <th>Performed At</th>
+                        <th>Report ID</th>
+                        <th>Reported Student</th>
+                        <th>Reported By</th>
+                        <th>Reason</th>
+                        <th>Date</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for act in activities %}
+                    {% for report in reports %}
                     <tr>
-                        <td>
-                           {% if act.action == "deleted" %} 
-                            <span class="act-deleted" style="color: #ca535d;" >Deleted</span>
-                            {% elif act.action =="edited"  %}
-                            <span class="act-updated" style="color: #486db9;" >Updated</span>
-                            {% elif act.action == "banned" %}
-                            <span class="act-banned" style="color: #f0ad4e;">Banned</span> 
-                            {% elif act.action == "unbanned" %}
-                            <span class="act-unbanned" style="color: #5cb85c;">Unbanned</span>
-                            {% else %}
-                            <span class="act-restored" style="color: #6ab58c;">Restored</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ act.entity_type }}</td>
-                        <td>{{ act.admin.username}}</td>
-                        <td>{{ act.timestamp.strftime('%B %d, %Y, %I:%M %p') }}</td>
+                        <td>{{ report.id }}</td>
+                        <td>{{ report.reported_student }}</td>
+                        <td>{{ report.reported_by }}</td>
+                        <td>{{ report.reason }}</td>
+                        <td>{{ report.date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ report.status }}</td>
                         <td class="actions">
-                            <button class="view-btn" onclick="toggleDetails('{{ act.id }}', this)">View</button>
-                            {% if act.action == "deleted" %}
-                            <form   action="{% if act.entity_type == 'Swap Request' %}{{ url_for('main.restore_request_admin') }}
-                                            {% elif act.entity_type == 'Student' %}{{ url_for('main.restore_student_admin') }} {% endif %}"
-                                    method="POST" 
-                                  onsubmit="return confirm('Are you sure want to restore the data?');">
-                                  <input type="hidden" name="id" value="{{ act.entity_id }}">
-                                  <button type="submit" class="restore-btn">Restore</button>
-                                
-                            </form>
-                            {% endif %}
-                            
+                            <button class="view-btn" onclick="toggleDetails('{{ report.id }}', this)">View</button>  
                         </td>
                     </tr>
-                        <tr class="details" id="details--{{ act.id }}" style ="display: none;">
-                            <td colspan="6" class="details-content">
-                                <div class="details-header">
+                    <tr id="details--{{ report.id }}" class="details" style="display: none;">
+                        <td colspan="7" class="details-content">
+                            <div class="details-header">
                                     <h3>Details</h3>
-                                </div>
-                                <div class="details-body">
-                                    {% if act.entity_type =='Swap Request' %}
-                                        <p style="white-space: pre-wrap;">{{ act.details }}</p>
-                                    {% elif act.entity_type == 'Student' %}
-                                        <p style="white-space: pre-wrap;">{{ act.details }} </p>
-                                    {% else %}
-                                        <p>No Details Available.</p>
-                                    {% endif %}   
-                                </div>
-                            </td>
-                        </tr>
+                            </div>
+                            <div class="details-body">
+                                <p><strong>Report ID:</strong> {{ report.id }}</p>
+                                <p><strong>Reported By:</strong> {{ report.reported_by }}</p>
+                                <p><strong>Reported Student:</strong> {{ report.reported_student }}</p>
+                                <p><strong>Reason:</strong> {{ report.reason }}</p>
+                                <p><strong>Description:</strong> {{ report.description }}</p>
+                                
+                            </div>
+                        </td>
+                    </tr>
                     {% else %}
-                        <tr><td colspan="5" style="color: #999;">No Activites Found.</td></tr>
+                    <tr><td colspan="7" style="color: #999;">No Reports Found.</td></tr>
+                    
                     {% endfor %}
-                </tbody>
             </table>
-            <div class="pagination">
-            {% if page > 1 %}
-              <a href="{{ url_for('main.admin_activitylog', page=page-1, search=search, action=action, entity=entity, from_date=from_date, to_date=to_date) }}">Previous</a>
-            {% endif %}
-          
-            {% for p in range(1, total_pages + 1) %}
-              {% if p == page %}
-                <span class="current">{{ p }}</span>
-              {% else %}
-                <a href="{{ url_for('main.admin_activitylog', page=p, search=search, action=action, entity=entity, from_date=from_date, to_date=to_date) }}">{{ p }}</a>
-              {% endif %}
-            {% endfor %}
-          
-            {% if page < total_pages %}
-              <a href="{{ url_for('main.admin_activitylog', page=page+1, search=search, action=action, entity=entity, from_date=from_date, to_date=to_date) }}">Next</a>
-            {% endif %}
-          </div>
         </div>
-    </div>
 
-    <footer>
+
+
+        </div>
+
+        <footer>
             <div class="footer-col">
                 <ul>
                 <div class="logo">
@@ -289,7 +211,27 @@
             document.getElementById('filter-form').submit();
         }
         </script>
+        <script>
+        function toggleDetails(id, clickedButton) {
+            const allRows = document.querySelectorAll('.details');
+            const allButtons = document.querySelectorAll('.view-btn');
+            const selectedRow = document.getElementById(`details--${id}`);
+            const isCurrentlyVisible = selectedRow.style.display === "table-row";
+
+             // Hide all rows and reset all buttons
+            allRows.forEach(row => row.style.display = 'none');
+            allButtons.forEach(btn => btn.textContent = 'View');
+
+            // If not already visible, show the clicked one and update its button
+            if (!isCurrentlyVisible) {
+                selectedRow.style.display = 'table-row';
+                clickedButton.textContent = 'Hide';
+                }
+            }
+        </script>
+            
     </body>
 
+    </body>
 
 </html>
