@@ -261,7 +261,7 @@
 .room2-202     { grid-column: 6 / 7; grid-row: 5 / 6; }
 .room2-201     { grid-column: 6 / 7; grid-row: 6 / 7; }
 
-.room2-216     { grid-column: 2 / 3; grid-row: 6 / 7; }
+.room2-216     { grid-column: 2 / 3; grid-row: 6 / 7; transform: translateX(49px); }
 .pantry-2      { grid-column: 3 / 4; grid-row: 6 / 7; min-width: 150px; transform: translateX(49px); }
 
 .entrance-2    { grid-column: 6 / 7; grid-row: 7 / 8; min-width: 90px; }
