@@ -1799,3 +1799,20 @@ def admin_settings_account():
         return redirect(url_for('main.admin_settings_account'))
     return render_template('admin_settings_account.html', admin=admin, active_tab='account')
 
+@main.route('/room/<hostel>/<block>/<room>')
+def room_info(hostel, block, room):
+    # Query the database for all users registered to this room
+    occupants = User.query.filter_by(
+        hostel=hostel,
+        block=block,
+        room=room
+    ).all()
+    
+    return render_template('room_info.html',
+                         hostel=hostel,
+                         block=block,
+                         room=room,
+                         occupants=occupants,
+                         logged_in=is_logged_in(),
+                         admin_logged_in=is_admin_logged_in())
+

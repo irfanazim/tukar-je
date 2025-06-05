@@ -1,0 +1,61 @@
+/* Room Information Page Styles */
+.room-info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.room-info-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+}
+
+.room-info-box h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.room-details {
+    text-align: center;
+}
+
+.room-details h3 {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.occupant-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.occupant-info p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.no-occupant {
+    color: #666;
+    font-style: italic;
+    margin-top: 20px;
+}
+
+/* Make rooms clickable in the map */
+.hostel-map-box[class*="room"] {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.hostel-map-box[class*="room"]:hover {
+    background-color: #e9ecef;
+}
+
