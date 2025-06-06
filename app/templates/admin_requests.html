@@ -23,13 +23,6 @@
       </nav>
             
         </header>
-              {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                      <div class="flash {{category}}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-              {% endwith %}   
         <div class="adminrequests-container"> 
 
         <div class="section">
@@ -119,6 +112,8 @@
                             <span class="status-pending">⏳Pending</span>
                         {% elif req.status == "approved" %}
                             <span class="status-approved">✅ Approved</span>
+                        {% elif req.status == "pending_owner_approval" %}
+                            <span class="status-waiting">Sent to Resident</span>    
                         {% else %}
                             <span class="status-rejected">❌ Rejected</span>
                         {% endif %}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <title>tukar-je</title>
+    </head>
+
+
+<body>
+
+<div class="swap-container">
+    <div class="dashboard-card wide-card">
+        <div class="status-message {% if swap.status == 'approved' %}success{% else %}rejected{% endif %}">
+            {% if swap.status == "approved" %}
+                <h3>Swap Approved Successfully!</h3>
+                <p>The room swap has been successfully completed. All necessary parties have been informed.</p>
+
+                <div class="swap-room-details">
+                    <div class="swap-column">
+                        <h4>{{ swap.user.fullname }}'s New Room</h4>
+                        <p>{{ swap.desired_hostel }} - Block {{ swap.desired_block }}, Room {{ swap.desired_room }}</p>
+                    </div>
+                    <div class="swap-column">
+                        <h4>{{ swap.room_owner.fullname }}'s New Room</h4>
+                        <p>{{ swap.current_hostel }} - Block {{ swap.current_block }}, Room {{ swap.current_room }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <h3>Swap Rejected</h3>
+                <p>The room swap request has been declined.</p>
+            {% endif %}
+        </div>
+
+        <div class="button-wrapper">
+            <a href="{{ url_for('main.index') }}" class="card-btn">Back</a>
+        </div>
+    </div>
+</div>
+</body>
+
+<style>
+    .swap-container {
+    padding: 120px 100px 50px;
+    display: flex;
+    justify-content: center;
+}
+
+.status-message {
+    border-left: 5px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+    background: #f8f8f8;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.status-message.success {
+    border-left-color: #28a745;
+    background-color: #e9fbe7;
+}
+
+.status-message.rejected {
+    border-left-color: #dc3545;
+    background-color: #fcebea;
+}
+
+.status-message h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.status-message p {
+    font-size: 16px;
+    color: #444;
+}
+
+.swap-room-details {
+    display: flex;
+    gap: 40px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.swap-column {
+    flex: 1;
+    min-width: 250px;
+}
+
+.swap-column h4 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #034EA1;
+    margin-bottom: 8px;
+}
+
+.swap-column p {
+    font-size: 16px;
+    color: #333;
+}
+
+.button-wrapper {
+    margin-top: 20px;
+    text-align: right;
+}
+</style>
+</html>

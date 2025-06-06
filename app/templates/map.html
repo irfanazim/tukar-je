@@ -63,6 +63,22 @@
         </form>
     </div>
     <div class="hostel-map-wrapper">
+        
+        {% for room in rooms %}
+    <a href="{{ url_for('main.room_info', hostel=room.hostel, block=room.block, room=room.number) }}" 
+       class="hostel-map-box room-{{ room.number }}"
+       id="room-{{ room.hostel }}-{{ room.block }}-{{ room.number }}"
+       data-hostel="{{ room.hostel }}"
+       data-block="{{ room.block }}"
+       data-room="{{ room.number }}">
+        {{ room.number }}
+        <div class="occupant-info" id="occupant-{{ room.hostel }}-{{ room.block }}-{{ room.number }}">
+            Loading...
+        </div>
+    </a>
+    {% endfor %}
+
+
         <div class="hostel-map-title">{{ floor }}<br>{{ hostel }}<br>BLOCK {{ block }}</div>
         {# Block A Ground Floor #}
         {% if hostel == 'HB1' and block == 'A' and floor == 'Ground Floor' %}
