@@ -1,7 +1,7 @@
 from flask import Blueprint, abort, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app, g
-from flask_login import current_user, logout_user
+from flask_login import current_user, logout_user, login_required, login_user
 from . import db, mail
-from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity, Warning, DisputeReports, CommentReport
+from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity, Warning, DisputeReports, CommentReport, StudentReport
 from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_swap_approved_email, send_swap_rejected_email, send_account_banned_email, send_account_warned_email, send_account_unbanned_email,
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
@@ -13,6 +13,10 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func, or_
 
 main = Blueprint('main', __name__)
+
+def to_myt(utc_dt):
+    myt = timezone(timedelta(hours=8))
+    return utc_dt.replace(tzinfo=timezone.utc).astimezone(myt)
 
 @main.route('/')
 def index():
@@ -139,7 +143,11 @@ def verify_2fa():
         return redirect(url_for('main.login'))
 
     user = User.query.get(session['temp_user_id'])
-    setup_user_session(user, session.get('remember_me', False))
+    remember = session.get('remember_me', False)  
+    setup_user_session(user, remember)
+    session.pop('temp_2fa', None)
+    session.pop('temp_user_id', None)
+    session.pop('remember_me', None)
     return redirect(url_for('main.dashboard'))
 
 @main.route('/forgot-password', methods=['GET', 'POST'])
@@ -207,6 +215,7 @@ def dashboard():
 
 @main.route('/logout')
 def logout():
+    logout_user()
     session.clear()
     return redirect(url_for('main.index')) 
 
@@ -747,9 +756,92 @@ def dispute_reports():
         flash('Please login as admin', 'error')
         return redirect(url_for('main.admin_login'))
     
-    reports = DisputeReports.query.order_by(DisputeReports.date.desc()).all()
+    query = DisputeReports.query
+
+    total_reports = query.count()
+    pending_reports = query.filter(DisputeReports.status == 'Pending').count()
+    resolved_reports = query.filter(DisputeReports.status == 'resolved').count()
+
+
+    # GET query parameters
+    status = request.args.get('status', 'all')
+    from_date = request.args.get('from_date')
+    to_date = request.args.get('to_date')
+    page = int(request.args.get('page', 1))
+    per_page = 5
+
     
-    return render_template('admin_reports.html',reports=reports,logged_in=is_admin_logged_in())
+    #filtering by status
+    if status != 'all':
+        query = query.filter(DisputeReports.status==status)
+    #filtering by date range
+    if from_date:
+        try:
+            from_dt = datetime.strptime(from_date, "%Y-%m-%d")
+            query = query.filter(DisputeReports.date >= from_dt)
+        except ValueError:
+            pass
+
+    if to_date:
+        try:
+            to_dt = datetime.strptime(to_date, "%Y-%m-%d")
+            to_dt = to_dt.replace(hour=23, minute=59, second=59)
+            query = query.filter(DisputeReports.date <= to_dt)
+        except ValueError:
+            pass
+    
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page
+    query = query.order_by(DisputeReports.date.desc())
+
+    reports = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    for r in reports:
+        r.local_timestamp = to_myt(r.date)
+        
+    return render_template('admin_reports.html', total_reports=total_reports, pending_reports=pending_reports, resolved_reports=resolved_reports, reports=reports,logged_in=is_admin_logged_in(),
+                            status=status, from_date=from_date, to_date=to_date,
+                            page=page, total_pages=total_pages)
+
+@main.route('/report/resolve/<int:report_id>', methods=['POST'])
+def resolve_report(report_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    report = DisputeReports.query.get_or_404(report_id)
+    report.status = 'resolved'
+    db.session.commit()
+
+    # Notify the user who reported
+    create_notification(
+        user_id=report.user_id,
+        message=f"Your report against {report.reported_student} has been resolved.",
+        notification_type='report_resolved'
+    )
+
+    flash('Report resolved successfully!', 'success')
+    return redirect(request.referrer or url_for('main.dispute_reports'))
+
+@main.route('/report/dismiss/<int:report_id>', methods=['POST'])
+def dismiss_report(report_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    report = DisputeReports.query.get_or_404(report_id)
+    report.status = 'dismissed'
+    db.session.commit()
+
+    # Notify the user who reported
+    create_notification(
+        user_id=report.user_id,
+        message=f"Your report against {report.reported_student} has been dismissed.",
+        notification_type='report_dismissed'
+    )
+
+    flash('Report dismissed successfully!', 'success')
+    return redirect(request.referrer or url_for('main.dispute_reports'))
 
 @main.route('/report-comment/<int:reported_student_id>/<int:profile_id>', methods=['GET', 'POST'])
 def report_comment(reported_student_id, profile_id):
@@ -802,16 +894,52 @@ def report_comment(reported_student_id, profile_id):
             )
             
         flash('Comment reported successfully!', 'success')
-        
 
-        return redirect(url_for('main.view_profile', user_id=profile_id))
+        return redirect(url_for('main.view_profiles', user_id=profile_id))
 
     return render_template('comment_report.html', reported_student_id=reported_student_id)
 
+
+
     
-    
+@main.route('/incoming_requests')
+@login_required
+def incoming_requests():
+    if not current_user.is_verified:
+        flash('Please login to view incoming requests', 'error')
+        return redirect(url_for('main.login'))
+
+    #Get current user's room location
+    hostel = current_user.hostel
+    block = current_user.block
+    room = current_user.room
+
+    #query for incoming requests
+    requests = (
+        db.session.query(SwapRequest, User)
+        .join(User, SwapRequest.user_id == User.id)
+        .filter(SwapRequest.desired_hostel == hostel,
+                SwapRequest.desired_block == block,
+                SwapRequest.desired_room == room,
+                SwapRequest.is_deleted == False,
+                User.is_deleted == False
+        )
+        .order_by(SwapRequest.date.desc())
+        .all()
+    )
+
+    requests_data = []
+    for swap_request, requester in requests:
+        requests_data.append({
+            'requester_name': requester.fullname,
+            'requester_location': f"{swap_request.current_hostel}-{swap_request.current_block}-{swap_request.current_room}",
+            'my_location': f"{swap_request.desired_hostel}-{swap_request.desired_block}-{swap_request.desired_room}",
+            'requested_date': swap_request.date,
+            'status': swap_request.status
+        })  
     
 
+    return render_template('incoming_requests.html', requests=requests_data, logged_in=is_logged_in())
 
 
 

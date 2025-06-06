@@ -3,6 +3,7 @@ import secrets
 from datetime import timedelta
 from flask import session, current_app, url_for
 from flask_mail import Message
+from flask_login import login_user
 
 from app.models import Notification
 from . import mail, db
@@ -21,7 +22,9 @@ def generate_token(length=32):
     return secrets.token_urlsafe(length)
 
 def setup_user_session(user, remember=False):
-    session.clear()
+    
+    login_user(user, remember=remember)
+    
     session.permanent = True
     if remember:
         current_app.permanent_session_lifetime = timedelta(days=30)
