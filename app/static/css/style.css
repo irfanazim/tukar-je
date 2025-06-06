@@ -676,6 +676,7 @@ ul li a:hover{
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     margin-bottom: 30px;
+    overflow-x: auto;
 }
 
 .recent-request-content h3 {
@@ -767,6 +768,9 @@ ul li a:hover{
 .recent-request-content .status-rejected .status-cube{
     background-color: #ef4444; 
 }
+.recent-request-content .status-pending-owner-approval .status-cube{
+    background-color: #f8d15a; 
+}
 
 .admin-dashboard-hostel-content {
     background: white;
@@ -851,7 +855,6 @@ ul li a:hover{
 }
 .table th, .table td {
     padding: 12px 15px;
-    
     text-align: center;
     border: none;                  
     border-bottom: 1px solid #ccc; 

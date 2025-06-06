@@ -23,7 +23,8 @@ class User(db.Model, UserMixin):
     
 
     deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_students', lazy=True))
-    swap_requests = db.relationship('SwapRequest', backref='user', cascade="all, delete-orphan", passive_deletes=True)
+    swap_requests = db.relationship('SwapRequest', foreign_keys='SwapRequest.user_id',backref='user', lazy=True,cascade="all, delete-orphan")
+    owned_swap_requests = db.relationship('SwapRequest', foreign_keys='SwapRequest.room_owner_id', backref='room_owner', lazy=True)
     notifications = db.relationship('Notification', backref='user', cascade="all, delete-orphan", passive_deletes=True)
 
 class Admin(db.Model):
@@ -56,6 +57,11 @@ class SwapRequest(db.Model):
     is_deleted = db.Column(db.Boolean, default=False)  # Soft delete flag
     deleted_at = db.Column(db.DateTime)  
     deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
+    room_owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    room_owner_token = db.Column(db.String(100), unique=True)
+    room_owner_response = db.Column(db.String(20), default='pending')
+    room_owner_response_at = db.Column(db.DateTime)
+    
     
     deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_swap_requests', lazy=True))
     

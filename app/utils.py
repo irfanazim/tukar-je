@@ -190,3 +190,82 @@ def setup_admin_session(admin, remember=False):
     session['admin_id'] = admin.id
     session['admin_username'] = admin.username
     session['is_admin'] = True
+
+
+
+def send_room_owner_approval_request(room_owner, swap_request):
+    token = generate_token()
+    swap_request.room_owner_token = token
+    db.session.commit()
+    
+    response_url = url_for('main.room_owner_response', token=token, _external=True)
+    
+    body = f"""Dear {room_owner.fullname},
+
+A room swap request has been approved for your current room:
+- Hostel: {swap_request.desired_hostel}
+- Block: {swap_request.desired_block}
+- Room: {swap_request.desired_room}
+
+Please review this request and respond within 3 days:
+[Accept Swap] {response_url}?response=approve
+
+[Reject Swap] {response_url}?response=reject
+
+If you accept, the swapper will take your current room and you'll be moved to:
+- Hostel: {swap_request.current_hostel}
+- Block: {swap_request.current_block}
+- Room: {swap_request.current_room}
+
+If you reject, the swap will be cancelled.
+
+Best regards,
+Tukar-Je Support Team
+"""
+    send_email('Action Required: Room Swap Approval', room_owner.email, body)
+
+
+def send_swap_completion_email(user, old_room, new_room):
+    body = f"""Dear {user.fullname},
+
+Your room swap has been successfully processed:
+- Previous Room: {old_room}
+- New Room: {new_room}
+
+Please update your records accordingly. Contact your hostel office if you need assistance.
+
+Best regards,
+Tukar-Je Support Team
+"""
+    send_email('Room Swap Completed', user.email, body)
+    
+
+def send_swap_rejection_email(user, swap):
+    body = f"""Dear {user.fullname},
+
+We regret to inform you that the occupant of your requested room has declined the swap request for:
+- Hostel: {swap.desired_hostel}
+- Block: {swap.desired_block}
+- Room: {swap.desired_room}
+
+You may submit a new request for a different room if desired.
+
+Best regards,
+Tukar-Je Support Team
+"""
+    send_email('Room Swap Declined', user.email, body)
+
+def send_swap_rejection_confirmation(room_owner, swap):
+    body = f"""Dear {room_owner.fullname},
+
+You have declined the swap request for your room:
+- Hostel: {swap.desired_hostel}
+- Block: {swap.desired_block}
+- Room: {swap.desired_room}
+
+The requester has been notified.
+
+Best regards,
+Tukar-Je Team
+"""
+    send_email('Swap Declined Confirmation', room_owner.email, body)
