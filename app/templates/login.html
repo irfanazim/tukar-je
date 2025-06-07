@@ -61,32 +61,34 @@
                     <div class="bottom-text">
                         Don't have an account? <a href="{{ url_for('main.register') }}">Register</a>
                     </div>
-                </div>
+                </form>
             </div>
+        </div>
 
-            <footer>
-                <div class="footer-col">
-                    <ul>
+        <footer>
+            <div class="footer-col">
+                <ul>
                     <div class="logo">
-                    <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
-                        <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="">About</a></li>
-                        <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
-                        <li><a href="https://online.mmu.edu.my/">Portal</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact Us</h4>
-                    <ul>
-                        <li><a href="#">tukarje@gmail.com</a></li>
-                    </ul>
-                </div> 
-            </footer>
+                        <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo">
+                    </div>
+                    <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="">About</a></li>
+                    <li><a href="https://www.mmu.edu.my/accommodation/">Accommodation</a></li>
+                    <li><a href="https://online.mmu.edu.my/">Portal</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><a href="#">tukarje@gmail.com</a></li>
+                </ul>
+            </div> 
+        </footer>
 
             <script>
                 document.querySelector('.show-password').addEventListener('click', function() {
