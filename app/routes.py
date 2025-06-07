@@ -899,6 +899,60 @@ def report_comment(reported_student_id, profile_id):
 
     return render_template('comment_report.html', reported_student_id=reported_student_id)
 
+@main.route('/report-student/<int:reported_student_id>', methods=['GET', 'POST'])
+def report_student(reported_student_id):
+    if not is_logged_in():
+        flash('Please login to report a student', 'error')
+        return redirect(url_for('main.login'))
+
+    if request.method == 'POST':
+        reason = request.form.get('reason')
+        description = request.form.get('description')
+
+        if not reason or not description:
+            flash('Reason and description are required', 'error')
+            return redirect(request.referrer or url_for('main.report_student', reported_student_id=reported_student_id))
+
+        reporter_id = session.get('user_id')
+        reported_student = User.query.get_or_404(reported_student_id)
+        reporter = User.query.get_or_404(reporter_id)
+
+        report = StudentReport(
+            reporter_id=reporter_id,
+            reported_student_id=reported_student.id,
+            reason=reason,
+            description=description
+        )
+        db.session.add(report)
+
+        send_report = DisputeReports(
+            user_id=reporter_id,
+            reported_student=reported_student.fullname,
+            reported_by=reporter.fullname,
+            reason=reason,
+            description=description,
+            status='Pending'
+        )
+        db.session.add(send_report)
+        db.session.commit()
+        
+        # Create notification for the admins
+        admins = Admin.query.all()
+        for admin in admins:
+            create_notification(
+                admin_id=admin.id,
+                message=f"New student report from {reporter.fullname} (ID: {reporter.student_id}) against {reported_student.fullname} (ID: {reported_student.student_id}).",
+                notification_type='student_report'
+            )
+            
+        
+        
+        flash('Student reported successfully!', 'success')
+
+        return redirect(url_for('main.incoming_requests'))
+
+    return render_template('student_report.html', reported_student_id=reported_student_id)
+
 
 
     
@@ -931,6 +985,7 @@ def incoming_requests():
     requests_data = []
     for swap_request, requester in requests:
         requests_data.append({
+            'user_id': requester.id,
             'requester_name': requester.fullname,
             'requester_location': f"{swap_request.current_hostel}-{swap_request.current_block}-{swap_request.current_room}",
             'my_location': f"{swap_request.desired_hostel}-{swap_request.desired_block}-{swap_request.desired_room}",

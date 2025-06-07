@@ -72,7 +72,9 @@
                             <td>{{ req.requested_date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ req.status }}</td>
                             <td class="actions">
-                                <button>Report</button>
+                                <a href="{{ url_for('main.report_student', reported_student_id=req.user_id) }}" class="flag-btn" title="Report Student">
+                                    <span class="material-icons">outlined_flag</span>
+                                </a>
                             </td>
                         </tr>
                         {% else %}

@@ -1684,6 +1684,34 @@ margin-top: 20px;
     flex: 1;
     min-height: 700px; 
 }
+.incoming-requests-body .flash {
+    position: absolute;  
+    top: 100px;            
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99;        
+    padding: 12px 50px;
+    border-radius: 5px;
+    max-width: 80%;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.flag-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;  
+    font-size: 16px;
+    font-weight: bold;
+    color:#000;
+    transition: ease-in-out 0.3s;
+}
+.flag-btn:hover {
+    color: #ff4444;
+}
+
+/* End for Incoming Requests page */
 
 /* Admin Activity Log page */
 .admin-activity-container{
