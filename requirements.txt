@@ -4,3 +4,9 @@ Flask-Mail==0.9.1
 Werkzeug==3.0.1
 email-validator==2.1.0.post1
 python-dotenv==1.0.1
+Flask-Migrate==4.0.5
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+SQLAlchemy==2.0.27
+alembic==1.13.1
+gunicorn==21.2.0
