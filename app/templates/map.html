@@ -22,10 +22,13 @@
                 <a href="{{ url_for('main.logout') }}">Logout</a>
                 <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
                     <span class="material-icons">notifications</span>
-                    </button></a>
+                </button></a>
             {% elif admin_logged_in %}
-                <a href="{{ url_for('main.swap_requests') }}">Admin Dashboard</a>
+                <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
                 <a href="{{ url_for('main.admin_logout') }}">Logout</a>
+                <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
+                    <span class="material-icons">notifications</span>
+                </button></a>
             {% else %}
                 <a href="{{ url_for('main.register') }}">Register</a>
                 <a href="{{ url_for('main.login') }}">Login</a>
@@ -1639,12 +1642,23 @@
       </div>
       <nav class="sidebar" id="sidebar">
         <ul>
-          <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
-          <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
-          <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
-          <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
-          <li><a href="{{ url_for('main.my_reports') }}">My Reports</a></li>
-          <li><a href="{{ url_for('main.settings_profile') }}">Settings</a></li>
+                {% if logged_in %}
+                    <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
+                    <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
+                    <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
+                    <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
+                    <li><a href="{{ url_for('main.my_reports') }}">My Reports</a></li>
+                    <li><a href="{{ url_for('main.settings_profile') }}">Settings</a></li>
+                {% elif admin_logged_in %}
+                    <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
+                    <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
+                    <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
+                    <li><a href="{{ url_for('main.dispute_reports') }}">Dispute Reports</a></li>
+                    <li><a href="{{ url_for('main.admin_room_reports') }}">Room Reports</a></li>
+                    <li><a href="{{ url_for('main.registered_admins') }}">Admins</a></li>
+                    <li><a href="{{ url_for('main.admin_activitylog') }}">Activity Log</a></li>
+                {% endif %}
         </ul>
       </nav>
     </div>

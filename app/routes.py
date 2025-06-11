@@ -402,7 +402,12 @@ def approve_request():
         
         db.session.commit()
         
-        
+        # Notify the user
+        create_notification(
+        user_id=swap.user_id,
+        message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been approved by us. Waiting for the room owner's approval.",
+        notification_type='swap_waiting'
+        )
         # Notify room owner
         send_room_owner_approval_request(room_owner, swap)
         create_notification(
@@ -901,7 +906,7 @@ def dispute_reports():
     from_date = request.args.get('from_date')
     to_date = request.args.get('to_date')
     page = int(request.args.get('page', 1))
-    per_page = 5
+    per_page = 50
 
     
     #filtering by status
@@ -1109,7 +1114,8 @@ def incoming_requests():
                 SwapRequest.desired_block == block,
                 SwapRequest.desired_room == room,
                 SwapRequest.is_deleted == False,
-                User.is_deleted == False
+                User.is_deleted == False,
+                SwapRequest.status.in_(['pending_owner_approval', 'rejected'])
         )
         .order_by(SwapRequest.date.desc())
         .all()
@@ -1285,12 +1291,81 @@ def delete_request(request_id):
 # Hostel Map
 @main.route('/map')
 def hostel_map():
-    if not is_logged_in():
+    if not (is_logged_in() or is_admin_logged_in()):
         return redirect(url_for('main.login'))
     hostel = request.args.get('hostel', 'HB1')
     block = request.args.get('block', 'A')
     floor = request.args.get('floor', 'Ground Floor')
-    return render_template('map.html', logged_in=is_logged_in(), hostel=hostel, block=block, floor=floor)
+    return render_template('map.html', logged_in=is_logged_in(), hostel=hostel, block=block, floor=floor, 
+                           admin_logged_in=is_admin_logged_in())
+
+@main.route('/admin/room/edit_occupants', methods=['GET'])
+def edit_room_occupants():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    hostel = request.args.get('hostel')
+    block = request.args.get('block')
+    room = request.args.get('room')
+
+    current_occupants = User.query.filter_by(hostel=hostel, block=block, room=room, is_deleted=False).all()
+
+    return render_template('admin_edit_room.html', 
+                           hostel=hostel, block=block, room=room, 
+                           current_occupants=current_occupants, 
+                           admin_logged_in=is_admin_logged_in())
+
+@main.route('/admin/room/add_occupant', methods=['POST'])
+def add_room_occupant():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    student_id = request.form.get('student_id')
+    hostel = request.form.get('hostel')
+    block = request.form.get('block')
+    room = request.form.get('room')
+
+    current_occupants = User.query.filter_by(hostel=hostel, block=block, room=room, is_deleted=False).count()
+    if current_occupants >= 2:
+        flash('Room is already full', 'error')
+        return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room))
+
+    student = User.query.filter_by(student_id=student_id, is_deleted=False).first()
+    if student:
+        if student.hostel != 'Unassigned' and student.block != 'Unassigned' and student.room != 'Unassigned':
+            flash(f'Student {student.fullname} was moved from {student.hostel}-{student.block}-{student.room} to {hostel}-{block}-{room}.', 'warning')
+        student.hostel = hostel
+        student.block = block
+        student.room = room
+        db.session.commit()
+        flash(f'Student {student.fullname} added to {hostel}-{block}-{room} successfully!', 'success')
+    else:
+        flash('Student not found', 'error')
+    return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room))
+
+@main.route('/admin/room/remove_occupant', methods=['POST'])
+def remove_room_occupant():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    student_id = request.form.get('student_id')
+    hostel = request.form.get('hostel')
+    block = request.form.get('block')
+    room = request.form.get('room')
+
+    student = User.query.filter_by(student_id=student_id, hostel=hostel, block=block, room=room, is_deleted=False).first()
+    
+    if student and student.hostel == hostel and student.block == block and student.room == room:
+        student.hostel = 'Unassigned'
+        student.block = 'Unassigned'
+        student.room = 'Unassigned'
+        db.session.commit()
+        flash(f'{student.fullname} removed from {hostel}-{block}-{room} successfully!', 'success')
+    
+    return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room))
 
 @main.route('/admin/announcement/add', methods=['POST'])
 def add_announcement():
