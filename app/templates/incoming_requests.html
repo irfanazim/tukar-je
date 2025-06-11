@@ -42,6 +42,7 @@
                 <nav class="sidebar" id="sidebar">
                     <ul>
                         <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
+                        <li><a href="{{ url_for('main.incoming_requests') }}">Incoming Requests</a></li>
                         <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
                         <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
                         <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
@@ -72,9 +73,15 @@
                             <td>{{ req.requested_date.strftime('%Y-%m-%d') }}</td>
                             <td>
                                 {% if req.status == 'pending_owner_approval' %}
-                                <span>Pending</span>
+                                <div class="status-cell">
+                                    <span class="material-icons status-icon pending">schedule</span>
+                                    <span class="status-label pending">Pending</span>
+                                </div>
                                 {% elif req.status == 'rejected' %}
-                                <span>Rejected</span>
+                                <div class="status-cell">
+                                    <span class="material-icons status-icon dismissed">highlight_off</span>
+                                    <span class="status-label dismissed">Dismissed</span>
+                                </div>
                                 {% endif %}
                             </td>
                             <td class="actions">
