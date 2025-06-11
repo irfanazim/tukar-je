@@ -602,6 +602,7 @@ ul li a:hover{
 
 .stat-card {
     background: #ffffff;
+
     padding: 20px;
     border-radius: 12px;
     width: 100%;
@@ -704,7 +705,7 @@ ul li a:hover{
     cursor: pointer;
     color: white;
   }
-  
+
 .recent-request-content .btn-approve { background-color: #10b981; }
 .recent-request-content  .btn-decline { background-color: #ef4444; }
 .recent-request-content .actions  button:disabled {
@@ -745,7 +746,8 @@ ul li a:hover{
     background-color: #ef4444; 
 }
 .recent-request-content .status-pending-owner-approval .status-cube{
-    background-color: #f8d15a; 
+    background-color: #f8d15a;
+
 }
 
 .admin-dashboard-hostel-content {
@@ -754,6 +756,7 @@ ul li a:hover{
     padding: 30px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     margin-bottom: 30px;
+    width:auto
     
 }
 
@@ -768,7 +771,7 @@ ul li a:hover{
     justify-content: space-between;
     align-items: center;
     border: 1px solid #e0e0e0;
-    width: 1100px;
+    
     box-sizing: border-box;
   }
   
@@ -837,6 +840,14 @@ ul li a:hover{
 
 }
 
+.adminrequests-container td{
+    text-align: center;
+    white-space: nowrap; 
+    padding: 10px;
+    box-sizing: border-box;
+    width: auto;
+}
+
 .table thead {
     background-color: #e0e7ff;
     color: #1e3a8a;
@@ -868,20 +879,22 @@ ul li a:hover{
 }
   
 .btn-approve {
-    background: #28a745;
+    background: #10b981;
     color: white;
+    transition: ease-in-out 0.3s;
 }
   
 .btn-reject {
-    background: #dc3545;
+    background: #ef4444;
     color: white;
+    transition: ease-in-out 0.3s;
 }
   
 .btn-approve:hover { 
-    background: #218838; 
+    background: #0c9467; 
 }
 .btn-reject:hover { 
-    background: #c82333; 
+    background: #b02b2b; 
 }
   
   /* Disabled Buttons */
@@ -1325,6 +1338,11 @@ min-height: 700px; }
     background-color: #ef4444; 
 }
 
+.recent-request-content2 .status-pending-owner-approval .status-cube{
+    background-color: #f8d15a;
+    
+}
+
 .admin-actions-card {
   padding: 1.5rem;
   border-radius: 10px;
@@ -1626,6 +1644,16 @@ margin-top: 20px;
 
 .status-icon.pending {
   color: #b58100;
+}
+.status-icon.waiting{
+    color: #b58100;
+
+    
+}
+.status-label.waiting {
+  background-color: #fff9db;
+  color: #b58100; 
+  
 }
 
 .status-label.resolved {
@@ -2576,4 +2604,61 @@ margin-top: 20px;
     background: #f8f8f8;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
+}
+
+/* Room Info Edit Form */
+.form-container-editroom {
+    max-width: 750px;
+    margin: 120px auto; 
+    padding: 20px 60px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+    width: 700px;
+}
+
+.form-container-editroom h1 {
+    text-align: center;
+    color: #000000;
+    margin-bottom: 1.8rem;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.form-container-editroom {
+    position: relative; 
+}
+
+.remove-btn {
+    margin:10px auto auto auto;
+    top: 20px;
+    right: 20px;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: ease-in-out 0.2s;
+}
+
+.remove-btn:hover {
+    background-color: #c53030;
+}
+
+.add-btn{
+    display: inline;
+    background-color: #034EA1;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: ease-in-out 0.2s;
+    margin-left: 5px;
+}
+.add-btn:hover {
+    background-color: #023b7d;
 }

@@ -16,8 +16,8 @@
             </div>
             <nav class="navbar">
                 <a href="{{ url_for('main.index') }}">Home</a>
-                <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a> 
-                <a href="{{ url_for('main.admin_logout') }}">Logout</a> 
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a> 
+                <a href="{{ url_for('main.logout') }}">Logout</a> 
                 <a href="{{ url_for('main.notification') }}"><button type="button" class="icon-button">
                     <span class="material-icons">notifications</span>
                 </button></a>
@@ -70,7 +70,13 @@
                             <td>{{ req.requester_location }}</td>
                             <td>{{ req.my_location }}</td>
                             <td>{{ req.requested_date.strftime('%Y-%m-%d') }}</td>
-                            <td>{{ req.status }}</td>
+                            <td>
+                                {% if req.status == 'pending_owner_approval' %}
+                                <span>Pending</span>
+                                {% elif req.status == 'rejected' %}
+                                <span>Rejected</span>
+                                {% endif %}
+                            </td>
                             <td class="actions">
                                 <a href="{{ url_for('main.report_student', reported_student_id=req.user_id) }}" class="flag-btn" title="Report Student">
                                     <span class="material-icons">outlined_flag</span>

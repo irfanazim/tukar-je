@@ -23,6 +23,13 @@
       </nav>
             
         </header>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{category}}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
         <div class="adminrequests-container"> 
 
         <div class="section">
@@ -109,13 +116,25 @@
                     <td>{{ req.desired_hostel }}-{{ req.desired_block }}-{{ req.desired_room }}</td>
                     <td class="status">
                         {% if req.status == "pending" %}
-                            <span class="status-pending">⏳Pending</span>
+                          <div class="status-cell">
+                            <span class="material-icons status-icon pending">schedule</span>
+                            <span class="status-label pending">Pending</span>
+                          </div>
                         {% elif req.status == "approved" %}
-                            <span class="status-approved">✅ Approved</span>
+                            <div class="status-cell">
+                                    <span class="material-icons status-icon resolved">task_alt</span>
+                                    <span class="status-label resolved">Approved</span>
+                              </div>
                         {% elif req.status == "pending_owner_approval" %}
-                            <span class="status-waiting">Sent to Resident</span>    
+                          <div class="status-cell">
+                            <span class="material-icons status-icon waiting">schedule</span>
+                            <span class="status-label waiting">Sent To Resident</span>
+                          </div>    
                         {% else %}
-                            <span class="status-rejected">❌ Rejected</span>
+                            <div class="status-cell">
+                                    <span class="material-icons status-icon dismissed">highlight_off</span>
+                                    <span class="status-label dismissed">Rejected</span>
+                            </div>
                         {% endif %}
                     </td>
                     <td>{{ req.date.strftime('%Y-%m-%d %H:%M') }}</td>
