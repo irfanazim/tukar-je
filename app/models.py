@@ -1,6 +1,7 @@
 from . import db
 from datetime import datetime, timedelta
 from flask_login import UserMixin
+from sqlalchemy.ext.hybrid import hybrid_property
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -64,6 +65,14 @@ class SwapRequest(db.Model):
     
     
     deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_swap_requests', lazy=True))
+
+    @hybrid_property
+    def desired_location(self):
+        return f"{self.desired_hostel}-{self.desired_block}-{self.desired_room}"
+    @hybrid_property
+    def current_location(self):
+        return f"{self.current_hostel}-{self.current_block}-{self.current_room}"
+
     
     
 
@@ -166,6 +175,15 @@ class DisputeReports(db.Model):
     
 
 class CommentReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    reporter_id = db.Column(db.Integer, nullable=False)  
+    reported_student_id = db.Column(db.Integer, nullable=False)  
+    reason = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudentReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     reporter_id = db.Column(db.Integer, nullable=False)  
     reported_student_id = db.Column(db.Integer, nullable=False)  

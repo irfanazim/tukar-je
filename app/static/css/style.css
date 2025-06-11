@@ -602,6 +602,7 @@ ul li a:hover{
 
 .stat-card {
     background: #ffffff;
+
     padding: 20px;
     border-radius: 12px;
     width: 100%;
@@ -611,30 +612,6 @@ ul li a:hover{
     flex: 1 1 200px;
     flex-direction: column;    
     display: flex;
-}
-.total-admins-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 30%;
-    margin: 20px 20px 20px 45px;
-    height: 100px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    flex: 1 1 200px;
-    flex-direction: column;    
-    display: flex;
-}
-.total-admins-card h3 {
-    font-size: 18px;
-    color: #555;
-    margin-bottom: 8px;
-}
-.total-admins-card p {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
-    color: #1e40af;
 }
 
 .stat-card h3 {
@@ -728,7 +705,7 @@ ul li a:hover{
     cursor: pointer;
     color: white;
   }
-  
+
 .recent-request-content .btn-approve { background-color: #10b981; }
 .recent-request-content  .btn-decline { background-color: #ef4444; }
 .recent-request-content .actions  button:disabled {
@@ -769,7 +746,8 @@ ul li a:hover{
     background-color: #ef4444; 
 }
 .recent-request-content .status-pending-owner-approval .status-cube{
-    background-color: #f8d15a; 
+    background-color: #f8d15a;
+
 }
 
 .admin-dashboard-hostel-content {
@@ -778,6 +756,7 @@ ul li a:hover{
     padding: 30px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     margin-bottom: 30px;
+    width:auto
     
 }
 
@@ -792,7 +771,7 @@ ul li a:hover{
     justify-content: space-between;
     align-items: center;
     border: 1px solid #e0e0e0;
-    width: 1100px;
+    
     box-sizing: border-box;
   }
   
@@ -861,6 +840,14 @@ ul li a:hover{
 
 }
 
+.adminrequests-container td{
+    text-align: center;
+    white-space: nowrap; 
+    padding: 10px;
+    box-sizing: border-box;
+    width: auto;
+}
+
 .table thead {
     background-color: #e0e7ff;
     color: #1e3a8a;
@@ -892,20 +879,22 @@ ul li a:hover{
 }
   
 .btn-approve {
-    background: #28a745;
+    background: #10b981;
     color: white;
+    transition: ease-in-out 0.3s;
 }
   
 .btn-reject {
-    background: #dc3545;
+    background: #ef4444;
     color: white;
+    transition: ease-in-out 0.3s;
 }
   
 .btn-approve:hover { 
-    background: #218838; 
+    background: #0c9467; 
 }
 .btn-reject:hover { 
-    background: #c82333; 
+    background: #b02b2b; 
 }
   
   /* Disabled Buttons */
@@ -1349,6 +1338,11 @@ min-height: 700px; }
     background-color: #ef4444; 
 }
 
+.recent-request-content2 .status-pending-owner-approval .status-cube{
+    background-color: #f8d15a;
+    
+}
+
 .admin-actions-card {
   padding: 1.5rem;
   border-radius: 10px;
@@ -1552,10 +1546,212 @@ min-height: 700px; }
 
 
 /* Dispute Report page */
+
+.dispute-reports-container .table-controls-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    width: 93%;
+    margin: 20px auto;
+    padding: 15px 20px;
+    background-color: #f9fbfc;
+    border: 1px solid #d4dbe0;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+.dispute-reports-container .filter-container, 
+.dispute-reports-container.search-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 180px; 
+    min-width: 170px;
+}
+
 .dispute-reports-container {
     flex: 1;
     min-height: 700px; 
 }
+.reports-row{
+display: flex;
+gap: 20px;
+flex-wrap: wrap;
+justify-content: space-between;
+margin-top: 20px;
+}
+.report-card {
+  flex: 1 1 280px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-width: 240px;
+}
+
+.report-icons-wrapper {
+    
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.report-icons {
+    font-size: 28px;
+}
+
+
+.report-card-content .report-label {
+    margin: 0;
+    font-size: 16px;
+    color: #2d3748; 
+    font-weight: 500;
+    
+}
+.report-card-content .report-count {
+  margin: 0;
+  font-size: 20px;
+  color: #1e2532;
+  font-weight: 700;
+}
+
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-icon {
+  font-size: 20px;
+}
+
+.status-label {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.status-label.pending {
+  background-color: #fff9db;
+  color: #b58100;
+}
+
+.status-icon.pending {
+  color: #b58100;
+}
+.status-icon.waiting{
+    color: #b58100;
+
+    
+}
+.status-label.waiting {
+  background-color: #fff9db;
+  color: #b58100; 
+  
+}
+
+.status-label.resolved {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status-icon.resolved {
+  color: #15803d;
+}
+
+.status-label.dismissed {
+  background-color: #ffe4e6;
+  color: #b91c1c;
+}
+
+.status-icon.dismissed {
+  color: #b91c1c;
+}
+
+.admin-reports-body .flash {
+    position: absolute;  
+    top: 100px;            
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99;        
+    padding: 12px 50px;
+    border-radius: 5px;
+    max-width: 80%;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.report-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: left;
+    margin-top: 10px;
+}
+.resolve-btn, .dismiss-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.resolve-btn {
+    background: #10b981;
+    color: white;
+    transition: background-color 0.3s ;
+}
+.dismiss-btn {
+    background: #ef4444;
+    color: white;
+    transition: background-color 0.3s ;
+}
+.resolve-btn:hover {
+    background: #0f9b6d;
+}
+.dismiss-btn:hover {
+    background: #c53030;
+}
+
+/* End for Dispute Report page */
+
+/* Incoming Requests page */
+.incoming-requests-container {
+    flex: 1;
+    min-height: 700px; 
+}
+.incoming-requests-body .flash {
+    position: absolute;  
+    top: 100px;            
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99;        
+    padding: 12px 50px;
+    border-radius: 5px;
+    max-width: 80%;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.flag-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;  
+    font-size: 16px;
+    font-weight: bold;
+    color:#000;
+    transition: ease-in-out 0.3s;
+}
+.flag-btn:hover {
+    color: #ff4444;
+}
+
+/* End for Incoming Requests page */
 
 /* Admin Activity Log page */
 .admin-activity-container{
@@ -1718,6 +1914,48 @@ min-height: 700px; }
     flex: 1 1 180px; 
     min-width: 170px;
 }
+.total-admins-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 30%;
+    margin: 20px 20px 20px 45px;
+    height: 105px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    flex: 1 1 200px;
+    flex-direction: column;    
+    display: flex;
+}
+.total-admins-card h3 {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 8px;
+}
+.total-admins-card p {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    margin-left: 10px;
+    color: #1e40af;
+}
+.admins-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+
+}
+.admins-card-header h3 {
+    margin:0;
+    
+}
+
+#admins-icon {
+    color: #555;
+    font-size: 35px;
+}
+
 /* End for Admins page */
 
 .current-location {
@@ -2366,4 +2604,61 @@ min-height: 700px; }
     background: #f8f8f8;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
+}
+
+/* Room Info Edit Form */
+.form-container-editroom {
+    max-width: 750px;
+    margin: 120px auto; 
+    padding: 20px 60px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+    width: 700px;
+}
+
+.form-container-editroom h1 {
+    text-align: center;
+    color: #000000;
+    margin-bottom: 1.8rem;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.form-container-editroom {
+    position: relative; 
+}
+
+.remove-btn {
+    margin:10px auto auto auto;
+    top: 20px;
+    right: 20px;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: ease-in-out 0.2s;
+}
+
+.remove-btn:hover {
+    background-color: #c53030;
+}
+
+.add-btn{
+    display: inline;
+    background-color: #034EA1;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: ease-in-out 0.2s;
+    margin-left: 5px;
+}
+.add-btn:hover {
+    background-color: #023b7d;
 }

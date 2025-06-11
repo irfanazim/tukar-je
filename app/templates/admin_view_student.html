@@ -107,6 +107,11 @@
                                 <span class="status-cube"></span>
                                 <span class="status-text">Approved</span>
                              </div>
+                        {% elif req.status == "pending_owner_approval" %}
+                            <div class="status-item status-pending-owner-approval">
+                                <span class="status-cube"></span>
+                                <span class="status-text">Sent to Resident</span>
+                            </div>
                         {% else %}
                             <div class="status-item status-rejected">
                                 <span class="status-cube"></span>
