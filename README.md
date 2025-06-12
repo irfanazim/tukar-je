@@ -1,7 +1,5 @@
 # Tukar-Je
 
-A web application for item exchange.
-
 ## Prerequisites
 
 - Python 3.8 or higher
@@ -62,8 +60,4 @@ A web application for item exchange.
 2. **Access the application**
    Open your browser and go to: `http://localhost:5000`
 
-## Troubleshooting
 
-- If you get database errors, delete `instance/app.db` and restart the application
-- Make sure all environment variables are properly set in `.env`
-- Ensure you're in the virtual environment (you should see `(venv)` in your terminal) 
