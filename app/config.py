@@ -6,8 +6,9 @@ load_dotenv()
 
 class Config:
     # Basic configuration
-    SECRET_KEY = os.environ.get('SECRET_KEY', os.urandom(24))
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///tukar_je.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///tukar_je.db')
+    if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = 3600  # 1 hour in seconds
     
