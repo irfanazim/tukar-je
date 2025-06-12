@@ -83,17 +83,20 @@ def register():
 @main.route('/verify-email/<token>')
 def verify_email(token):
     user = User.query.filter_by(verification_token=token).first()
-    
-    if not user:
-        flash('Invalid or expired verification link', 'error')
+    if user:
+        user.is_verified = True
+        user.verification_token = None
+        db.session.commit()
+        flash('Email verified successfully! You can now log in.', 'success')
         return redirect(url_for('main.login'))
-    
-    user.is_verified = True
-    user.verification_token = None
-    db.session.commit()
-    
-    flash('Email verified successfully! You can now log in.', 'success')
-    return redirect(url_for('main.login'))
+    else:
+        # Try to find a user who is already verified (token may have been used)
+        user = User.query.filter_by(is_verified=True).filter_by(verification_token=None).first()
+        if user:
+            flash('Email already verified. You can now log in.', 'success')
+        else:
+            flash('Invalid or expired verification link', 'error')
+        return redirect(url_for('main.login'))
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
