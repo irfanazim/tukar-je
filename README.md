@@ -32,13 +32,8 @@
 4. **Set up environment variables**
    Create a `.env` file in the root directory with:
    ```
-   FLASK_APP=run.py
-   FLASK_ENV=development
+  
    SECRET_KEY=your-secret-key
-   DATABASE_URL=sqlite:///instance/app.db
-   MAIL_SERVER=smtp.gmail.com
-   MAIL_PORT=587
-   MAIL_USE_TLS=True
    MAIL_USERNAME=your-email@gmail.com
    MAIL_PASSWORD=your-app-password
    ```
