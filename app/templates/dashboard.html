@@ -43,6 +43,7 @@
           <nav class="sidebar" id="sidebar">
             <ul>
               <li><a href="{{ url_for('main.submit_request') }}">Create Request</a></li>
+              <li><a href="{{ url_for('main.incoming_requests') }}">Incoming Requests</a></li>
               <li><a href="{{ url_for('main.hostel_map') }}">Hostel Map</a></li>
               <li><a href="{{ url_for('main.view_profiles') }}">Find My Roommate</a></li>
               <li><a href="{{ url_for('main.room_report') }}">Report Room</a></li>
@@ -104,30 +105,30 @@
                                 <td>{{ req.desired_hostel }}-{{ req.desired_block }}-{{ req.desired_room }}</td>
                                 <!-- Status Column (Fixed) -->
                                 <td class="status">
-                                    {% if req.status == "pending_owner_consent" %}
-                                   <div class="status-item status-pending-owner-approval">
-                                     <span class="status-cube"></span>
-                                     <span class="status-text">Awaiting Owner Consent</span>
+                                    {% if req.status == "pending_agreement" %}
+                                    <div class="status-cell">
+                                        <span class="material-icons status-icon pending">schedule</span>
+                                        <span class="status-label pending">Waiting for Agreement</span>
                                     </div>
-                                     {% elif req.status == "pending_admin_approval" %}
-                                    <div class="status-item status-pending-owner-approval">
-                                         <span class="status-cube"></span>
-                                          <span class="status-text">In Review</span>
+                                    {% elif req.status == "pending" %}
+                                    <div class="status-cell">
+                                        <span class="material-icons status-icon pending">schedule</span>
+                                        <span class="status-label pending">Pending Admin</span>
                                     </div>
-                                    {% elif req.status == "pending_owner_final_approval" %}
-                                     <div class="status-item status-pending-owner-approval">
-                                        <span class="status-cube"></span>
-                                        <span class="status-text">Final Approval</span>
+                                    {% elif req.status == "pending_owner_approval" %}
+                                    <div class="status-cell">
+                                        <span class="material-icons status-icon waiting">schedule</span>
+                                        <span class="status-label waiting">Waiting for Room Owner Final Confirmation</span>
                                     </div>
                                     {% elif req.status == "approved" %}
-                                    <div class="status-item status-approved">
-                                        <span class="status-cube"></span>
-                                        <span class="status-text">Approved</span>
+                                    <div class="status-cell">
+                                        <span class="material-icons status-icon resolved">task_alt</span>
+                                        <span class="status-label resolved">Approved</span>
                                     </div>
                                     {% else %}
-                                    <div class="status-item status-rejected">
-                                        <span class="status-cube"></span>
-                                        <span class="status-text">Rejected</span>
+                                    <div class="status-cell">
+                                        <span class="material-icons status-icon dismissed">highlight_off</span>
+                                        <span class="status-label dismissed">Rejected</span>
                                     </div>
                                     {% endif %}
                                 </td>
@@ -146,7 +147,7 @@
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="7">No recent requests found.</td>
+                                <td colspan="7" style="color: #999;">No recent requests found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -225,7 +226,7 @@
             alerts.forEach(alert => {
                 alert.style.transition = 'opacity 0.5s ease-out';
                 alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 1000);
+                setTimeout(() => alert.remove(), 500);
             });
         }, 2000);
     </script>

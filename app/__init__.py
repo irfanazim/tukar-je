@@ -5,7 +5,7 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 import sqlite3
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 
 # Enable foreign key support in SQLite
 @event.listens_for(Engine, "connect")

@@ -602,6 +602,7 @@ ul li a:hover{
 
 .stat-card {
     background: #ffffff;
+
     padding: 20px;
     border-radius: 12px;
     width: 100%;
@@ -611,30 +612,6 @@ ul li a:hover{
     flex: 1 1 200px;
     flex-direction: column;    
     display: flex;
-}
-.total-admins-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 30%;
-    margin: 20px 20px 20px 45px;
-    height: 100px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    flex: 1 1 200px;
-    flex-direction: column;    
-    display: flex;
-}
-.total-admins-card h3 {
-    font-size: 18px;
-    color: #555;
-    margin-bottom: 8px;
-}
-.total-admins-card p {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
-    color: #1e40af;
 }
 
 .stat-card h3 {
@@ -728,7 +705,7 @@ ul li a:hover{
     cursor: pointer;
     color: white;
   }
-  
+
 .recent-request-content .btn-approve { background-color: #10b981; }
 .recent-request-content  .btn-decline { background-color: #ef4444; }
 .recent-request-content .actions  button:disabled {
@@ -769,7 +746,8 @@ ul li a:hover{
     background-color: #ef4444; 
 }
 .recent-request-content .status-pending-owner-approval .status-cube{
-    background-color: #f8d15a; 
+    background-color: #f8d15a;
+
 }
 
 .admin-dashboard-hostel-content {
@@ -778,6 +756,7 @@ ul li a:hover{
     padding: 30px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     margin-bottom: 30px;
+    width:auto
     
 }
 
@@ -792,7 +771,7 @@ ul li a:hover{
     justify-content: space-between;
     align-items: center;
     border: 1px solid #e0e0e0;
-    width: 1100px;
+    
     box-sizing: border-box;
   }
   
@@ -861,6 +840,14 @@ ul li a:hover{
 
 }
 
+.adminrequests-container td{
+    text-align: center;
+    white-space: nowrap; 
+    padding: 10px;
+    box-sizing: border-box;
+    width: auto;
+}
+
 .table thead {
     background-color: #e0e7ff;
     color: #1e3a8a;
@@ -892,20 +879,22 @@ ul li a:hover{
 }
   
 .btn-approve {
-    background: #28a745;
+    background: #10b981;
     color: white;
+    transition: ease-in-out 0.3s;
 }
   
 .btn-reject {
-    background: #dc3545;
+    background: #ef4444;
     color: white;
+    transition: ease-in-out 0.3s;
 }
   
 .btn-approve:hover { 
-    background: #218838; 
+    background: #0c9467; 
 }
 .btn-reject:hover { 
-    background: #c82333; 
+    background: #b02b2b; 
 }
   
   /* Disabled Buttons */
@@ -1349,6 +1338,11 @@ min-height: 700px; }
     background-color: #ef4444; 
 }
 
+.recent-request-content2 .status-pending-owner-approval .status-cube{
+    background-color: #f8d15a;
+    
+}
+
 .admin-actions-card {
   padding: 1.5rem;
   border-radius: 10px;
@@ -1552,10 +1546,212 @@ min-height: 700px; }
 
 
 /* Dispute Report page */
+
+.dispute-reports-container .table-controls-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+    width: 93%;
+    margin: 20px auto;
+    padding: 15px 20px;
+    background-color: #f9fbfc;
+    border: 1px solid #d4dbe0;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+.dispute-reports-container .filter-container, 
+.dispute-reports-container.search-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 180px; 
+    min-width: 170px;
+}
+
 .dispute-reports-container {
     flex: 1;
     min-height: 700px; 
 }
+.reports-row{
+display: flex;
+gap: 20px;
+flex-wrap: wrap;
+justify-content: space-between;
+margin-top: 20px;
+}
+.report-card {
+  flex: 1 1 280px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-width: 240px;
+}
+
+.report-icons-wrapper {
+    
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.report-icons {
+    font-size: 28px;
+}
+
+
+.report-card-content .report-label {
+    margin: 0;
+    font-size: 16px;
+    color: #2d3748; 
+    font-weight: 500;
+    
+}
+.report-card-content .report-count {
+  margin: 0;
+  font-size: 20px;
+  color: #1e2532;
+  font-weight: 700;
+}
+
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-icon {
+  font-size: 20px;
+}
+
+.status-label {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.status-label.pending {
+  background-color: #fff9db;
+  color: #b58100;
+}
+
+.status-icon.pending {
+  color: #b58100;
+}
+.status-icon.waiting{
+    color: #b58100;
+
+    
+}
+.status-label.waiting {
+  background-color: #fff9db;
+  color: #b58100; 
+  
+}
+
+.status-label.resolved {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.status-icon.resolved {
+  color: #15803d;
+}
+
+.status-label.dismissed {
+  background-color: #ffe4e6;
+  color: #b91c1c;
+}
+
+.status-icon.dismissed {
+  color: #b91c1c;
+}
+
+.admin-reports-body .flash {
+    position: absolute;  
+    top: 100px;            
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99;        
+    padding: 12px 50px;
+    border-radius: 5px;
+    max-width: 80%;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.report-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: left;
+    margin-top: 10px;
+}
+.resolve-btn, .dismiss-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.resolve-btn {
+    background: #10b981;
+    color: white;
+    transition: background-color 0.3s ;
+}
+.dismiss-btn {
+    background: #ef4444;
+    color: white;
+    transition: background-color 0.3s ;
+}
+.resolve-btn:hover {
+    background: #0f9b6d;
+}
+.dismiss-btn:hover {
+    background: #c53030;
+}
+
+/* End for Dispute Report page */
+
+/* Incoming Requests page */
+.incoming-requests-container {
+    flex: 1;
+    min-height: 700px; 
+}
+.incoming-requests-body .flash {
+    position: absolute;  
+    top: 100px;            
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99;        
+    padding: 12px 50px;
+    border-radius: 5px;
+    max-width: 80%;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.flag-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;  
+    font-size: 16px;
+    font-weight: bold;
+    color:#000;
+    transition: ease-in-out 0.3s;
+}
+.flag-btn:hover {
+    color: #ff4444;
+}
+
+/* End for Incoming Requests page */
 
 /* Admin Activity Log page */
 .admin-activity-container{
@@ -1718,6 +1914,48 @@ min-height: 700px; }
     flex: 1 1 180px; 
     min-width: 170px;
 }
+.total-admins-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 30%;
+    margin: 20px 20px 20px 45px;
+    height: 105px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    flex: 1 1 200px;
+    flex-direction: column;    
+    display: flex;
+}
+.total-admins-card h3 {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 8px;
+}
+.total-admins-card p {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    margin-left: 10px;
+    color: #1e40af;
+}
+.admins-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+
+}
+.admins-card-header h3 {
+    margin:0;
+    
+}
+
+#admins-icon {
+    color: #555;
+    font-size: 35px;
+}
+
 /* End for Admins page */
 
 .current-location {
@@ -2170,20 +2408,6 @@ min-height: 700px; }
     text-decoration: none;
 }
 
-.top-back-btn-right{
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 0.95rem;
-    color: #000000;
-    text-decoration: none;
-    position: absolute;
-}
 /* Forum Section */
 
 .profile-container {
@@ -2382,138 +2606,59 @@ min-height: 700px; }
     border: 1px solid #e0e0e0;
 }
 
-/* Admin Request Review */
-.pending-requests {
-    padding: 20px 100px;
-}
-
-.pending-requests h2 {
-    font-size: 20px;
-    color: #000000;
-    margin-bottom: 15px;
-    font-weight: 600;
-}
-
-.pending-requests ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.pending-requests li {
+/* Room Info Edit Form */
+.form-container-editroom {
+    max-width: 750px;
+    margin: 120px auto; 
+    padding: 20px 60px;
     background: #fff;
-    padding: 12px 16px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.95rem;
-    
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+    width: 700px;
 }
 
-.pending-requests a {
-    background: #034EA1;
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.85rem;
+.form-container-editroom h1 {
+    text-align: center;
+    color: #000000;
+    margin-bottom: 1.8rem;
+    font-size: 2.2rem;
+    font-weight: 700;
 }
 
-.pending-requests a:hover {
-    background: #023b7d;
+.form-container-editroom {
+    position: relative; 
 }
 
-.pending-requests .no-data {
-    color: #666;
-    padding: 10px 0;
-    font-size: 0.95rem;
+.remove-btn {
+    margin:10px auto auto auto;
+    top: 20px;
+    right: 20px;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: ease-in-out 0.2s;
 }
 
-/* Admin Review Form */
-.admin-review-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-        }
-      
-        .status-badge-admin {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
-        
-        .badge-warning {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .swap-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 30px 0;
-        }
-        
-        .detail-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
-        .detail-card h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-        }
-        .detail-row {
-            display: flex;
-        }
-        .detail-label {
-            font-weight: bold;
-            width: 120px;
-            color: #555;
-        }
-        .detail-label-space{
-            margin-left:10px;
-        }
-        .consent-section {
-            background-color: #e8f4fd;
-            padding: 20px;
-            border-radius: 6px;
-            margin: 25px 0;
-        }
-        .admin-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        .btn {
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            border: none;
-            font-size: 1em;
-            text-decoration: none;
-        }
-      
-        .btn-secondary {
-            font-size: 1em;
-            background-color: #6c757d;
-            color: white;
-        }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            margin-bottom: 18px;
-        }
-    
-        .timeline {
-            margin: 25px 0;
-        }
-       
+.remove-btn:hover {
+    background-color: #c53030;
+}
+
+.add-btn{
+    display: inline;
+    background-color: #034EA1;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: ease-in-out 0.2s;
+    margin-left: 5px;
+}
+.add-btn:hover {
+    background-color: #023b7d;
+}

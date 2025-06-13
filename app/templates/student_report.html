@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/room_reports.css') }}">
-        <title>Report Comment - tukar-je</title>
+        <title>Report Student - tukar-je</title>
     </head>
 
     <body class="report-comment-body">
@@ -46,10 +46,12 @@
 
             <div class="form-container">
                 
-                <form method="POST" class="form-box">
+            <form method="POST" action="{{ url_for('main.report_student', reported_student_id=reported_student_id) }}" class="form-box">
+
+
                 <div class="comment-report-header">
-                    <h3>Report a Comment</h3>
-                    <p>Report if you believe this comment violates our policies.</p>
+                    <h3>Report Student</h3>
+                    <p>Report if you believe this student violates our policies.</p>
                     <br>
                     <hr>
                 </div>
@@ -88,8 +90,5 @@
         sidebar.classList.toggle('sidebar-open');
       }
     </script>
-    </body>
-
-
-
-</html>
+</body>
+</html> 

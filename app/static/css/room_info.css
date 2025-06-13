@@ -14,6 +14,7 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 600px;
+    margin-top: 80px;
 }
 
 .room-info-box h2 {
@@ -57,5 +58,26 @@
 
 .hostel-map-box[class*="room"]:hover {
     background-color: #e9ecef;
+}
+
+.room-edit-btn {
+    background-color: #034EA1;
+    color: white;
+    padding: 0.9rem 1.8rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.05rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    max-width: 200px;
+    margin: 25px auto 0px auto;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.room-edit-btn:hover {
+    background-color: #2980b9;
 }
 

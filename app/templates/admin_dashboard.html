@@ -45,7 +45,6 @@
             <ul>
               <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
               <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
-              <li><a href="{{ url_for('main.admin_review') }}">Review Requests</a></li> 
               <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
               <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
               <li><a href="{{ url_for('main.dispute_reports') }}">Dispute Reports</a></li>
@@ -126,36 +125,36 @@
                     <td>{{ req.current_hostel }}-{{ req.current_block }}-{{ req.current_room }}</td>
                     <td>{{ req.desired_hostel }}-{{ req.desired_block }}-{{ req.desired_room }}</td>
                     <td class="status">
-                        {% if req.status == "pending_owner_consent" %}
-                                   <div class="status-item status-pending-owner-approval">
-                                     <span class="status-cube"></span>
-                                     <span class="status-text">Awaiting Owner Consent</span>
-                                    </div>
-                                     {% elif req.status == "pending_admin_approval" %}
-                                    <div class="status-item status-pending-owner-approval">
-                                         <span class="status-cube"></span>
-                                          <span class="status-text">In Review</span>
-                                    </div>
-                                    {% elif req.status == "pending_owner_final_approval" %}
-                                     <div class="status-item status-pending-owner-approval">
-                                        <span class="status-cube"></span>
-                                        <span class="status-text">Final Approval</span>
-                                    </div>
-                                    {% elif req.status == "approved" %}
-                                    <div class="status-item status-approved">
-                                        <span class="status-cube"></span>
-                                        <span class="status-text">Approved</span>
-                                    </div>
+                        {% if req.status == "pending_agreement" %}
+                          <div class="status-cell">
+                            <span class="material-icons status-icon pending">schedule</span>
+                            <span class="status-label pending">Waiting for Agreement</span>
+                          </div>
+                        {% elif req.status == "pending" %}
+                          <div class="status-cell">
+                            <span class="material-icons status-icon pending">schedule</span>
+                            <span class="status-label pending">Pending Admin</span>
+                          </div>
+                        {% elif req.status == "pending_owner_approval" %}
+                          <div class="status-cell">
+                            <span class="material-icons status-icon waiting">schedule</span>
+                            <span class="status-label waiting">Waiting for Room Owner Final Confirmation</span>
+                          </div>
+                        {% elif req.status == "approved" %}
+                            <div class="status-cell">
+                                    <span class="material-icons status-icon resolved">task_alt</span>
+                                    <span class="status-label resolved">Approved</span>
+                              </div>
                         {% else %}
-                            <div class="status-item status-rejected">
-                                <span class="status-cube"></span>
-                                <span class="status-text">Rejected</span>
+                            <div class="status-cell">
+                                    <span class="material-icons status-icon dismissed">highlight_off</span>
+                                    <span class="status-label dismissed">Rejected</span>
                             </div>
                         {% endif %}
                     </td>
                     <td>{{ req.date.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td class="actions">
-                        {% if req.status == 'pending_admin_approval' %}
+                        {% if req.status == 'pending' %}
                             
                         <form method="POST" action="{{ url_for('main.approve_request') }}" style="display:inline;">
                             <input type="hidden" name="id" value="{{ req.id }}">
@@ -165,9 +164,9 @@
                             <input type="hidden" name="id" value="{{ req.id }}">
                             <button type="submit" class="btn-reject">Reject</button>
                         </form>
-                        {% elif req.status == "pending_owner_consent" %}
-                        <button class="btn-approve" disabled title="Waiting for owner consent first">Approve</button>
-                        <button class="btn-reject" disabled title="Waiting for owner consent first">Reject</button>
+                        {% else %}
+                    <button class="btn-approve" disabled>Approve</button>
+                    <button class="btn-reject" disabled>Reject</button>
                 {% endif %}
                     </td>
                 </tr>
@@ -181,9 +180,9 @@
           <div class="admin-dashboard-hostel-content hostel-with-button">
             <div class="hostel-text">
               <h3>Hostel Map</h3>
-              <p>Hostel Map Content</p>
+              <p><em>Checkout the hostel map, remove and add occupants if needed.</em></p>
             </div>
-            <a href="#" class="shortcut">Edit Rooms</a>
+            <a href="{{ url_for('main.hostel_map') }}" class="shortcut">View Map</a>
           </div>
           
           

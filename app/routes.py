@@ -1,8 +1,8 @@
 from flask import Blueprint, abort, app, jsonify, render_template, request, redirect, url_for, flash, session, current_app, g
-from flask_login import current_user, logout_user
+from flask_login import current_user, logout_user, login_required, login_user
 from . import db, mail
-from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity, Warning, DisputeReports, CommentReport
-from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_admin_rejection_to_owner, send_consent_email, send_final_approval_email, send_room_owner_approval_request, send_swap_approved_email, send_swap_completion_email, send_swap_rejected_email, send_account_banned_email, send_account_warned_email, send_account_unbanned_email, send_swap_rejection_confirmation, send_swap_rejection_email,
+from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity, Warning, DisputeReports, CommentReport, StudentReport
+from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_room_owner_approval_request, send_swap_approved_email, send_swap_completion_email, send_swap_rejected_email, send_account_banned_email, send_account_warned_email, send_account_unbanned_email, send_swap_rejection_confirmation, send_swap_rejection_email,
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
                    send_verification_email)
@@ -13,6 +13,10 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func, or_
 
 main = Blueprint('main', __name__)
+
+def to_myt(utc_dt):
+    myt = timezone(timedelta(hours=8))
+    return utc_dt.replace(tzinfo=timezone.utc).astimezone(myt)
 
 @main.route('/')
 def index():
@@ -79,17 +83,20 @@ def register():
 @main.route('/verify-email/<token>')
 def verify_email(token):
     user = User.query.filter_by(verification_token=token).first()
-    
-    if not user:
-        flash('Invalid or expired verification link', 'error')
+    if user:
+        user.is_verified = True
+        user.verification_token = None
+        db.session.commit()
+        flash('Email verified successfully! You can now log in.', 'success')
         return redirect(url_for('main.login'))
-    
-    user.is_verified = True
-    user.verification_token = None
-    db.session.commit()
-    
-    flash('Email verified successfully! You can now log in.', 'success')
-    return redirect(url_for('main.login'))
+    else:
+        # Try to find a user who is already verified (token may have been used)
+        user = User.query.filter_by(is_verified=True).filter_by(verification_token=None).first()
+        if user:
+            flash('Email already verified. You can now log in.', 'success')
+        else:
+            flash('Invalid or expired verification link', 'error')
+        return redirect(url_for('main.login'))
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -139,7 +146,11 @@ def verify_2fa():
         return redirect(url_for('main.login'))
 
     user = User.query.get(session['temp_user_id'])
-    setup_user_session(user, session.get('remember_me', False))
+    remember = session.get('remember_me', False)  
+    setup_user_session(user, remember)
+    session.pop('temp_2fa', None)
+    session.pop('temp_user_id', None)
+    session.pop('remember_me', None)
     return redirect(url_for('main.dashboard'))
 
 @main.route('/forgot-password', methods=['GET', 'POST'])
@@ -207,6 +218,7 @@ def dashboard():
 
 @main.route('/logout')
 def logout():
+    logout_user()
     session.clear()
     return redirect(url_for('main.index')) 
 
@@ -376,61 +388,117 @@ def swap_requests():
 def approve_request():
     request_id = request.form.get('id')
     swap = SwapRequest.query.get(request_id)
-    
-    if not swap:
-        flash('Invalid swap request', 'error')
-        return redirect(request.referrer or url_for('main.swap_requests'))
-    
-    # Only allow admin approval if status is pending_admin_approval
-    if swap.status != 'pending_admin_approval':
-        flash('This request is not ready for admin approval', 'error')
-        return redirect(request.referrer or url_for('main.swap_requests'))
-    
-    room_owner = User.query.get(swap.room_owner_id)
-    if not room_owner:
-        flash('No valid room owner found', 'error')
-        return redirect(request.referrer or url_for('main.swap_requests'))
-    
-    # Generate new token for final approval
-    final_token = secrets.token_urlsafe(32)
-    swap.status = "pending_owner_final_approval"
-    swap.room_owner_token = final_token
-    db.session.commit()
-    
-    # Send final approval request to room owner
-    send_final_approval_email(room_owner, swap)
-    
-    # Notifications
-    create_notification(
-        user_id=room_owner.id,
-        message=f"Admin has approved your swap request. Final confirmation required.",
-        notification_type='final_approval_needed'
-    )
-    
-    create_notification(
-        user_id=swap.user_id,
-        message=f"Your swap request has been admin-approved. Waiting for final confirmation.",
-        notification_type='swap_awaiting_final_confirmation'
-    )
-    
-    flash('Swap approved. Waiting for final room owner confirmation.', 'success')
-    return redirect(url_for('main.swap_requests'))
+    if swap:
+        # Check if room owner has agreed to proceed
+        if swap.room_owner_response != "approved":
+            flash('Room owner has not agreed to proceed with this request yet', 'error')
+            return redirect(request.referrer)
+        
+        # Set status to pending_owner_approval and send final confirmation email
+        swap.status = "pending_owner_approval"
+        db.session.commit()
+        
+        # Send final confirmation email to room owner
+        from .utils import send_room_owner_approval_request
+        room_owner = User.query.get(swap.room_owner_id)
+        send_room_owner_approval_request(room_owner, swap)
+        
+        # Notify both users
+        create_notification(
+            user_id=swap.user.id,
+            message=f"Your swap request has been approved by admin. Waiting for the room owner's final confirmation.",
+            notification_type='swap_waiting_final'
+        )
+        create_notification(
+            user_id=swap.room_owner.id,
+            message=f"Admin has approved the swap request. Please check your email for the final confirmation.",
+            notification_type='swap_final_confirmation'
+        )
+        
+        flash('Swap approved by admin. Waiting for room owner final confirmation.', 'success')
+    return redirect(request.referrer or url_for('main.swap_requests'))
 
-@main.route('/room-owner-response/<token>')
+@main.route('/room-owner-agreement/<token>', methods=['GET', 'POST'])
+def room_owner_agreement(token):
+    swap = SwapRequest.query.filter_by(room_owner_token=token).first()
+    if not swap:
+        flash('Invalid or expired link', 'error')
+        return redirect(url_for('main.index'))
+
+    # Prevent duplicate or automatic processing
+    if swap.status != "pending_agreement":
+        flash("This swap request has already been processed.", "warning")
+        return render_template('swap_response.html', swap=swap, logged_in=is_logged_in(), admin_logged_in=is_admin_logged_in())
+
+    if request.method == 'POST':
+        response = request.form.get('response')
+        if response == 'approve':
+            # Update status to pending admin approval
+            swap.status = "pending"
+            swap.room_owner_response = "approved"
+            swap.room_owner_response_at = datetime.utcnow()
+            db.session.commit()
+            
+            # Notify admins
+            admins = Admin.query.all()
+            for admin in admins:
+                create_notification(
+                    admin_id=admin.id,
+                    message=f"New swap request from Student ID: {swap.user.student_id}",
+                    notification_type='new_request'
+                )
+            
+            # Notify requester
+            create_notification(
+                user_id=swap.user_id,
+                message=f"Your swap request has been approved by the room owner. Waiting for admin approval.",
+                notification_type='swap_waiting'
+            )
+            
+            # Render a waiting for admin approval message
+            return render_template('swap_response.html', swap=swap, waiting_for_admin=True, logged_in=is_logged_in(), admin_logged_in=is_admin_logged_in())
+        else:
+            # Reject the swap request
+            swap.status = "rejected"
+            swap.room_owner_response = "rejected"
+            swap.room_owner_response_at = datetime.utcnow()
+            db.session.commit()
+            
+            # Notify requester
+            send_swap_rejection_email(swap.user, swap)
+            create_notification(
+                user_id=swap.user_id,
+                message=f"Your swap request has been rejected by the room owner.",
+                notification_type='swap_rejected'
+            )
+            
+            flash('Swap request rejected.', 'info')
+            return render_template('swap_response.html', swap=swap, logged_in=is_logged_in(), admin_logged_in=is_admin_logged_in())
+
+    # GET: Show confirmation page
+    return render_template('room_owner_agreement.html', swap=swap, logged_in=is_logged_in(), admin_logged_in=is_admin_logged_in())
+
+@main.route('/room-owner-response/<token>', methods=['GET', 'POST'])
 def room_owner_response(token):
     swap = SwapRequest.query.filter_by(room_owner_token=token).first()
     if not swap:
         flash('Invalid or expired link', 'error')
         return redirect(url_for('main.index'))
-    
-    response = request.args.get('response')
-    
-    
-    # Process the response
-    if response == 'approve':
-        return complete_swap(swap)
-    else:
-        return reject_swap(swap)
+
+    # Prevent duplicate or automatic processing
+    if swap.status != "pending_owner_approval":
+        flash("This swap request has already been processed.", "warning")
+        return render_template('swap_response.html', swap=swap, logged_in=is_logged_in(), admin_logged_in=is_admin_logged_in())
+
+    if request.method == 'POST':
+        response = request.form.get('response')
+        if response == 'approve':
+            return complete_swap(swap)
+        else:
+            return reject_swap(swap)
+
+    # GET: Show confirmation page
+    return render_template('room_owner_confirm.html', swap=swap, logged_in=is_logged_in(), admin_logged_in=is_admin_logged_in())
 
 def complete_swap(swap):
     # Get both users
@@ -549,36 +617,23 @@ def reject_request():
         swap.status = "rejected"
         db.session.commit()
 
-        # Notify requester
-        try:
-            user = User.query.get(swap.user_id)
-            send_swap_rejected_email(user, swap)
-            create_notification(
-                user_id=swap.user_id,
-                message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been rejected.",
-                notification_type='swap_rejected'
-                )
-        except Exception as e:
-            app.logger.error(f"Email sending to requester failed: {str(e)}")
-            flash('Request rejected but failed to send email to requester', 'warning')
-
-        # Notify room owner if exists
-        try:
-            room_owner = User.query.get(swap.room_owner_id)
-            if room_owner:
-                send_admin_rejection_to_owner(room_owner, swap)
-                create_notification(
-                    user_id=room_owner.id,
-                    message=f"Your room swap request has been rejected by the admin.",
-                    notification_type='swap_rejected'
-                    )
-        except Exception as e:
-            app.logger.error(f"Email sending to room owner failed: {str(e)}")
-            flash('Room owner notified failed', 'warning')
-        
+        user = User.query.get(swap.user_id)
     
-    flash('This request has been rejected.', 'success')
-    return redirect(url_for('main.swap_requests'))
+    # Send simple text email
+    try:
+        send_swap_rejected_email(user, swap)
+    except Exception as e:
+        app.logger.error(f"Email sending failed: {str(e)}")
+        flash('Rejected but failed to send email', 'warning')
+        
+    # Notify the user
+    create_notification(
+        user_id=swap.user_id,
+        message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been rejected.",
+        notification_type='swap_rejected'
+        )
+    flash('Request rejected!', 'success')
+    return redirect(request.referrer or url_for('main.swap_requests'))
 
 @main.route('/admin/request/delete', methods=['POST'])
 def delete_request_admin():
@@ -904,9 +959,92 @@ def dispute_reports():
         flash('Please login as admin', 'error')
         return redirect(url_for('main.admin_login'))
     
-    reports = DisputeReports.query.order_by(DisputeReports.date.desc()).all()
+    query = DisputeReports.query
+
+    total_reports = query.count()
+    pending_reports = query.filter(DisputeReports.status == 'Pending').count()
+    resolved_reports = query.filter(DisputeReports.status == 'resolved').count()
+
+
+    # GET query parameters
+    status = request.args.get('status', 'all')
+    from_date = request.args.get('from_date')
+    to_date = request.args.get('to_date')
+    page = int(request.args.get('page', 1))
+    per_page = 50
+
     
-    return render_template('admin_reports.html',reports=reports,logged_in=is_admin_logged_in())
+    #filtering by status
+    if status != 'all':
+        query = query.filter(DisputeReports.status==status)
+    #filtering by date range
+    if from_date:
+        try:
+            from_dt = datetime.strptime(from_date, "%Y-%m-%d")
+            query = query.filter(DisputeReports.date >= from_dt)
+        except ValueError:
+            pass
+
+    if to_date:
+        try:
+            to_dt = datetime.strptime(to_date, "%Y-%m-%d")
+            to_dt = to_dt.replace(hour=23, minute=59, second=59)
+            query = query.filter(DisputeReports.date <= to_dt)
+        except ValueError:
+            pass
+    
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page
+    query = query.order_by(DisputeReports.date.desc())
+
+    reports = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    for r in reports:
+        r.local_timestamp = to_myt(r.date)
+        
+    return render_template('admin_reports.html', total_reports=total_reports, pending_reports=pending_reports, resolved_reports=resolved_reports, reports=reports,logged_in=is_admin_logged_in(),
+                            status=status, from_date=from_date, to_date=to_date,
+                            page=page, total_pages=total_pages)
+
+@main.route('/report/resolve/<int:report_id>', methods=['POST'])
+def resolve_report(report_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    report = DisputeReports.query.get_or_404(report_id)
+    report.status = 'resolved'
+    db.session.commit()
+
+    # Notify the user who reported
+    create_notification(
+        user_id=report.user_id,
+        message=f"Your report against {report.reported_student} has been resolved.",
+        notification_type='report_resolved'
+    )
+
+    flash('Report resolved successfully!', 'success')
+    return redirect(request.referrer or url_for('main.dispute_reports'))
+
+@main.route('/report/dismiss/<int:report_id>', methods=['POST'])
+def dismiss_report(report_id):
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    report = DisputeReports.query.get_or_404(report_id)
+    report.status = 'dismissed'
+    db.session.commit()
+
+    # Notify the user who reported
+    create_notification(
+        user_id=report.user_id,
+        message=f"Your report against {report.reported_student} has been dismissed.",
+        notification_type='report_dismissed'
+    )
+
+    flash('Report dismissed successfully!', 'success')
+    return redirect(request.referrer or url_for('main.dispute_reports'))
 
 @main.route('/report-comment/<int:reported_student_id>/<int:profile_id>', methods=['GET', 'POST'])
 def report_comment(reported_student_id, profile_id):
@@ -959,61 +1097,133 @@ def report_comment(reported_student_id, profile_id):
             )
             
         flash('Comment reported successfully!', 'success')
-        
 
-        return redirect(url_for('main.view_profile', user_id=profile_id))
+        return redirect(url_for('main.view_profiles', user_id=profile_id))
 
     return render_template('comment_report.html', reported_student_id=reported_student_id)
 
+@main.route('/report-student/<int:reported_student_id>', methods=['GET', 'POST'])
+def report_student(reported_student_id):
+    if not is_logged_in():
+        flash('Please login to report a student', 'error')
+        return redirect(url_for('main.login'))
+
+    if request.method == 'POST':
+        reason = request.form.get('reason')
+        description = request.form.get('description')
+
+        if not reason or not description:
+            flash('Reason and description are required', 'error')
+            return redirect(request.referrer or url_for('main.report_student', reported_student_id=reported_student_id))
+
+        reporter_id = session.get('user_id')
+        reported_student = User.query.get_or_404(reported_student_id)
+        reporter = User.query.get_or_404(reporter_id)
+
+        report = StudentReport(
+            reporter_id=reporter_id,
+            reported_student_id=reported_student.id,
+            reason=reason,
+            description=description
+        )
+        db.session.add(report)
+
+        send_report = DisputeReports(
+            user_id=reporter_id,
+            reported_student=reported_student.fullname,
+            reported_by=reporter.fullname,
+            reason=reason,
+            description=description,
+            status='Pending'
+        )
+        db.session.add(send_report)
+        db.session.commit()
+        
+        # Create notification for the admins
+        admins = Admin.query.all()
+        for admin in admins:
+            create_notification(
+                admin_id=admin.id,
+                message=f"New student report from {reporter.fullname} (ID: {reporter.student_id}) against {reported_student.fullname} (ID: {reported_student.student_id}).",
+                notification_type='student_report'
+            )
+            
+        
+        
+        flash('Student reported successfully!', 'success')
+
+        return redirect(url_for('main.incoming_requests'))
+
+    return render_template('student_report.html', reported_student_id=reported_student_id)
+
+
+
     
-    
+@main.route('/incoming_requests')
+@login_required
+def incoming_requests():
+    if not current_user.is_verified:
+        flash('Please login to view incoming requests', 'error')
+        return redirect(url_for('main.login'))
+
+    # Only show requests where the current user is the room owner
+    requests = (
+        db.session.query(SwapRequest, User)
+        .join(User, SwapRequest.user_id == User.id)
+        .filter(SwapRequest.room_owner_id == current_user.id,
+                SwapRequest.is_deleted == False,
+                User.is_deleted == False,
+                SwapRequest.status.in_(['pending_owner_approval', 'rejected', 'approved'])
+        )
+        .order_by(SwapRequest.date.desc())
+        .all()
+    )
+
+    requests_data = []
+    for swap_request, requester in requests:
+        requests_data.append({
+            'user_id': requester.id,
+            'requester_name': requester.fullname,
+            'requester_location': f"{swap_request.current_hostel}-{swap_request.current_block}-{swap_request.current_room}",
+            'my_location': f"{swap_request.desired_hostel}-{swap_request.desired_block}-{swap_request.desired_room}",
+            'requested_date': swap_request.date,
+            'status': swap_request.status
+        })  
     
 
+    return render_template('incoming_requests.html', requests=requests_data, logged_in=is_logged_in())
 
 
 
 @main.route('/submit', methods=['GET', 'POST'])
 def submit_request():
     if not is_logged_in():
-        flash('Please login to submit a swap request', 'error')
-        return redirect(url_for('main.login'))
-
-    user = User.query.get(session['user_id'])
-    if not user:
-        session.clear()  # Clear invalid session
-        flash('Your session has expired. Please login again.', 'error')
+        flash('Please login first', 'error')
         return redirect(url_for('main.login'))
     
+    user = User.query.get(current_user.id)
     current_location = {
         'hostel': user.hostel,
         'block': user.block,
         'room': user.room
     }
-
+    
     if request.method == 'POST':
         desired_hostel = request.form.get('desired_hostel')
         desired_block = request.form.get('desired_block')
         desired_room = request.form.get('desired_room')
-
-         # Find room owner 
+        
+        # Check if room exists and has an occupant
         room_owner = User.query.filter_by(
             hostel=desired_hostel,
             block=desired_block,
-            room=desired_room,
-            is_deleted=False
+            room=desired_room
         ).first()
-
-        if not room_owner:
-            flash('No valid occupant found in the requested room', 'error')
-            return redirect(url_for('main.submit_request'))
-
-        # Generate consent token 
-        consent_token = secrets.token_urlsafe(32)
-
         
-        print(f"Form data: desired_hostel={desired_hostel}, desired_block={desired_block}, desired_room={desired_room}")
-        print(f"User data: id={user.id}, hostel={user.hostel}, block={user.block}, room={user.room}")
-
+        if not room_owner:
+            flash('No occupant found in the requested room', 'error')
+            return redirect(url_for('main.submit_request'))
+            
         # Create new swap request
         new_swap = SwapRequest(
             user_id=user.id,
@@ -1023,52 +1233,59 @@ def submit_request():
             desired_hostel=desired_hostel,
             desired_block=desired_block,
             desired_room=desired_room,
-            status="pending_owner_consent",  
-            room_owner_id=room_owner.id,     
-            consent_token=consent_token 
+            status="pending_agreement",
+            room_owner_id=room_owner.id
         )
 
         try:
             db.session.add(new_swap)
             db.session.commit()
+            
+            # Generate token for room owner approval
+            token = generate_token()
+            new_swap.room_owner_token = token
+            db.session.commit()
+            
+            # Send email to room owner for initial agreement
+            response_url = url_for('main.room_owner_agreement', token=token, _external=True)
+            body = f"""Dear {room_owner.fullname},
 
-            # Send consent email to room owner =====
-            send_consent_email(
-                requester=user,
-                room_owner=room_owner,
-                swap_request=new_swap
-            )
+A student has requested to swap rooms with you:
 
+Current Location: {user.hostel} - Block {user.block}, Room {user.room}
+Desired Location: {desired_hostel} - Block {desired_block}, Room {desired_room}
+
+Please review this request and respond:
+[Review Swap Request] {response_url}
+
+If you accept, the request will be sent to admin for final approval.
+If you reject, the request will be automatically rejected.
+
+Best regards,
+Tukar-Je Support Team
+"""
+            send_email('Room Swap Request - Action Required', room_owner.email, body)
+            
             # Create notification for the user
             create_notification(
                 user_id=user.id,
-                message=f"Your swap request to {new_swap.desired_hostel}-{new_swap.desired_block}-{new_swap.desired_room} "
-                        f"has been submitted successfully. Waiting for {room_owner.fullname}'s consent before swapping.",
-                notification_type='swap_pending_consent'
+                message=f"Your swap request to {desired_hostel}-{desired_block}-{desired_room} has been submitted successfully.",
+                notification_type='swap_request'
             )
+            
+            # Create notification for room owner
             create_notification(
                 user_id=room_owner.id,
-                message=f"{user.fullname} wants to swap rooms! Please check your email for consenting.",
-                notification_type='consent_required'
+                message=f"You have received a room swap request. Please check your email to respond.",
+                notification_type='swap_request'
             )
-
-             # Notify all admins
-            admins = Admin.query.all()
-            for admin in admins:
-                create_notification(
-                    admin_id=admin.id,
-                    message=f"New swap request from Student ID: {user.student_id}",
-                    notification_type='new_request'
-                    )
             
-            flash('Swap request submitted! Waiting for room owner consent.', 'success') 
+            flash('Swap request submitted successfully!', 'success')
             return redirect(url_for('main.submit_request'))
+            
         except Exception as e:
             db.session.rollback()
             print(f"Error submitting swap request: {str(e)}")
-            print(f"Error type: {type(e)}")
-            import traceback
-            print(traceback.format_exc())
             flash('An error occurred while submitting your request. Please try again.', 'error')
             return redirect(url_for('main.submit_request'))
 
@@ -1076,123 +1293,6 @@ def submit_request():
                          current_location=current_location,
                          logged_in=is_logged_in(),
                          admin_logged_in=is_admin_logged_in())
-
-
-@main.route('/consent/<token>')
-def owner_consent(token):
-    swap = SwapRequest.query.filter_by(consent_token=token).first_or_404()
-    
-    if not swap:
-        flash("Invalid or expired consent link.", "error")
-        return redirect(url_for('main.index'))
-
-    response = request.args.get('response')
-    
-    if response == 'approve':
-        # Correctly handle approval
-        swap.owner_consent = True
-        swap.status = "pending_admin_approval"  # Move to admin review stage
-        db.session.commit()
-
-        # Notify all admins
-        admins = Admin.query.all()
-        for admin in admins:
-            create_notification(
-                admin_id=admin.id,
-                message=f"Swap request (Request ID: {swap.id}) has been consented by the room owner and awaits for your approval.",
-                notification_type='swap_awaiting_approval'
-            )
-        
-        # Notify requester
-        room_owner = User.query.get(swap.room_owner_id)
-        if room_owner:
-            create_notification(
-            user_id=swap.user_id,
-            message=f"Room owner has consented to your swap request. Waiting for admin approval.",
-            notification_type='swap_pending_admin'
-        )
-        ## Notify requester
-        create_notification(
-            user_id=room_owner.id,
-            message=f"You have consented to the room swap request. Waiting for admin approval.",
-            notification_type='swap_pending_admin'
-        )
-        
-        flash("Thank you for consenting! Admin will review your request shortly.", "success")
-    else:
-        # Only mark as rejected if explicitly rejected
-        swap.status = "rejected"
-        swap.owner_consent = False
-        db.session.commit()
-        
-         # Notify BOTH parties
-        requester = User.query.get(swap.user_id)
-        room_owner = User.query.get(swap.room_owner_id)
-    
-        # Send to requester
-        send_swap_rejection_email(requester, swap)
-    
-        # Send to room owner
-        send_swap_rejection_confirmation(room_owner, swap)
-        
-        
-        # Notify requester
-        create_notification(
-            user_id=swap.user_id,
-            message=f"Room owner has declined your swap request for {swap.desired_hostel}-{swap.desired_block}-{swap.desired_room}",
-            notification_type='swap_rejected'
-        )
-        
-        flash("You have declined the swap request.", "success")
-
-    return redirect(url_for('main.index'))
-
-@main.route('/final-approval/<token>')
-def final_owner_approval(token):
-    swap = SwapRequest.query.filter_by(room_owner_token=token).first()
-    
-    if not swap:
-        flash('Invalid or expired link', 'error')
-        return redirect(url_for('main.index'))
-
-    response = request.args.get('response')
-
-    # Use the existing helper functions to process response
-    if response == 'approve':
-        return complete_swap(swap)
-    else:
-        return reject_swap(swap)
-
-@main.route('/admin/review')
-def admin_review():
-    if not is_admin_logged_in():
-        flash('Admin access required', 'error')
-        return redirect(url_for('main.admin_login'))
-
-    # Get all requests that are pending admin approval
-    pending_requests = SwapRequest.query.filter_by(status='pending_admin_approval').all()
-
-    return render_template('admin_review_list.html', pending_requests=pending_requests)
-
-@main.route('/admin/review/<int:request_id>')
-def review_request(request_id):
-    if not is_admin_logged_in():
-        flash('Admin access required', 'error')
-        return redirect(url_for('main.admin_login'))
-    
-    swap = SwapRequest.query.get_or_404(request_id)
-    if swap.status not in ['pending_admin_approval', 'approved', 'rejected', 'swap_complete']:
-        return redirect(url_for('main.swap_requests'))
-
-    
-    requester = User.query.get(swap.user_id)
-    room_owner = User.query.get(swap.room_owner_id)
-    
-    return render_template('admin_review.html',
-                         swap=swap,
-                         requester=requester,
-                         room_owner=room_owner)
-
 
 @main.route('/admin/register', methods=['GET', 'POST'])
 def admin_register():
@@ -1274,12 +1374,81 @@ def delete_request(request_id):
 # Hostel Map
 @main.route('/map')
 def hostel_map():
-    if not is_logged_in():
+    if not (is_logged_in() or is_admin_logged_in()):
         return redirect(url_for('main.login'))
     hostel = request.args.get('hostel', 'HB1')
     block = request.args.get('block', 'A')
     floor = request.args.get('floor', 'Ground Floor')
-    return render_template('map.html', logged_in=is_logged_in(), hostel=hostel, block=block, floor=floor)
+    return render_template('map.html', logged_in=is_logged_in(), hostel=hostel, block=block, floor=floor, 
+                           admin_logged_in=is_admin_logged_in())
+
+@main.route('/admin/room/edit_occupants', methods=['GET'])
+def edit_room_occupants():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    hostel = request.args.get('hostel')
+    block = request.args.get('block')
+    room = request.args.get('room')
+
+    current_occupants = User.query.filter_by(hostel=hostel, block=block, room=room, is_deleted=False).all()
+
+    return render_template('admin_edit_room.html', 
+                           hostel=hostel, block=block, room=room, 
+                           current_occupants=current_occupants, 
+                           admin_logged_in=is_admin_logged_in())
+
+@main.route('/admin/room/add_occupant', methods=['POST'])
+def add_room_occupant():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    student_id = request.form.get('student_id')
+    hostel = request.form.get('hostel')
+    block = request.form.get('block')
+    room = request.form.get('room')
+
+    current_occupants = User.query.filter_by(hostel=hostel, block=block, room=room, is_deleted=False).count()
+    if current_occupants >= 2:
+        flash('Room is already full', 'error')
+        return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room))
+
+    student = User.query.filter_by(student_id=student_id, is_deleted=False).first()
+    if student:
+        if student.hostel != 'Unassigned' and student.block != 'Unassigned' and student.room != 'Unassigned':
+            flash(f'Student {student.fullname} was moved from {student.hostel}-{student.block}-{student.room} to {hostel}-{block}-{room}.', 'warning')
+        student.hostel = hostel
+        student.block = block
+        student.room = room
+        db.session.commit()
+        flash(f'Student {student.fullname} added to {hostel}-{block}-{room} successfully!', 'success')
+    else:
+        flash('Student not found', 'error')
+    return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room))
+
+@main.route('/admin/room/remove_occupant', methods=['POST'])
+def remove_room_occupant():
+    if not is_admin_logged_in():
+        flash('Please login as admin', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    student_id = request.form.get('student_id')
+    hostel = request.form.get('hostel')
+    block = request.form.get('block')
+    room = request.form.get('room')
+
+    student = User.query.filter_by(student_id=student_id, hostel=hostel, block=block, room=room, is_deleted=False).first()
+    
+    if student and student.hostel == hostel and student.block == block and student.room == room:
+        student.hostel = 'Unassigned'
+        student.block = 'Unassigned'
+        student.room = 'Unassigned'
+        db.session.commit()
+        flash(f'{student.fullname} removed from {hostel}-{block}-{room} successfully!', 'success')
+    
+    return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room))
 
 @main.route('/admin/announcement/add', methods=['POST'])
 def add_announcement():

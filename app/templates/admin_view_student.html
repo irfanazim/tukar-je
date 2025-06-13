@@ -35,7 +35,6 @@
             <ul>
               <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
               <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
-              <li><a href="{{ url_for('main.admin_review') }}">Review Requests</a></li>
               <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
               <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
               <li><a href="{{ url_for('main.dispute_reports') }}">Dispute Reports</a></li>
@@ -108,6 +107,11 @@
                                 <span class="status-cube"></span>
                                 <span class="status-text">Approved</span>
                              </div>
+                        {% elif req.status == "pending_owner_approval" %}
+                            <div class="status-item status-pending-owner-approval">
+                                <span class="status-cube"></span>
+                                <span class="status-text">Sent to Resident</span>
+                            </div>
                         {% else %}
                             <div class="status-item status-rejected">
                                 <span class="status-cube"></span>

@@ -43,7 +43,6 @@
             <ul>
               <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
               <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
-              <li><a href="{{ url_for('main.admin_review') }}">Review Requests</a></li>
               <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
               <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
               <li><a href="{{ url_for('main.dispute_reports') }}" class="active">Dispute Reports</a></li>
@@ -56,6 +55,73 @@
         </div>
 
         <div class="reports">
+            <div class="reports-row">
+
+          <div class="report-card" style="margin-left: 45px ;">
+            <div class="report-icons-wrapper" style="background-color: #fff9db;">
+                <span class="material-icons report-icons" style="color: #b58100;">schedule</span>
+            </div>
+
+            <div class="report-card-content">
+                <p class="report-label">Pending Reports</p>
+                <p class="report-count">{{ pending_reports }}</p>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-icons-wrapper" style="background-color: #dcfce7;">
+                <span class="material-icons report-icons" style="color: #15803d;">task_alt</span>
+            </div>
+
+            <div class="report-card-content">
+                <p class="report-label">Resolved</p>
+                <p class="report-count">{{ resolved_reports }}</p>
+            </div>
+          </div>
+
+          <div class="report-card" style="margin-right: 45px;">
+            <div class="report-icons-wrapper" style="background-color: #e0f2fe">
+                <span class="material-icons report-icons" style="color: #2563eb;">report_problem</span>
+            </div>
+
+            <div class="report-card-content">
+                <p class="report-label">Total Reports</p>
+                <p class="report-count">{{ total_reports }}</p>
+            </div>
+          </div>
+        </div>
+
+          <form id="filter-form" method="GET" action="/admin/dispute_reports">
+            <div class="table-controls-container">
+                <div class="clear-button-row">
+                <a href="/admin/dispute_reports" class="clear-filters-link">Clear Filters</a>
+                </div>
+                
+                <!--Report Filter-->
+                <div class="filter-container">
+                <span class="material-icons" id="filter-icon">filter_list</span>
+                <label for="action-filter">Reports:</label>
+                <select id="action-filter" class="filter-select" name="status" onchange="document.getElementById('filter-form').submit()">
+                    <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+                    <option value="Pending" {% if status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="dismissed" {% if status == 'dismissed' %}selected{% endif %}>Dismissed</option>
+                </select>
+                </div>
+                
+                <!--Date Range-->
+                <div class="filter-container date-range-container">
+                <label for="from-date">From:</label>
+                <input type="date" id="from-date" name="from_date" value="{{ from_date }}" onchange="document.getElementById('filter-form').submit()">
+                </div>
+                <div class="filter-container date-range-container">
+                <label for="to-date">To:</label>
+                <input type="date" id="to-date" name="to_date" value="{{ to_date }}" onchange="document.getElementById('filter-form').submit()">
+                </div>
+            </div>
+        </form>
+
+
             <table class="table" border="1">
                 <thead>
                     <tr>
@@ -75,8 +141,25 @@
                         <td>{{ report.reported_student }}</td>
                         <td>{{ report.reported_by }}</td>
                         <td>{{ report.reason }}</td>
-                        <td>{{ report.date.strftime('%Y-%m-%d') }}</td>
-                        <td>{{ report.status }}</td>
+                        <td>{{ report.local_timestamp.strftime('%B %d, %Y, %I:%M %p') }}</td>
+                        <td>
+                            {% if report.status == 'Pending' %}
+                                <div class="status-cell">
+                                    <span class="material-icons status-icon pending">schedule</span>
+                                    <span class="status-label pending">Pending</span>
+                                </div>
+                            {% elif report.status == 'resolved' %}
+                                <div class="status-cell">
+                                    <span class="material-icons status-icon resolved">task_alt</span>
+                                    <span class="status-label resolved">Resolved</span>
+                               </div>
+                            {% else %}
+                                <div class="status-cell">
+                                    <span class="material-icons status-icon dismissed">highlight_off</span>
+                                    <span class="status-label dismissed">Dismissed</span>
+                                </div>
+                            {% endif %}
+                        </td>
                         <td class="actions">
                             <button class="view-btn" onclick="toggleDetails('{{ report.id }}', this)">View</button>  
                         </td>
@@ -92,6 +175,17 @@
                                 <p><strong>Reported Student:</strong> {{ report.reported_student }}</p>
                                 <p><strong>Reason:</strong> {{ report.reason }}</p>
                                 <p><strong>Description:</strong> {{ report.description }}</p>
+                                <div class="report-actions">
+                                {% if report.status == 'Pending' %}
+                                    
+                                <form action="{{ url_for('main.resolve_report', report_id=report.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="resolve-btn">Resolve</button>
+                                </form>
+                                <form action="{{ url_for('main.dismiss_report', report_id=report.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="dismiss-btn">Dismiss</button>
+                                </form>
+                                {% endif %}
+                                </div>
                                 
                             </div>
                         </td>
@@ -101,6 +195,24 @@
                     
                     {% endfor %}
             </table>
+             <div class="pagination">
+            {% if page > 1 %}
+              <a href="{{ url_for('main.dispute_reports', page=page-1, status=status, from_date=from_date, to_date=to_date) }}">Previous</a>
+            {% endif %}
+          
+            {% for p in range(1, total_pages + 1) %}
+              {% if p == page %}
+                <span class="current">{{ p }}</span>
+              {% else %}
+                <a href="{{ url_for('main.dispute_reports', page=p, status=status, from_date=from_date, to_date=to_date) }}">{{ p }}</a>
+              {% endif %}
+            {% endfor %}
+          
+            {% if page < total_pages %}
+              <a href="{{ url_for('main.dispute_reports', page=page+1, status=status, from_date=from_date, to_date=to_date) }}">Next</a>
+            {% endif %}
+          </div>
+        
         </div>
 
 

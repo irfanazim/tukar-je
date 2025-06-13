@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/announcement.css') }}">
-        <title>Edit Student Details - tukar-je</title>
+        <title>Edit Room Occupants - tukar-je</title>
     </head>
 
     <body class="edit-student-body">
@@ -46,7 +46,7 @@
           </nav>
         </div>
 
-        <div class="form-container-request">
+        <div class="form-container-editroom">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -56,43 +56,54 @@
             {% endwith %}
 
         
-            <button class="close-btn" id="close-btn">X</button>
+            <button class="close-btn" id="close-btn">
+                <span class="material-icons">close</span>
+            </button>
 
-            <h1>Edit Student Details</h1>
-        
-            <form method="POST" action="{{ url_for('main.edit_student', student_id=student.id) }}" class="edit-form-request">
-                <div class="form-grid-request">
-                    <div>
-                        <div>
-                            <label for="hostel">Current Location:</label>
-                        </div>
-                        <div class="locationn">
-                            <div class="room-group">
-                                <select name="hostel" required>
-                                    <option value="">Select Hostel</option>
-                                    <option value="HB1" {% if student.hostel == 'HB1' %}selected{% endif %}>HB1</option>
-                                    <option value="HB2" {% if student.hostel == 'HB2' %}selected{% endif %}>HB2</option>
-                                    <option value="HB3" {% if student.hostel == 'HB3' %}selected{% endif %}>HB3</option>
-                                    <option value="HB4" {% if student.hostel == 'HB4' %}selected{% endif %}>HB4</option>
-                                </select>
-                                <select name="block" required>
-                                    <option value="">Select Block</option>
-                                    <option value="A" {% if student.block == 'A' %}selected{% endif %}>Block A</option>
-                                    <option value="B" {% if student.block == 'B' %}selected{% endif %}>Block B</option>
-                                    <option value="C" {% if student.block == 'C' %}selected{% endif %}>Block C</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="locationn">
-                            <label for="room">Current Room:</label>
-                            <input type="text" id="room" name="room" value="{{ student.room }}" required>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="submit-btn">Save Changes</button>
-                <a href="{{ url_for('main.admin_students') }}" class="cancel-btn">Cancel</a>
+            <h1>Edit Occupants for Room <br>{{ hostel }}-{{ block }}-{{ room }}</h1>
 
-            </form>
+                {% if current_occupants %}
+                <h3>Current Occupants ({{ current_occupants|length }}/2):</h3>
+                <ul>
+                    {% for student in current_occupants %}
+                        <li>
+                            Name: {{ student.fullname }}
+                            <br>
+                            Email: {{ student.email }}
+                            <br>
+                             ID:{{ student.student_id }}
+                            <br>
+                            <form method="POST" action="{{ url_for('main.remove_room_occupant') }}" style="display:inline;">
+                                <input type="hidden" name="student_id" value="{{ student.student_id }}">
+                                <input type="hidden" name="hostel" value="{{ hostel }}">
+                                <input type="hidden" name="block" value="{{ block }}">
+                                <input type="hidden" name="room" value="{{ room }}">
+                                <button type="submit" class="remove-btn" title="Remove student from room">Remove</button>
+                            </form>
+                        </li>
+                        <br>
+                        <hr>
+                {% endfor %}
+                </ul>
+                {% else %}
+                <p>No one is currently staying in this room.</p>
+                {% endif %}
+
+                {% if current_occupants|length < 2 %}
+                <br>
+                <h3>Add Student to Room</h3>
+                    <form method="POST" action="{{ url_for('main.add_room_occupant') }}">
+                        <input type="hidden" name="hostel" value="{{ hostel }}">
+                        <input type="hidden" name="block" value="{{ block }}">
+                        <input type="hidden" name="room" value="{{ room }}">
+                        <label for="student_id">Student ID:</label>
+                        <input type="text" name="student_id" required style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                        <button type="submit" class="add-btn">Add Student</button>
+                    </form>
+                {% else %}
+                <p>Room is full.</p>
+                {% endif %}
+            
         </div>
         
 
@@ -100,29 +111,7 @@
     
     
 
-    <footer>
-        <div class="footer-col">
-            <ul>
-            <div class="logo">
-            <img src="{{ url_for('static', filename='images/tukar_logo.png') }}" alt="Tukar Logo"></div>
-                <li><p>&copy; 2025 Tukar-Je. ALL RIGHTS RESERVED</p></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Quick Links</h4>
-            <ul>
-                <li><a href="">About</a></li>
-                <li><a href="https://www.mmu.edu.my/accommodation/">Accomodation</a></li>
-                <li><a href="https://online.mmu.edu.my/">Portal</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Contact Us</h4>
-            <ul>
-                <li><a href="#">tukarje@gmail.com</a></li>
-            </ul>
-        </div> 
-    </footer>
+    
     <script>
       function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
@@ -175,7 +164,7 @@
       </script>
       <script>
         document.getElementById("close-btn").onclick = function() {
-          window.location.href = "{{ url_for('main.admin_students') }}";
+          window.location.href = "{{ url_for('main.room_info', hostel=hostel, block=block, room=room) }}";
         };
       </script>
     
