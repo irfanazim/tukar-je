@@ -104,20 +104,25 @@
                                 <td>{{ req.desired_hostel }}-{{ req.desired_block }}-{{ req.desired_room }}</td>
                                 <!-- Status Column (Fixed) -->
                                 <td class="status">
-                                    {% if req.status == "pending" %}
-                                    <div class="status-item status-pending">
+                                    {% if req.status == "pending_owner_consent" %}
+                                   <div class="status-item status-pending-owner-approval">
+                                     <span class="status-cube"></span>
+                                     <span class="status-text">Awaiting Owner Consent</span>
+                                    </div>
+                                     {% elif req.status == "pending_admin_approval" %}
+                                    <div class="status-item status-pending-owner-approval">
+                                         <span class="status-cube"></span>
+                                          <span class="status-text">In Review</span>
+                                    </div>
+                                    {% elif req.status == "pending_owner_final_approval" %}
+                                     <div class="status-item status-pending-owner-approval">
                                         <span class="status-cube"></span>
-                                        <span class="status-text">Pending</span>
+                                        <span class="status-text">Final Approval</span>
                                     </div>
                                     {% elif req.status == "approved" %}
                                     <div class="status-item status-approved">
                                         <span class="status-cube"></span>
                                         <span class="status-text">Approved</span>
-                                    </div>
-                                     {% elif req.status == "pending_owner_approval" %}
-                                    <div class="status-item status-pending-owner-approval">
-                                         <span class="status-cube"></span>
-                                          <span class="status-text">Sent to Resident</span>
                                     </div>
                                     {% else %}
                                     <div class="status-item status-rejected">
@@ -220,7 +225,7 @@
             alerts.forEach(alert => {
                 alert.style.transition = 'opacity 0.5s ease-out';
                 alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 500);
+                setTimeout(() => alert.remove(), 1000);
             });
         }, 2000);
     </script>

@@ -45,6 +45,7 @@
             <ul>
               <li><a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a></li>
               <li><a href="{{ url_for('main.swap_requests') }}">Requests</a></li>
+              <li><a href="{{ url_for('main.admin_review') }}">Review Requests</a></li> 
               <li><a href="{{ url_for('main.admin_students') }}">Students</a></li>
               <li><a href="{{ url_for('main.admin_announcements') }}">Announcements</a></li>
               <li><a href="{{ url_for('main.dispute_reports') }}">Dispute Reports</a></li>
@@ -125,21 +126,26 @@
                     <td>{{ req.current_hostel }}-{{ req.current_block }}-{{ req.current_room }}</td>
                     <td>{{ req.desired_hostel }}-{{ req.desired_block }}-{{ req.desired_room }}</td>
                     <td class="status">
-                        {% if req.status == "pending" %}
-                            <div class="status-item status-pending">
-                                <span class="status-cube"></span>
-                                <span class="status-text">Pending</span>
-                            </div>
-                        {% elif req.status == "approved" %}
-                            <div class="status-item status-approved">
-                                <span class="status-cube"></span>
-                                <span class="status-text">Approved</span>
-                             </div>
-                         {% elif req.status == "pending_owner_approval" %}
-                            <div class="status-item status-pending-owner-approval">
-                                <span class="status-cube"></span>
-                                <span class="status-text">Sent to Resident</span>
-                            </div>
+                        {% if req.status == "pending_owner_consent" %}
+                                   <div class="status-item status-pending-owner-approval">
+                                     <span class="status-cube"></span>
+                                     <span class="status-text">Awaiting Owner Consent</span>
+                                    </div>
+                                     {% elif req.status == "pending_admin_approval" %}
+                                    <div class="status-item status-pending-owner-approval">
+                                         <span class="status-cube"></span>
+                                          <span class="status-text">In Review</span>
+                                    </div>
+                                    {% elif req.status == "pending_owner_final_approval" %}
+                                     <div class="status-item status-pending-owner-approval">
+                                        <span class="status-cube"></span>
+                                        <span class="status-text">Final Approval</span>
+                                    </div>
+                                    {% elif req.status == "approved" %}
+                                    <div class="status-item status-approved">
+                                        <span class="status-cube"></span>
+                                        <span class="status-text">Approved</span>
+                                    </div>
                         {% else %}
                             <div class="status-item status-rejected">
                                 <span class="status-cube"></span>
@@ -149,7 +155,7 @@
                     </td>
                     <td>{{ req.date.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td class="actions">
-                        {% if req.status == 'pending' %}
+                        {% if req.status == 'pending_admin_approval' %}
                             
                         <form method="POST" action="{{ url_for('main.approve_request') }}" style="display:inline;">
                             <input type="hidden" name="id" value="{{ req.id }}">
@@ -159,9 +165,9 @@
                             <input type="hidden" name="id" value="{{ req.id }}">
                             <button type="submit" class="btn-reject">Reject</button>
                         </form>
-                        {% else %}
-                    <button class="btn-approve" disabled>Approve</button>
-                    <button class="btn-reject" disabled>Reject</button>
+                        {% elif req.status == "pending_owner_consent" %}
+                        <button class="btn-approve" disabled title="Waiting for owner consent first">Approve</button>
+                        <button class="btn-reject" disabled title="Waiting for owner consent first">Reject</button>
                 {% endif %}
                     </td>
                 </tr>

@@ -2,7 +2,7 @@ from flask import Blueprint, abort, app, jsonify, render_template, request, redi
 from flask_login import current_user, logout_user
 from . import db, mail
 from .models import Notification, ProfileComment, RoommateProfile, User, Admin, SwapRequest, Announcement, RoomReport, AdminActivity, Warning, DisputeReports, CommentReport
-from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_room_owner_approval_request, send_swap_approved_email, send_swap_completion_email, send_swap_rejected_email, send_account_banned_email, send_account_warned_email, send_account_unbanned_email, send_swap_rejection_confirmation, send_swap_rejection_email,
+from .utils import (get_admin_notifications, create_notification, get_user_notifications, is_valid_mmu_email, is_logged_in, is_admin_logged_in, send_admin_rejection_to_owner, send_consent_email, send_final_approval_email, send_room_owner_approval_request, send_swap_approved_email, send_swap_completion_email, send_swap_rejected_email, send_account_banned_email, send_account_warned_email, send_account_unbanned_email, send_swap_rejection_confirmation, send_swap_rejection_email,
                    setup_user_session, setup_admin_session, generate_token,
                    send_email, send_2fa_email,
                    send_verification_email)
@@ -376,34 +376,45 @@ def swap_requests():
 def approve_request():
     request_id = request.form.get('id')
     swap = SwapRequest.query.get(request_id)
-    if swap:
-        # Find current room occupant using the new relationship naming
-        room_owner = User.query.filter_by(
-            hostel=swap.desired_hostel,
-            block=swap.desired_block,
-            room=swap.desired_room
-        ).first()
-        
-        if not room_owner:
-            flash('No occupant found in the requested room', 'error')
-            return redirect(request.referrer)
-        
-        swap.status = "pending_owner_approval"
-        swap.room_owner_id = room_owner.id
-        
-        db.session.commit()
-        
-        
-        # Notify room owner
-        send_room_owner_approval_request(room_owner, swap)
-        create_notification(
-            user_id=room_owner.id,
-            message=f"Someone has requested to swap rooms with you. Kindly review the request in your email ({swap.current_hostel}-{swap.current_block}-{swap.current_room})",
-            notification_type='room_owner_approval'
-        )
-        
-        flash('Swap approved. Waiting for room owner confirmation.', 'success')
-    return redirect(request.referrer or url_for('main.swap_requests'))
+    
+    if not swap:
+        flash('Invalid swap request', 'error')
+        return redirect(request.referrer or url_for('main.swap_requests'))
+    
+    # Only allow admin approval if status is pending_admin_approval
+    if swap.status != 'pending_admin_approval':
+        flash('This request is not ready for admin approval', 'error')
+        return redirect(request.referrer or url_for('main.swap_requests'))
+    
+    room_owner = User.query.get(swap.room_owner_id)
+    if not room_owner:
+        flash('No valid room owner found', 'error')
+        return redirect(request.referrer or url_for('main.swap_requests'))
+    
+    # Generate new token for final approval
+    final_token = secrets.token_urlsafe(32)
+    swap.status = "pending_owner_final_approval"
+    swap.room_owner_token = final_token
+    db.session.commit()
+    
+    # Send final approval request to room owner
+    send_final_approval_email(room_owner, swap)
+    
+    # Notifications
+    create_notification(
+        user_id=room_owner.id,
+        message=f"Admin has approved your swap request. Final confirmation required.",
+        notification_type='final_approval_needed'
+    )
+    
+    create_notification(
+        user_id=swap.user_id,
+        message=f"Your swap request has been admin-approved. Waiting for final confirmation.",
+        notification_type='swap_awaiting_final_confirmation'
+    )
+    
+    flash('Swap approved. Waiting for final room owner confirmation.', 'success')
+    return redirect(url_for('main.swap_requests'))
 
 @main.route('/room-owner-response/<token>')
 def room_owner_response(token):
@@ -538,23 +549,36 @@ def reject_request():
         swap.status = "rejected"
         db.session.commit()
 
-        user = User.query.get(swap.user_id)
-    
-    # Send simple text email
-    try:
-        send_swap_rejected_email(user, swap)
-    except Exception as e:
-        app.logger.error(f"Email sending failed: {str(e)}")
-        flash('Rejected but failed to send email', 'warning')
+        # Notify requester
+        try:
+            user = User.query.get(swap.user_id)
+            send_swap_rejected_email(user, swap)
+            create_notification(
+                user_id=swap.user_id,
+                message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been rejected.",
+                notification_type='swap_rejected'
+                )
+        except Exception as e:
+            app.logger.error(f"Email sending to requester failed: {str(e)}")
+            flash('Request rejected but failed to send email to requester', 'warning')
+
+        # Notify room owner if exists
+        try:
+            room_owner = User.query.get(swap.room_owner_id)
+            if room_owner:
+                send_admin_rejection_to_owner(room_owner, swap)
+                create_notification(
+                    user_id=room_owner.id,
+                    message=f"Your room swap request has been rejected by the admin.",
+                    notification_type='swap_rejected'
+                    )
+        except Exception as e:
+            app.logger.error(f"Email sending to room owner failed: {str(e)}")
+            flash('Room owner notified failed', 'warning')
         
-    # Notify the user
-    create_notification(
-        user_id=swap.user_id,
-        message=f"Your swap request to {swap.desired_hostel} (Block {swap.desired_block}, Room {swap.desired_room}) has been rejected.",
-        notification_type='swap_rejected'
-        )
-    flash('Request rejected!', 'success')
-    return redirect(request.referrer or url_for('main.swap_requests'))
+    
+    flash('This request has been rejected.', 'success')
+    return redirect(url_for('main.swap_requests'))
 
 @main.route('/admin/request/delete', methods=['POST'])
 def delete_request_admin():
@@ -959,6 +983,7 @@ def submit_request():
         session.clear()  # Clear invalid session
         flash('Your session has expired. Please login again.', 'error')
         return redirect(url_for('main.login'))
+    
     current_location = {
         'hostel': user.hostel,
         'block': user.block,
@@ -969,6 +994,22 @@ def submit_request():
         desired_hostel = request.form.get('desired_hostel')
         desired_block = request.form.get('desired_block')
         desired_room = request.form.get('desired_room')
+
+         # Find room owner 
+        room_owner = User.query.filter_by(
+            hostel=desired_hostel,
+            block=desired_block,
+            room=desired_room,
+            is_deleted=False
+        ).first()
+
+        if not room_owner:
+            flash('No valid occupant found in the requested room', 'error')
+            return redirect(url_for('main.submit_request'))
+
+        # Generate consent token 
+        consent_token = secrets.token_urlsafe(32)
+
         
         print(f"Form data: desired_hostel={desired_hostel}, desired_block={desired_block}, desired_room={desired_room}")
         print(f"User data: id={user.id}, hostel={user.hostel}, block={user.block}, room={user.room}")
@@ -982,20 +1023,35 @@ def submit_request():
             desired_hostel=desired_hostel,
             desired_block=desired_block,
             desired_room=desired_room,
-            status="pending"
+            status="pending_owner_consent",  
+            room_owner_id=room_owner.id,     
+            consent_token=consent_token 
         )
 
         try:
             db.session.add(new_swap)
             db.session.commit()
-            print("Swap request added successfully")
-            
+
+            # Send consent email to room owner =====
+            send_consent_email(
+                requester=user,
+                room_owner=room_owner,
+                swap_request=new_swap
+            )
+
             # Create notification for the user
             create_notification(
                 user_id=user.id,
-                message=f"Your swap request to {desired_hostel}-{desired_block}-{desired_room} has been submitted successfully.",
-                notification_type='swap_request'
+                message=f"Your swap request to {new_swap.desired_hostel}-{new_swap.desired_block}-{new_swap.desired_room} "
+                        f"has been submitted successfully. Waiting for {room_owner.fullname}'s consent before swapping.",
+                notification_type='swap_pending_consent'
             )
+            create_notification(
+                user_id=room_owner.id,
+                message=f"{user.fullname} wants to swap rooms! Please check your email for consenting.",
+                notification_type='consent_required'
+            )
+
              # Notify all admins
             admins = Admin.query.all()
             for admin in admins:
@@ -1005,7 +1061,7 @@ def submit_request():
                     notification_type='new_request'
                     )
             
-            flash('Swap request submitted successfully!', 'success')
+            flash('Swap request submitted! Waiting for room owner consent.', 'success') 
             return redirect(url_for('main.submit_request'))
         except Exception as e:
             db.session.rollback()
@@ -1020,6 +1076,122 @@ def submit_request():
                          current_location=current_location,
                          logged_in=is_logged_in(),
                          admin_logged_in=is_admin_logged_in())
+
+
+@main.route('/consent/<token>')
+def owner_consent(token):
+    swap = SwapRequest.query.filter_by(consent_token=token).first_or_404()
+    
+    if not swap:
+        flash("Invalid or expired consent link.", "error")
+        return redirect(url_for('main.index'))
+
+    response = request.args.get('response')
+    
+    if response == 'approve':
+        # Correctly handle approval
+        swap.owner_consent = True
+        swap.status = "pending_admin_approval"  # Move to admin review stage
+        db.session.commit()
+
+        # Notify all admins
+        admins = Admin.query.all()
+        for admin in admins:
+            create_notification(
+                admin_id=admin.id,
+                message=f"Swap request (Request ID: {swap.id}) has been consented by the room owner and awaits for your approval.",
+                notification_type='swap_awaiting_approval'
+            )
+        
+        # Notify requester
+        room_owner = User.query.get(swap.room_owner_id)
+        if room_owner:
+            create_notification(
+            user_id=swap.user_id,
+            message=f"Room owner has consented to your swap request. Waiting for admin approval.",
+            notification_type='swap_pending_admin'
+        )
+        ## Notify requester
+        create_notification(
+            user_id=room_owner.id,
+            message=f"You have consented to the room swap request. Waiting for admin approval.",
+            notification_type='swap_pending_admin'
+        )
+        
+        flash("Thank you for consenting! Admin will review your request shortly.", "success")
+    else:
+        # Only mark as rejected if explicitly rejected
+        swap.status = "rejected"
+        swap.owner_consent = False
+        db.session.commit()
+        
+         # Notify BOTH parties
+        requester = User.query.get(swap.user_id)
+        room_owner = User.query.get(swap.room_owner_id)
+    
+        # Send to requester
+        send_swap_rejection_email(requester, swap)
+    
+        # Send to room owner
+        send_swap_rejection_confirmation(room_owner, swap)
+        
+        
+        # Notify requester
+        create_notification(
+            user_id=swap.user_id,
+            message=f"Room owner has declined your swap request for {swap.desired_hostel}-{swap.desired_block}-{swap.desired_room}",
+            notification_type='swap_rejected'
+        )
+        
+        flash("You have declined the swap request.", "success")
+
+    return redirect(url_for('main.index'))
+
+@main.route('/final-approval/<token>')
+def final_owner_approval(token):
+    swap = SwapRequest.query.filter_by(room_owner_token=token).first()
+    
+    if not swap:
+        flash('Invalid or expired link', 'error')
+        return redirect(url_for('main.index'))
+
+    response = request.args.get('response')
+
+    # Use the existing helper functions to process response
+    if response == 'approve':
+        return complete_swap(swap)
+    else:
+        return reject_swap(swap)
+
+@main.route('/admin/review')
+def admin_review():
+    if not is_admin_logged_in():
+        flash('Admin access required', 'error')
+        return redirect(url_for('main.admin_login'))
+
+    # Get all requests that are pending admin approval
+    pending_requests = SwapRequest.query.filter_by(status='pending_admin_approval').all()
+
+    return render_template('admin_review_list.html', pending_requests=pending_requests)
+
+@main.route('/admin/review/<int:request_id>')
+def review_request(request_id):
+    if not is_admin_logged_in():
+        flash('Admin access required', 'error')
+        return redirect(url_for('main.admin_login'))
+    
+    swap = SwapRequest.query.get_or_404(request_id)
+    if swap.status not in ['pending_admin_approval', 'approved', 'rejected', 'swap_complete']:
+        return redirect(url_for('main.swap_requests'))
+
+    
+    requester = User.query.get(swap.user_id)
+    room_owner = User.query.get(swap.room_owner_id)
+    
+    return render_template('admin_review.html',
+                         swap=swap,
+                         requester=requester,
+                         room_owner=room_owner)
 
 
 @main.route('/admin/register', methods=['GET', 'POST'])

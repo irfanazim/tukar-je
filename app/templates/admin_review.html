@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+   <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <title>tukar-je</title>
+    </head>
+
+    <title>Admin Review - Swap Request</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    <div class="admin-review-container">
+        <a href="{{ url_for('main.admin_review') }}" class="top-back-btn-right">
+        <span class="material-icons">arrow_back</span>
+    </a>
+              
+            <h1>Swap Request Review</h1>
+            <div class="status-badge-admin badge-warning">Pending Admin Approval</div>
+            <p>Review the details before approving or rejecting this room swap request.</p>
+        
+
+        <div class="swap-details">
+            <div class="detail-card">
+                <h3>Requester Details</h3>
+                <div class="user-profile">
+                    <div>
+                        <strong>{{ requester.fullname }}</strong><br>
+                        ID: {{ requester.student_id }}<br>
+                        {{ requester.email }}
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Current Room:</div>
+                    <div class="detail-label-space">{{ requester.hostel }}-{{ requester.block }}-{{ requester.room }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">New Room:</div>
+                    <div class="detail-label-space">{{ swap.desired_hostel }}-{{ swap.desired_block }}-{{ swap.desired_room }}</div>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <h3>Room Owner Details</h3>
+                <div class="user-profile">
+                    <div>
+                        <strong>{{ room_owner.fullname }}</strong><br>
+                        ID: {{ room_owner.student_id }}<br>
+                        {{ room_owner.email }}
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Current Room:</div>
+                    <div class="detail-label-space">{{ room_owner.hostel }}-{{ room_owner.block }}-{{ room_owner.room }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">New Room:</div>
+                    <div class="detail-label-space">{{ swap.current_hostel }}-{{ swap.current_block }}-{{ swap.current_room }}</div>
+                </div>
+            </div>
+        </div>
+
+         <div class="swap-container">
+        <div class="admin-review-card">
+            <div class="status-message {% if swap.owner_consent %}success{% elif swap.room_owner_response == 'rejected' %}rejected{% endif %}">
+                <h3>Status:</h3>
+                <p>
+                    {% if swap.owner_consent %}
+                        Room owner has consented to this swap
+                    {% elif swap.room_owner_response == 'rejected' %}
+                        Room owner has declined this swap request
+                    {% else %}
+                        Waiting for room owner's response
+                    {% endif %}
+                </p>
+            </div>
+
+        <div class="timeline">
+            <h3>Request Submitted:</h3>
+           {% if swap.date %}
+        {{ swap.date.strftime('%Y-%m-%d') }}
+    {% else %}
+        Unknown
+    {% endif %}
+                </div>
+            </div>
+
+        <div class="admin-actions">
+            <div>
+                <a href="{{ url_for('main.swap_requests') }}" class="btn btn-secondary">Back to List</a>
+            </div>
+            <div>
+                <form method="POST" action="{{ url_for('main.reject_request') }}" style="display: inline;">
+                    <input type="hidden" name="id" value="{{ swap.id }}">
+                    <button type="submit" class="btn btn-reject">Reject Request</button>
+                </form>
+                <form method="POST" action="{{ url_for('main.approve_request') }}" style="display: inline; margin-left: 10px;">
+                    <input type="hidden" name="id" value="{{ swap.id }}">
+                    <button type="submit" class="btn btn-approve">Approve Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+
+</html>

@@ -61,6 +61,8 @@ class SwapRequest(db.Model):
     room_owner_token = db.Column(db.String(100), unique=True)
     room_owner_response = db.Column(db.String(20), default='pending')
     room_owner_response_at = db.Column(db.DateTime)
+    owner_consent = db.Column(db.Boolean, default=False)  # (CONSENT AGREEMENT BEFORE SWAPPING)
+    consent_token = db.Column(db.String(100), unique=True) 
     
     
     deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_swap_requests', lazy=True))
