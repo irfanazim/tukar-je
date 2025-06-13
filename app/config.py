@@ -10,7 +10,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///tukar_je.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = 3600  # 1 hour in seconds
-    
+
     # Email configuration
     MAIL_SERVER = 'smtp.sendgrid.net'
     MAIL_PORT = 2525

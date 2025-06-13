@@ -211,9 +211,7 @@ A room swap request has been approved for your current room:
 - Room: {swap_request.desired_room}
 
 Please review this request and respond within 3 days:
-[Accept Swap] {response_url}?response=approve
-
-[Reject Swap] {response_url}?response=reject
+[Review Swap Request] {response_url}
 
 If you accept, the swapper will take your current room and you'll be moved to:
 - Hostel: {swap_request.current_hostel}

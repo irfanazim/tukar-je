@@ -46,25 +46,28 @@ class Notification(db.Model):
     
 class SwapRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    current_hostel = db.Column(db.String(10), nullable=False)  
-    current_block = db.Column(db.String(1), nullable=False)    
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    room_owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    current_hostel = db.Column(db.String(10), nullable=False)
+    current_block = db.Column(db.String(1), nullable=False)
     current_room = db.Column(db.String(10), nullable=False)
-    desired_hostel = db.Column(db.String(10), nullable=False)  
-    desired_block = db.Column(db.String(1), nullable=False)    
+    desired_hostel = db.Column(db.String(10), nullable=False)
+    desired_block = db.Column(db.String(1), nullable=False)
     desired_room = db.Column(db.String(10), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default="pending")  
     date = db.Column(db.DateTime, default=datetime.utcnow)
-    is_deleted = db.Column(db.Boolean, default=False)  # Soft delete flag
-    deleted_at = db.Column(db.DateTime)  
-    deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
-    room_owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    status = db.Column(db.String(20), default="pending_agreement")
     room_owner_token = db.Column(db.String(100), unique=True)
-    room_owner_response = db.Column(db.String(20), default='pending')
+    room_owner_response = db.Column(db.String(20))
     room_owner_response_at = db.Column(db.DateTime)
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)
+    deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
+    reason = db.Column(db.Text)
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
     
-    
-    deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_swap_requests', lazy=True))
+    # Specify foreign keys explicitly for relationships
+    admin = db.relationship('Admin', foreign_keys=[admin_id], backref='processed_swaps')
+    deleted_by_admin = db.relationship('Admin', foreign_keys=[deleted_by_admin_id], backref='deleted_swaps')
 
     @hybrid_property
     def desired_location(self):
