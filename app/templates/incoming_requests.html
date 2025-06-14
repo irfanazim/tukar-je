@@ -77,6 +77,11 @@
                                     <span class="material-icons status-icon pending">schedule</span>
                                     <span class="status-label pending">Pending</span>
                                 </div>
+                                {% elif req.status == 'approved' %}
+                                <div class="status-cell">
+                                    <span class="material-icons status-icon resolved">task_alt</span>
+                                    <span class="status-label resolved">Approved</span>
+                                </div>
                                 {% elif req.status == 'rejected' %}
                                 <div class="status-cell">
                                     <span class="material-icons status-icon dismissed">highlight_off</span>

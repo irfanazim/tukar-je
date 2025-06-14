@@ -36,7 +36,7 @@ def setup_user_session(user, remember=False):
 
 def send_email(subject, recipient, body):
     msg = Message(subject,
-                 sender=('Tukar-Je Support', current_app.config['MAIL_USERNAME']),
+                 sender=('Tukar-Je Support', current_app.config['MAIL_DEFAULT_SENDER']),
                  recipients=[recipient])
     msg.body = body
     mail.send(msg)
@@ -211,9 +211,7 @@ A room swap request has been approved for your current room:
 - Room: {swap_request.desired_room}
 
 Please review this request and respond within 3 days:
-[Accept Swap] {response_url}?response=approve
-
-[Reject Swap] {response_url}?response=reject
+[Review Swap Request] {response_url}
 
 If you accept, the swapper will take your current room and you'll be moved to:
 - Hostel: {swap_request.current_hostel}

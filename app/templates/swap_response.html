@@ -14,7 +14,7 @@
 
 <div class="swap-container">
     <div class="dashboard-card wide-card">
-        <div class="status-message {% if swap.status == 'approved' %}success{% else %}rejected{% endif %}">
+        <div class="status-message {% if swap.status == 'approved' %}success{% elif swap.status == 'pending' or waiting_for_admin %}pending{% else %}rejected{% endif %}">
             {% if swap.status == "approved" %}
                 <h3>Swap Approved Successfully!</h3>
                 <p>The room swap has been successfully completed. All necessary parties have been informed.</p>
@@ -29,6 +29,9 @@
                         <p>{{ swap.current_hostel }} - Block {{ swap.current_block }}, Room {{ swap.current_room }}</p>
                     </div>
                 </div>
+            {% elif swap.status == "pending" or waiting_for_admin %}
+                <h3>Waiting for Admin Approval</h3>
+                <p>You have agreed to the swap. The request is now pending admin approval.</p>
             {% else %}
                 <h3>Swap Rejected</h3>
                 <p>The room swap request has been declined.</p>
