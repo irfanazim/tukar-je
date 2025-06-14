@@ -97,7 +97,7 @@
                         <tr>
                             <td>{{ admin.admin_name }}</td>
                             <td>{{ admin.username }}</td>
-                            <td>{{ admin.created_at.strftime('%B %d, %Y, %I:%M %p') }}</td>
+                            <td>{{ admin.local_timestamp.strftime('%B %d, %Y, %I:%M %p') }}</td>
                         </tr>
                         {% else %}
                         <tr><td colspan="3" style="color: #999;">No admins found.</td></tr>

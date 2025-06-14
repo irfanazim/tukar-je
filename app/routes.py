@@ -211,6 +211,9 @@ def dashboard():
         return redirect(url_for('main.login'))
     user_id = session.get('user_id')
     swap_requests = SwapRequest.query.filter_by(user_id=user_id, is_deleted=False).all()
+    # Convert UTC to MYT for display
+    for request in swap_requests:
+        request.local_timestamp = to_myt(request.date)
     return render_template('dashboard.html', logged_in=True, requests=swap_requests)
 
 @main.route('/logout')
@@ -294,6 +297,9 @@ def admin_dashboard():
     rejected_requests = SwapRequest.query.filter(SwapRequest.status == 'rejected', SwapRequest.is_deleted == False).count()
     recent_requests = SwapRequest.query.filter_by(is_deleted=False).order_by(SwapRequest.date.desc()).limit(5).all()
     announcements = Announcement.query.order_by(Announcement.date_posted.desc()).all()
+
+    for r in recent_requests:
+        r.local_timestamp = to_myt(r.date)
     return render_template('admin_dashboard.html', total_requests=total_requests, total_students=total_students, pending_requests=pending_requests,
                             approved_requests=approved_requests, rejected_requests=rejected_requests, recent_requests=recent_requests,
                             announcements=announcements, admin=admin, logged_in=is_admin_logged_in())
@@ -332,6 +338,9 @@ def registered_admins():
 
     # Get total registered admins
     total_admins = Admin.query.count()
+    # Convert UTC to MYT for display
+    for admin in admins:
+        admin.local_timestamp = to_myt(admin.created_at)
 
     return render_template('admins.html', admins=admins, logged_in=is_admin_logged_in(), total_admins=total_admins, 
                            search=search, sort=sort, page=page, total_pages=total_pages)
@@ -370,6 +379,11 @@ def swap_requests():
     total = query.count()
     total_pages = (total + per_page - 1) // per_page
     requests = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    # Convert UTC to MYT for display
+    for r in requests:
+        r.local_timestamp = to_myt(r.date)
+        
 
     return render_template(
         'admin_requests.html',
@@ -589,7 +603,7 @@ def delete_request_admin():
     swap.deleted_at = datetime.utcnow()
     swap.deleted_by_admin_id = admin_id
 
-    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
     activity = AdminActivity(
         admin_id=admin_id,
         action='deleted',
@@ -667,7 +681,7 @@ def delete_student_admin():
 
     
     
-    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
     activity = AdminActivity(
         admin_id=admin_id,
         action='deleted',
@@ -713,7 +727,7 @@ def edit_student(student_id):
         student.room = new_room
 
         if old_hostel != new_hostel or old_block != new_block or old_room != new_room:
-            timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+            timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
             activity = AdminActivity(
                 admin_id=admin_id,
                 action='edited',
@@ -742,6 +756,10 @@ def view_student_profile(student_id):
     student = User.query.get_or_404(student_id)
     swap_requests = SwapRequest.query.filter_by(user_id=student.id).all()
     warnings = Warning.query.filter_by(user_id=student.id).order_by(Warning.date_issued.desc()).all()
+
+    # Convert UTC to MYT for display
+    for s in swap_requests:
+        s.local_timestamp = to_myt(s.date)
     
     
     return render_template('admin_view_student.html', student=student, swap_requests=swap_requests, warnings=warnings )
@@ -777,7 +795,7 @@ def ban_student(student_id):
     student.is_banned = True
     student.ban_reason = ban_reason
 
-    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
     admin_id = session.get('admin_id')
     admin = Admin.query.get_or_404(admin_id)
     activity = AdminActivity(
@@ -815,7 +833,7 @@ def unban_student(student_id):
     student.is_banned = False
     student.ban_reason = None
 
-    timestamp = datetime.utcnow().strftime('%B  %d, %Y, %I:%M %p')
+    timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
     admin_id = session.get('admin_id')
     admin = Admin.query.get_or_404(admin_id)
     activity = AdminActivity(
@@ -1106,16 +1124,19 @@ def incoming_requests():
     block = current_user.block
     room = current_user.room
 
+    #GET query parameters
+    page= int(request.args.get('page', 1))
+    per_page = 50
+
+
     #query for incoming requests
     requests = (
         db.session.query(SwapRequest, User)
         .join(User, SwapRequest.user_id == User.id)
-        .filter(SwapRequest.desired_hostel == hostel,
-                SwapRequest.desired_block == block,
-                SwapRequest.desired_room == room,
+        .filter(SwapRequest.target_user_id == current_user.id,
                 SwapRequest.is_deleted == False,
                 User.is_deleted == False,
-                SwapRequest.status.in_(['pending_owner_approval', 'rejected'])
+                SwapRequest.status.in_(['pending_owner_approval', 'approved' ,'rejected'])
         )
         .order_by(SwapRequest.date.desc())
         .all()
@@ -1131,9 +1152,18 @@ def incoming_requests():
             'requested_date': swap_request.date,
             'status': swap_request.status
         })  
+    # Pagination
+    total_requests = len(requests_data)
+    total_pages = (total_requests + per_page - 1) // per_page
+    requests_data = requests_data[(page - 1) * per_page: page * per_page]
+
+    # Convert UTC to MYT for display
+    for req in requests_data:
+        req['local_timestamp'] = to_myt(req['requested_date'])
+
     
 
-    return render_template('incoming_requests.html', requests=requests_data, logged_in=is_logged_in())
+    return render_template('incoming_requests.html', requests=requests_data, logged_in=is_logged_in(),page=page, total_pages=total_pages)
 
 
 
@@ -1162,6 +1192,18 @@ def submit_request():
         print(f"Form data: desired_hostel={desired_hostel}, desired_block={desired_block}, desired_room={desired_room}")
         print(f"User data: id={user.id}, hostel={user.hostel}, block={user.block}, room={user.room}")
 
+        # Find the target user
+        target_user = User.query.filter_by(
+            hostel=desired_hostel,
+            block=desired_block,
+            room=desired_room,
+            is_deleted=False
+        ).first()
+        
+        if not target_user:
+            flash("The room you're requesting does not belong to any student.", "error")
+            return redirect(url_for('main.submit_request'))
+        
         # Create new swap request
         new_swap = SwapRequest(
             user_id=user.id,
@@ -1171,6 +1213,7 @@ def submit_request():
             desired_hostel=desired_hostel,
             desired_block=desired_block,
             desired_room=desired_room,
+            target_user_id=target_user.id,
             status="pending"
         )
 
@@ -1339,11 +1382,32 @@ def add_room_occupant():
         student.hostel = hostel
         student.block = block
         student.room = room
+
+        timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
+        admin_id = session.get('admin_id')
+        admin = Admin.query.get_or_404(admin_id)
+
+        activity = AdminActivity(
+            admin_id=admin_id,
+            action='edited',
+            entity_type='Room Occupant',
+            entity_id=student.id,
+            details=(f"{student.fullname} (ID: {student.student_id}) was added to {hostel}-{block}-{room} by {admin.username} on {timestamp}\n\n")
+        )
+        db.session.add(activity)
+        
+
         db.session.commit()
+        # Create notification for the student
+        create_notification(
+            user_id=student.id,
+            message=f"You have been assigned to {hostel}-{block}-{room} by an admin.",
+            notification_type='room_assignment'
+        )
         flash(f'Student {student.fullname} added to {hostel}-{block}-{room} successfully!', 'success')
     else:
         flash('Student not found', 'error')
-    return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room))
+    return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room,))
 
 @main.route('/admin/room/remove_occupant', methods=['POST'])
 def remove_room_occupant():
@@ -1362,8 +1426,24 @@ def remove_room_occupant():
         student.hostel = 'Unassigned'
         student.block = 'Unassigned'
         student.room = 'Unassigned'
+
+        timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
+        admin_id = session.get('admin_id')
+        admin = Admin.query.get_or_404(admin_id)
+        activity = AdminActivity(
+            admin_id=admin_id,
+            action='edited',
+            entity_type='Room Occupant',
+            entity_id=student.id,
+            details=(f"{student.fullname} (ID: {student.student_id}) was removed from {hostel}-{block}-{room} by {admin.username} on {timestamp}\n\n")
+        )
+        db.session.add(activity)
+
         db.session.commit()
         flash(f'{student.fullname} removed from {hostel}-{block}-{room} successfully!', 'success')
+    
+    #add to activity log
+    
     
     return redirect(url_for('main.edit_room_occupants', hostel=hostel, block=block, room=room))
 
@@ -2006,7 +2086,9 @@ def admin_activitylog():
     query = query.order_by(AdminActivity.timestamp.desc())
     activities = query.offset((page - 1) * per_page).limit(per_page).all()
     
-    # Fetch activity logs from the database
+    for a in activities:
+        a.local_timestamp = to_myt(a.timestamp)
+        
     
     return render_template('admin_activity.html', activities=activities, search=search, action=action, entity=entity,
                             from_date=from_date, to_date=to_date,page=page, total_pages=total_pages,  )
@@ -2033,7 +2115,7 @@ def restore_request_admin():
     swap.deleted_at = None
     swap.deleted_by_admin_id = None
 
-    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
     activity = AdminActivity(
         admin_id=admin_id,
         action='restored',
@@ -2074,7 +2156,7 @@ def restore_student_admin():
     student.deleted_at = None
     student.deleted_by_admin_id = None
 
-    timestamp = datetime.utcnow().strftime('%B %d, %Y, %I:%M %p')
+    timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
     activity = AdminActivity(
         admin_id=admin_id,
         action='restored',
