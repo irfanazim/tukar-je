@@ -36,7 +36,7 @@ def setup_user_session(user, remember=False):
 
 def send_email(subject, recipient, body):
     msg = Message(subject,
-                 sender=('Tukar-Je Support', current_app.config['MAIL_USERNAME']),
+                 sender=('Tukar-Je Support', current_app.config['MAIL_DEFAULT_SENDER']),
                  recipients=[recipient])
     msg.body = body
     mail.send(msg)
