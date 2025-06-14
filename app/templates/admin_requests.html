@@ -142,7 +142,7 @@
                             </div>
                         {% endif %}
                     </td>
-                    <td>{{ req.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ req.local_timestamp.strftime('%B %d, %Y, %I:%M %p') }}</td>
                     <td class="actions">
                         {% if req.status == 'pending' %}
                         <form method="POST" action="{{ url_for('main.approve_request') }}" >

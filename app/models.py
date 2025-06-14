@@ -64,6 +64,8 @@ class SwapRequest(db.Model):
     deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
     reason = db.Column(db.Text)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))
+    target_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    target_user = db.relationship('User', foreign_keys=[target_user_id])
     
     # Specify foreign keys explicitly for relationships
     admin = db.relationship('Admin', foreign_keys=[admin_id], backref='processed_swaps')

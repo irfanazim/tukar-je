@@ -72,10 +72,13 @@
                 <select id="action-filter" class="filter-select" name="action" onchange="document.getElementById('filter-form').submit()">
                     <option value="all" {% if action == 'all' %}selected{% endif %}>All</option>
                     <option value="deleted" {% if action == 'deleted' %}selected{% endif %}>Deleted</option>
-                    <option value="edited" {% if action == 'edited' %}selected{% endif %}>Updated</option>
                     <option value="restored" {% if action == 'restored' %}selected{% endif %}>Restored</option>
+                    <option value="edited" {% if action == 'edited' %}selected{% endif %}>Updated</option>
+                    <option value="approved" {% if action == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="rejected" {% if action == 'rejected' %}selected{% endif %}>Rejected</option>
                     <option value="banned" {% if action == 'banned' %}selected{% endif %}>Banned</option>
                     <option value="unbanned" {% if action == 'unbanned' %}selected{% endif %}>Unbanned</option>
+
                 </select>
                 </div>
                 <!--Entity Type Filter-->
@@ -86,6 +89,7 @@
                     <option value="all" {% if entity == 'all' %}selected{% endif %}>All</option>
                     <option value="Swap Request" {% if entity == 'Swap Request' %}selected{% endif %}>Swap Request</option>
                     <option value="Student" {% if entity == 'Student' %}selected{% endif %}>Student</option>
+                    <option value="Room Occupant" {% if entity == 'Room Occupant' %}selected{% endif %}>Room Occupant</option>
                 </select>
                 </div>
                 <!--Date Range-->
@@ -123,13 +127,17 @@
                             <span class="act-banned" style="color: #f0ad4e;">Banned</span> 
                             {% elif act.action == "unbanned" %}
                             <span class="act-unbanned" style="color: #5cb85c;">Unbanned</span>
+                            {% elif act.action == "approved" %}
+                            <span class="act-approved" style="color: #5cb85c;">Approved</span>
+                            {% elif act.action == "rejected" %}
+                            <span class="act-rejected" style="color: #d9534f;">Rejected</span>
                             {% else %}
-                            <span class="act-restored" style="color: #6ab58c;">Restored</span>
+                            <span class="act-restored" style="color: #5cb85c;">Restored</span>
                             {% endif %}
                         </td>
                         <td>{{ act.entity_type }}</td>
                         <td>{{ act.admin.username}}</td>
-                        <td>{{ act.timestamp.strftime('%B %d, %Y, %I:%M %p') }}</td>
+                        <td>{{ act.local_timestamp.strftime('%B %d, %Y, %I:%M %p') }}</td>
                         <td class="actions">
                             <button class="view-btn" onclick="toggleDetails('{{ act.id }}', this)">View</button>
                             {% if act.action == "deleted" %}
@@ -155,6 +163,8 @@
                                         <p style="white-space: pre-wrap;">{{ act.details }}</p>
                                     {% elif act.entity_type == 'Student' %}
                                         <p style="white-space: pre-wrap;">{{ act.details }} </p>
+                                    {% elif act.entity_type == 'Room Occupant' %}
+                                        <p style="white-space: pre-wrap;">{{ act.details }}</p>
                                     {% else %}
                                         <p>No Details Available.</p>
                                     {% endif %}   

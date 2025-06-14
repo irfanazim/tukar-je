@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
 
+/* Some global styles */
 * {
     margin: 0;
     padding: 0;
@@ -142,6 +143,7 @@ ul li a:hover{
     padding-left: 70px;
     
 }
+/* End of global styles */
 /* Notification Page css*/
 
 .icon-button{
@@ -319,6 +321,7 @@ ul li a:hover{
     font-style: italic;
     display: block;
 }
+/* End of Notification Page css */
 
 /*Dashboord Page css*/
 .title2 {
@@ -381,7 +384,7 @@ ul li a:hover{
 .status-content {
     margin-top: 20px;
 }
-
+/* End of Dashboard Page css */
 
 /*Register and Login Page css*/
 
@@ -392,6 +395,7 @@ ul li a:hover{
     min-height: 10vh;
     padding: 150px 20px 20px 20px;
     max-width: 800px;
+    width: 800px;
     margin: 0 auto;
 }
 
@@ -646,6 +650,7 @@ ul li a:hover{
     border-radius: 8px;
 }
 
+/* Recent Requests Table */
 
 .recent-request-content {
     background: white;
@@ -785,6 +790,7 @@ ul li a:hover{
     white-space: nowrap;
   }
   
+/* Shortcut Button */
 
 .shortcut {
     background-color: #1e3a8a;
@@ -836,7 +842,7 @@ ul li a:hover{
     padding: 12px 15px;
     text-align: center;
     border: none;                  
-    border-bottom: 1px solid #ccc; 
+    border-bottom: 1px solid #fff; 
 
 }
 
@@ -989,6 +995,18 @@ button:disabled {
     color: white;
     font-weight: bold;
   }
+  .admin-requests-body .flash {
+  position: absolute;  
+  top: 100px;            
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99;        
+  padding: 12px 50px;
+  border-radius: 5px;
+  max-width: 80%;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
 
 /* Above is the end of admin request table css */
 
@@ -1200,6 +1218,10 @@ min-height: 700px; }
     text-align: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
+
+
+/* Flash Messages */
+
 .edit-student-body .flash {
     background-color: #d4edda;
     color: #155724;
@@ -1226,6 +1248,8 @@ min-height: 700px; }
     border-radius: 5px;
     border: 1px solid #f5c6cb;
 }
+
+
 .form-container-request {
     position: relative; 
 }
@@ -1544,6 +1568,7 @@ min-height: 700px; }
     font-weight: 500;
 }
 
+/* End for Comment Report page */
 
 /* Dispute Report page */
 
@@ -1887,7 +1912,20 @@ margin-top: 20px;
     border-radius: 15px;
     border-color: #bbf7d0;
 }
+.act-approved{
+    background: #d9fce8;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border-color: #bbf7d0;
+}
+.act-rejected{
+    background: #fce9d9;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border-color: #fecaca;
+}
 /* End for Admin Activity Log page */
+
 /* Admins page */
 .admins-container {
     flex: 1;
@@ -1956,8 +1994,9 @@ margin-top: 20px;
     font-size: 35px;
 }
 
-/* End for Admins page */
+/* End for total Admins page */
 
+/* Current Location info in submit request page */
 .current-location {
     background: #f8f9fa;
     padding: 15px;
@@ -1977,6 +2016,9 @@ margin-top: 20px;
     font-weight: normal;
 }
 
+/* End of Current Location info in submit request page */
+
+/* Flash Messages */
 .alert {
     padding: 15px;
     margin: 20px;
@@ -2001,6 +2043,7 @@ margin-top: 20px;
     color: #856404;
     border: 1px solid #ffeeba;
 }
+/* End of Flash Messages */
 
 /* history and status */
 .actions {
@@ -2014,6 +2057,7 @@ margin-top: 20px;
     align-items: center;
 }
 
+/* Edit Request and Student Details Form */
 .form-container-request {
     max-width: 700px;
     margin: 120px 350px; 
@@ -2096,7 +2140,7 @@ margin-top: 20px;
 .locationn{
     margin-bottom:10px;
 }
-
+/* End of edit request and student details form */
 
 /* Hostel Map */
 
@@ -2122,6 +2166,7 @@ margin-top: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     position: relative;
 }
+/* End of Hostel Map */
 
 
 /* SVG map */
@@ -2161,6 +2206,7 @@ margin-top: 20px;
     display: none;
     z-index: 100;
 }
+/* End of SVG Map */
 
 
 /* Roommate */
@@ -2198,6 +2244,7 @@ margin-top: 20px;
     font-size: 1rem;
     line-height: 1.6;
 }
+/* End of Roommate Section */
 
 /* Filters Section */
 
@@ -2236,6 +2283,7 @@ margin-top: 20px;
 .filter-btn:hover {
     background: #023b7d;
 }
+/* End of Filters Section */
 
 /* Profiles Grid */
 .profiles-grid {
@@ -2301,6 +2349,7 @@ margin-top: 20px;
     gap: 12px;
 }
 
+/* End of Profile Card */
 
 /* Academic Info */
 .profile-academic {
@@ -2329,6 +2378,7 @@ margin-top: 20px;
     color:#ad241a;
     min-width: 80px;
 }
+/* End of Academic Info */
 
 /* About Section */
 .about-box {
@@ -2350,6 +2400,7 @@ margin-top: 20px;
     line-height: 1.5;
     white-space: pre-wrap;
 }
+/* End of About Section */
 
 /* Contact Section */
 .profile-contact {
@@ -2407,6 +2458,7 @@ margin-top: 20px;
     color: #000000;
     text-decoration: none;
 }
+/* End of Contact Section */
 
 /* Forum Section */
 
@@ -2488,6 +2540,7 @@ margin-top: 20px;
 .textarea-container button:hover {
   background-color: #d8d9da;
 }
+/* End of Forum Section */
 
 /* Styling for Modal (comments and profile) */
 .modal {
@@ -2605,6 +2658,7 @@ margin-top: 20px;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
 }
+/* End of Styling for Modal (comments and profile) */
 
 /* Room Info Edit Form */
 .form-container-editroom {
@@ -2662,3 +2716,4 @@ margin-top: 20px;
 .add-btn:hover {
     background-color: #023b7d;
 }
+/* End of room edit form */

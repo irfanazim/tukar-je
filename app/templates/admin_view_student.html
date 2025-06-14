@@ -119,7 +119,7 @@
                             </div>
                         {% endif %}
                     </td>
-                    <td>{{ req.date.strftime('%B %d, %Y, %I:%M %p') }}</td>
+                    <td>{{ req.local_timestamp.strftime('%B %d, %Y, %I:%M %p')}}</td>
                     
                 </tr>
                 {% else %}

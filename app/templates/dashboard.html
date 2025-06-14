@@ -75,7 +75,7 @@
             </div>
             <div class="dashboard-card" style="flex: 1; max-width: 400px;">
                 <h3>Hostel Map</h3>
-                <a href="{{ url_for('main.hostel_map') }}" class="card-btn">CHECKOUT</a>
+                <a href="{{ url_for('main.hostel_map') }}" class="card-btn">VIEW</a>
             </div>
         </div>
 
@@ -132,13 +132,9 @@
                                     </div>
                                     {% endif %}
                                 </td>
-                                <td>{{ req.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ req.local_timestamp.strftime('%B %d, %Y, %I:%M %p') }}</td>
                                 <td class="actions">
-                                    {% if req.status == "pending" %}
-                                    <a href="{{ url_for('main.edit_request', request_id=req.id) }}" class="action-btn edit-btn">
-                                        <span class="material-icons">edit</span>
-                                    </a>
-                                    {% endif %}
+                                    
                                     <a href="{{ url_for('main.delete_request', request_id=req.id) }}" class="action-btn delete-btn" 
                                        onclick="return confirm('Are you sure you want to delete this request?');">
                                        <span class="material-icons">delete</span>
