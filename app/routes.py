@@ -410,6 +410,23 @@ def approve_request():
         
         # Set status to pending_owner_approval and send final confirmation email
         swap.status = "pending_owner_approval"
+
+        timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
+        admin_id= session.get('admin_id')
+        admin = Admin.query.get_or_404(admin_id)
+        activity = AdminActivity(
+            admin_id=admin_id,
+            action='approved',
+            entity_type='Swap Request',
+            entity_id=swap.id,
+            details=(f"Swap request was approved by { admin.username } for {swap.user.fullname} (ID: {swap.user.student_id}) on {timestamp}\n\n"
+                     f"Current Hostel: {swap.current_hostel}  | Desired Hostel: {swap.desired_hostel}\n"
+                     f"Current Block:  {swap.current_block}  | Desired Block: {swap.desired_block}\n"
+                     f"Current Room:   {swap.current_room}  | Desired Room:  {swap.desired_room}\n"
+                     )
+        )
+        db.session.add(activity)
+
         db.session.commit()
         
         # Send final confirmation email to room owner
@@ -629,6 +646,23 @@ def reject_request():
     swap = SwapRequest.query.get(request_id)
     if swap:
         swap.status = "rejected"
+
+        timestamp = to_myt(datetime.utcnow()).strftime('%B %d, %Y, %I:%M %p')
+        admin_id = session.get('admin_id')
+        admin = Admin.query.get_or_404(admin_id)
+        activity = AdminActivity(
+            admin_id=admin_id,
+            action='rejected',
+            entity_type='Swap Request',
+            entity_id=swap.id,
+            details=(f"Swap request was rejected by { admin.username } for {swap.user.fullname} (ID: {swap.user.student_id}) on {timestamp}\n\n"
+                     f"Current Hostel: {swap.current_hostel}  | Desired Hostel: {swap.desired_hostel}\n"
+                     f"Current Block:  {swap.current_block}  | Desired Block: {swap.desired_block}\n"
+                     f"Current Room:   {swap.current_room}  | Desired Room:  {swap.desired_room}\n"
+                     
+                     )
+        )
+        db.session.add(activity)
         db.session.commit()
 
         user = User.query.get(swap.user_id)
