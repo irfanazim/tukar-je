@@ -62,6 +62,8 @@ class SwapRequest(db.Model):
     room_owner_token = db.Column(db.String(100), unique=True)
     room_owner_response = db.Column(db.String(20), default='pending')
     room_owner_response_at = db.Column(db.DateTime)
+    target_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    target_user = db.relationship('User', foreign_keys=[target_user_id])
     
     
     deleted_by_admin = db.relationship('Admin', backref=db.backref('deleted_swap_requests', lazy=True))

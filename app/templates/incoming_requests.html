@@ -70,7 +70,7 @@
                             <td>{{ req.requester_name }}</td>
                             <td>{{ req.requester_location }}</td>
                             <td>{{ req.my_location }}</td>
-                            <td>{{ req.requested_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ req.local_timestamp.strftime('%B %d, %Y, %I:%M %p')}}</td>
                             <td>
                                 {% if req.status == 'pending_owner_approval' %}
                                 <div class="status-cell">
@@ -80,8 +80,13 @@
                                 {% elif req.status == 'rejected' %}
                                 <div class="status-cell">
                                     <span class="material-icons status-icon dismissed">highlight_off</span>
-                                    <span class="status-label dismissed">Dismissed</span>
+                                    <span class="status-label dismissed">Rejected</span>
                                 </div>
+                                {% else %}
+                                 <div class="status-cell">
+                                    <span class="material-icons status-icon resolved">task_alt</span>
+                                    <span class="status-label resolved">Approved</span>
+                               </div>
                                 {% endif %}
                             </td>
                             <td class="actions">
@@ -95,6 +100,24 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+        <div class="pagination">
+            {% if page > 1 %}
+              <a href="{{ url_for('main.incoming_requests', page=page-1) }}">Previous</a>
+            {% endif %}
+          
+            {% for p in range(1, total_pages + 1) %}
+              {% if p == page %}
+                <span class="current">{{ p }}</span>
+              {% else %}
+                <a href="{{ url_for('main.incoming_requests', page=p) }}">{{ p }}</a>
+              {% endif %}
+            {% endfor %}
+          
+            {% if page < total_pages %}
+              <a href="{{ url_for('main.incoming_requests', page=page+1) }}">Next</a>
+            {% endif %}
+        </div>
 
 
             </div>
